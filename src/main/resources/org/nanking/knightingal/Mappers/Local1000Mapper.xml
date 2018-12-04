@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.nanking.knightingal.dao.Local1000Dao">
+    <select id="queryFlow1000SectionById" parameterType="int" resultType="org.nanking.knightingal.bean.Flow1000Section">
+        select
+            id as id,
+            name as name,
+            dir_name as dirName,
+            create_time as createTime,
+            cover as cover,
+            album as album
+        from flow1000section
+            where id = #{id}
+    </select>
+
+    <select id="queryFlow1000ImgBySectionId" parameterType="int" resultType="org.nanking.knightingal.bean.Flow1000Img">
+        select
+            id as id,
+            name as name,
+            section_id as sectionId,
+            in_cover as inCover,
+            width as width,
+            height as height
+        from flow1000img
+            where section_id = #{sectionId}
+    </select>
+</mapper>
