@@ -1,13 +1,11 @@
 package org.nanking.knightingal.bean;
 
-import java.sql.Date;
-
 public class PicIndex {
 
     public PicIndex() {
     }
 
-    public PicIndex(int index, String name, Date mtime) {
+    public PicIndex(int index, String name, String mtime) {
         this.index = index;
         this.name = name;
         this.mtime = mtime;
@@ -17,7 +15,7 @@ public class PicIndex {
 
     private String name;
 
-    private Date mtime;
+    private String mtime;
 
     public int getIndex() {
         return index;
@@ -35,11 +33,11 @@ public class PicIndex {
         this.name = name;
     }
 
-    public Date getMtime() {
+    public String getMtime() {
         return mtime;
     }
 
-    public void setMtime(Date mtime) {
+    public void setMtime(String mtime) {
         this.mtime = mtime;
     }
 }

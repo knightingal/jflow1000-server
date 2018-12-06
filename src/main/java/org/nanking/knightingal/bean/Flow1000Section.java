@@ -1,13 +1,11 @@
 package org.nanking.knightingal.bean;
 
-import java.sql.Date;
-
 public class Flow1000Section {
 
     public Flow1000Section() {
     }
 
-    public Flow1000Section(int id, String name, String dirName, Date createTime, String cover, String album) {
+    public Flow1000Section(int id, String name, String dirName, String createTime, String cover, String album) {
         this.id = id;
         this.name = name;
         this.dirName = dirName;
@@ -22,7 +20,7 @@ public class Flow1000Section {
 
     private String dirName;
 
-    private Date createTime;
+    private String createTime;
 
     private String cover;
 
@@ -52,11 +50,11 @@ public class Flow1000Section {
         this.dirName = dirName;
     }
 
-    public Date getCreateTime() {
+    public String getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 
