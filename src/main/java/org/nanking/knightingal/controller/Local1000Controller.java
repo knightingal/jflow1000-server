@@ -1,9 +1,6 @@
 package org.nanking.knightingal.controller;
 
-import org.nanking.knightingal.bean.Flow1000Img;
-import org.nanking.knightingal.bean.Flow1000Section;
-import org.nanking.knightingal.bean.ImgDetail;
-import org.nanking.knightingal.bean.SectionDetail;
+import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000Dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,5 +31,21 @@ public class Local1000Controller {
         }
 
         return new SectionDetail(flow1000Section.getDirName(), flow1000Section.getId(), imgDetailList);
+    }
+
+    @RequestMapping("/picIndexAjax")
+    public List<PicIndex> picIndexAjax(@RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp) {
+        List<Flow1000Section> flow1000SectionList = local1000Dao.queryFlow1000SectionByCreateTime(timeStamp);
+        List<PicIndex> picIndexList = new ArrayList<>();
+
+        for (Flow1000Section flow1000Section : flow1000SectionList) {
+            picIndexList.add(new PicIndex(
+                    flow1000Section.getId(),
+                    flow1000Section.getDirName(),
+                    flow1000Section.getCreateTime()
+            ));
+        }
+
+        return picIndexList;
     }
 }

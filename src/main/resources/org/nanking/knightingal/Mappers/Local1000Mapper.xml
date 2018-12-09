@@ -25,4 +25,16 @@
         from flow1000img
             where section_id = #{sectionId}
     </select>
+
+    <select id="queryFlow1000SectionByCreateTime" parameterType="String" resultType="org.nanking.knightingal.bean.Flow1000Section">
+        select
+            id as id,
+            name as name,
+            dir_name as dirName,
+            create_time as createTime,
+            cover as cover,
+            album as album
+        from flow1000section
+            where create_time > #{createTime}
+    </select>
 </mapper>
