@@ -3,9 +3,7 @@ package org.nanking.knightingal.controller;
 import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000Dao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,5 +45,10 @@ public class Local1000Controller {
         }
 
         return picIndexList;
+    }
+
+    @RequestMapping(value="/urls1000", method={RequestMethod.POST})
+    public void urls1000(@RequestBody Urls1000Body urls1000Body) {
+
     }
 }
