@@ -52,7 +52,6 @@ public class Local1000Controller {
         Flow1000Section flow1000Section = new Flow1000Section();
         flow1000Section.setName(urls1000Body.getTitle());
         flow1000Section.setDirName(urls1000Body.getTitle());
-        int id = local1000Dao.insertFlow1000Section(flow1000Section);
-        System.out.println(id);
+        local1000Dao.insertFlow1000Section(flow1000Section);
     }
 }
