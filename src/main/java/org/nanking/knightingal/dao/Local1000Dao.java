@@ -13,4 +13,6 @@ public interface Local1000Dao {
     List<Flow1000Img> queryFlow1000ImgBySectionId(int sectionId);
 
     List<Flow1000Section> queryFlow1000SectionByCreateTime(String timeStamp);
+
+    int insertFlow1000Section(Flow1000Section flow1000Section);
 }

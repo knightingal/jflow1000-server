@@ -37,4 +37,9 @@
         from flow1000section
             where create_time > #{createTime}
     </select>
+
+    <insert id="insertFlow1000Section" parameterType="org.nanking.knightingal.bean.Flow1000Section">
+        insert into flow1000section(name, dir_name, create_time, cover, album)
+        values (#{name}, #{dirName}, #{createTime}, #{cover}, #{album})
+    </insert>
 </mapper>

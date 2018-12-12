@@ -49,6 +49,10 @@ public class Local1000Controller {
 
     @RequestMapping(value="/urls1000", method={RequestMethod.POST})
     public void urls1000(@RequestBody Urls1000Body urls1000Body) {
-
+        Flow1000Section flow1000Section = new Flow1000Section();
+        flow1000Section.setName(urls1000Body.getTitle());
+        flow1000Section.setDirName(urls1000Body.getTitle());
+        int id = local1000Dao.insertFlow1000Section(flow1000Section);
+        System.out.println(id);
     }
 }
