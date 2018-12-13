@@ -32,7 +32,7 @@ public class Urls1000Body {
         this.imgSrcArray = imgSrcArray;
     }
 
-    private static class ImgSrcBean {
+    public static class ImgSrcBean {
         public ImgSrcBean() {
         }
 

@@ -44,4 +44,11 @@
         insert into flow1000section(name, dir_name, create_time, cover, album)
         values (#{name}, #{dirName}, #{createTime}, #{cover}, #{album})
     </insert>
+
+    <insert id="insertFlow1000Img" parameterType="org.nanking.knightingal.bean.Flow1000Img">
+        insert into flow1000img(name, section_id) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.name}, #{item.sectionId})
+        </foreach>
+    </insert>
 </mapper>

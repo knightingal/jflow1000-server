@@ -3,6 +3,7 @@ package org.nanking.knightingal.controller;
 import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000Dao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -48,10 +49,19 @@ public class Local1000Controller {
     }
 
     @RequestMapping(value="/urls1000", method={RequestMethod.POST})
+    @Transactional
     public void urls1000(@RequestBody Urls1000Body urls1000Body) {
         Flow1000Section flow1000Section = new Flow1000Section();
         flow1000Section.setName(urls1000Body.getTitle());
         flow1000Section.setDirName(urls1000Body.getTitle());
         local1000Dao.insertFlow1000Section(flow1000Section);
+        List<Flow1000Img> flow1000ImgList = new ArrayList<>();
+        for (Urls1000Body.ImgSrcBean imgSrcBean : urls1000Body.getImgSrcArray()) {
+            Flow1000Img flow1000Img = new Flow1000Img();
+            flow1000Img.setName(imgSrcBean.getSrc());
+            flow1000Img.setSectionId(flow1000Section.getId());
+            flow1000ImgList.add(flow1000Img);
+        }
+        local1000Dao.insertFlow1000Img(flow1000ImgList);
     }
 }
