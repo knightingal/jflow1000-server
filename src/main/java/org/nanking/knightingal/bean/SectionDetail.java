@@ -10,6 +10,11 @@ public class SectionDetail {
         this.pics = pics;
     }
 
+    public SectionDetail() {
+    }
+
+    private Integer id;
+
     private String dirName;
 
     private int picPage;
@@ -38,5 +43,13 @@ public class SectionDetail {
 
     public void setPics(List<ImgDetail> pics) {
         this.pics = pics;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

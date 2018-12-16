@@ -64,4 +64,14 @@ public class Local1000Controller {
         }
         local1000Dao.insertFlow1000Img(flow1000ImgList);
     }
+
+    @RequestMapping(value="/deleteSection", method={RequestMethod.POST})
+    @Transactional
+    public void deleteSection(@RequestBody SectionDetail sectionDetail) {
+        if (sectionDetail.getId() == null || sectionDetail.getId() <= 0) {
+            return;
+        }
+        local1000Dao.deleteFlow1000ImgBySectionId(sectionDetail.getId());
+        local1000Dao.deleteFlow1000SectionById(sectionDetail.getId());
+    }
 }

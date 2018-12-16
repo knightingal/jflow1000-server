@@ -51,4 +51,16 @@
             (#{item.name}, #{item.sectionId})
         </foreach>
     </insert>
+
+    <delete id="deleteFlow1000SectionById" parameterType="int">
+        delete
+        from flow1000section
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteFlow1000ImgBySectionId" parameterType="int">
+        delete
+        from flow1000img
+        where section_id = #{sectionId}
+    </delete>
 </mapper>
