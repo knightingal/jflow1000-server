@@ -1,10 +1,15 @@
 package org.nanking.knightingal;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.nanking.knightingal.util.FileUtil;
 import org.nanking.knightingal.util.TimeUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -23,6 +28,11 @@ public class Application {
     @Bean
     public DateFormat fmt() {
         return new SimpleDateFormat("YYYYMMddhhmmss");
+    }
+
+    @Bean
+    public FileUtil fileUtil() {
+        return new FileUtil();
     }
 
 }
