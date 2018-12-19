@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 @RequestMapping("/local1000")
 @RestController
@@ -21,6 +22,9 @@ public class Local1000Controller {
 
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private Executor threadPoolExecutor;
 
     @RequestMapping("/picDetailAjax")
     public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
@@ -81,6 +85,9 @@ public class Local1000Controller {
             flow1000ImgList.add(flow1000Img);
         }
         local1000Dao.insertFlow1000Img(flow1000ImgList);
+        for (Urls1000Body.ImgSrcBean imgSrcBean: urls1000Body.getImgSrcArray()) {
+
+        }
     }
 
     @RequestMapping(value="/deleteSection", method={RequestMethod.POST})

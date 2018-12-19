@@ -12,6 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @SpringBootApplication
 public class Application {
@@ -35,4 +37,8 @@ public class Application {
         return new FileUtil();
     }
 
+    @Bean
+    public Executor threadPoolExecutor() {
+        return Executors.newScheduledThreadPool(30);
+    }
 }
