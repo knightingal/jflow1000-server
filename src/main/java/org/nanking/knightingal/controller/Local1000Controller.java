@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -77,19 +78,22 @@ public class Local1000Controller {
 //        local1000Dao.insertFlow1000Section(flow1000Section);
         List<Flow1000Img> flow1000ImgList = new ArrayList<>();
         for (Urls1000Body.ImgSrcBean imgSrcBean : urls1000Body.getImgSrcArray()) {
+            String fileName = fileUtil.getFileNameByUrl(imgSrcBean.getSrc());
             Flow1000Img flow1000Img = new Flow1000Img();
-            flow1000Img.setName(
-                    fileUtil.getFileNameByUrl(imgSrcBean.getSrc())
-            );
+            flow1000Img.setName(fileName);
             flow1000Img.setInCover(
                     urls1000Body.getImgSrcArray().lastIndexOf(imgSrcBean) == 0 ? 1 : 0
             );
             flow1000Img.setSectionId(flow1000Section.getId());
             flow1000ImgList.add(flow1000Img);
         }
+        String absPath = "/home/knightingal/download/linux1000/source/" + dirName + "/";
+        File dirFile = new File(absPath);
+        dirFile.mkdirs();
 //        local1000Dao.insertFlow1000Img(flow1000ImgList);
         for (Urls1000Body.ImgSrcBean imgSrcBean: urls1000Body.getImgSrcArray()) {
-            threadPoolExecutor.execute(new DownloadImgRunnable(imgSrcBean, dirName));
+            String fileName = fileUtil.getFileNameByUrl(imgSrcBean.getSrc());
+            threadPoolExecutor.execute(new DownloadImgRunnable(imgSrcBean, dirName, fileName));
         }
     }
 
