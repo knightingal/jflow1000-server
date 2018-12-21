@@ -2,6 +2,7 @@ package org.nanking.knightingal.controller;
 
 import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000Dao;
+import org.nanking.knightingal.runnable.DownloadImgRunnable;
 import org.nanking.knightingal.util.FileUtil;
 import org.nanking.knightingal.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,17 +62,19 @@ public class Local1000Controller {
     @RequestMapping(value="/urls1000", method={RequestMethod.POST})
     @Transactional
     public void urls1000(@RequestBody Urls1000Body urls1000Body) {
+        System.out.println("handle urls1000, body=" + urls1000Body.toString());
         String timeStamp = ((TimeUtil) applicationContext.getBean("timeUtil")).timeStamp();
         FileUtil fileUtil = (FileUtil) applicationContext.getBean("fileUtil");
         Flow1000Section flow1000Section = new Flow1000Section();
         flow1000Section.setName(urls1000Body.getTitle());
-        flow1000Section.setDirName(timeStamp + urls1000Body.getTitle());
+        String dirName = timeStamp + urls1000Body.getTitle();
+        flow1000Section.setDirName(dirName);
         flow1000Section.setCreateTime(timeStamp);
         flow1000Section.setCover(
                 fileUtil.getFileNameByUrl(urls1000Body.getImgSrcArray().get(0).getSrc())
         );
         flow1000Section.setAlbum("flow1000");
-        local1000Dao.insertFlow1000Section(flow1000Section);
+//        local1000Dao.insertFlow1000Section(flow1000Section);
         List<Flow1000Img> flow1000ImgList = new ArrayList<>();
         for (Urls1000Body.ImgSrcBean imgSrcBean : urls1000Body.getImgSrcArray()) {
             Flow1000Img flow1000Img = new Flow1000Img();
@@ -84,9 +87,9 @@ public class Local1000Controller {
             flow1000Img.setSectionId(flow1000Section.getId());
             flow1000ImgList.add(flow1000Img);
         }
-        local1000Dao.insertFlow1000Img(flow1000ImgList);
+//        local1000Dao.insertFlow1000Img(flow1000ImgList);
         for (Urls1000Body.ImgSrcBean imgSrcBean: urls1000Body.getImgSrcArray()) {
-
+            threadPoolExecutor.execute(new DownloadImgRunnable(imgSrcBean, dirName));
         }
     }
 
