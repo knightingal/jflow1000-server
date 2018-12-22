@@ -66,16 +66,22 @@ public class Local1000Controller {
         System.out.println("handle urls1000, body=" + urls1000Body.toString());
         String timeStamp = ((TimeUtil) applicationContext.getBean("timeUtil")).timeStamp();
         FileUtil fileUtil = (FileUtil) applicationContext.getBean("fileUtil");
+        String dirName = timeStamp + urls1000Body.getTitle();
+        String absPath = "/home/knightingal/download/linux1000/source/" + dirName + "/";
+        File dirFile = new File(absPath);
+        if (!dirFile.mkdirs()) {
+            return;
+        }
+
         Flow1000Section flow1000Section = new Flow1000Section();
         flow1000Section.setName(urls1000Body.getTitle());
-        String dirName = timeStamp + urls1000Body.getTitle();
         flow1000Section.setDirName(dirName);
         flow1000Section.setCreateTime(timeStamp);
         flow1000Section.setCover(
                 fileUtil.getFileNameByUrl(urls1000Body.getImgSrcArray().get(0).getSrc())
         );
         flow1000Section.setAlbum("flow1000");
-//        local1000Dao.insertFlow1000Section(flow1000Section);
+        local1000Dao.insertFlow1000Section(flow1000Section);
         List<Flow1000Img> flow1000ImgList = new ArrayList<>();
         for (Urls1000Body.ImgSrcBean imgSrcBean : urls1000Body.getImgSrcArray()) {
             String fileName = fileUtil.getFileNameByUrl(imgSrcBean.getSrc());
@@ -87,10 +93,7 @@ public class Local1000Controller {
             flow1000Img.setSectionId(flow1000Section.getId());
             flow1000ImgList.add(flow1000Img);
         }
-        String absPath = "/home/knightingal/download/linux1000/source/" + dirName + "/";
-        File dirFile = new File(absPath);
-        dirFile.mkdirs();
-//        local1000Dao.insertFlow1000Img(flow1000ImgList);
+        local1000Dao.insertFlow1000Img(flow1000ImgList);
         for (Urls1000Body.ImgSrcBean imgSrcBean: urls1000Body.getImgSrcArray()) {
             String fileName = fileUtil.getFileNameByUrl(imgSrcBean.getSrc());
             threadPoolExecutor.execute(new DownloadImgRunnable(imgSrcBean, dirName, fileName));
