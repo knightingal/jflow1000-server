@@ -1,10 +1,12 @@
 package org.nanking.knightingal;
 
 import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.nanking.knightingal.util.EncryptUtil;
 import org.nanking.knightingal.util.FileUtil;
 import org.nanking.knightingal.util.TimeUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import java.io.File;
@@ -19,7 +21,8 @@ import java.util.concurrent.Executors;
 public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        ApplicationContext applicationContext = SpringApplication.run(Application.class, args);
+
     }
 
     @Bean
@@ -29,7 +32,7 @@ public class Application {
 
     @Bean
     public DateFormat fmt() {
-        return new SimpleDateFormat("YYYYMMddhhmmss");
+        return new SimpleDateFormat("YYYYMMddHHmmss");
     }
 
     @Bean
@@ -40,5 +43,10 @@ public class Application {
     @Bean
     public Executor threadPoolExecutor() {
         return Executors.newScheduledThreadPool(30);
+    }
+
+    @Bean
+    public EncryptUtil encryptUtil() {
+        return new EncryptUtil();
     }
 }

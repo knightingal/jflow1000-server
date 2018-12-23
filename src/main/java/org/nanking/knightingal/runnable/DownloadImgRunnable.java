@@ -4,11 +4,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.nanking.knightingal.bean.Urls1000Body;
+import org.nanking.knightingal.util.ApplicationContextProvider;
+import org.nanking.knightingal.util.EncryptUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class DownloadImgRunnable implements Runnable {
 
@@ -17,6 +18,8 @@ public class DownloadImgRunnable implements Runnable {
         this.dirName = dirName;
         this.fileName = fileName;
     }
+
+    private EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
 
     private final Urls1000Body.ImgSrcBean imgSrcBean;
 
@@ -57,13 +60,28 @@ public class DownloadImgRunnable implements Runnable {
             File dirFile = new File(absPath);
             dirFile.mkdirs();
             File file = new File(absPath + fileName);
-            Boolean createRet = file.createNewFile();
+            boolean createRet = file.createNewFile();
             if (!createRet) {
                 System.out.println("cannot create " + absPath);
                 return;
             }
             FileOutputStream fileOutputStream = new FileOutputStream(file);
             fileOutputStream.write(respBytes);
+            fileOutputStream.close();
+
+
+            byte[] encryptedBytes = encryptUtil.encrypt(respBytes);
+            absPath = "/home/knightingal/download/linux1000/encrypted/" + dirName + "/";
+            dirFile = new File(absPath);
+            dirFile.mkdirs();
+            file = new File(absPath + fileName + ".bin");
+            createRet = file.createNewFile();
+            if (!createRet) {
+                System.out.println("cannot create " + absPath);
+                return;
+            }
+            fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(encryptedBytes);
             fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
