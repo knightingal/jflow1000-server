@@ -3,31 +3,36 @@ package org.nanking.knightingal.runnable;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.nanking.knightingal.bean.Flow1000Img;
 import org.nanking.knightingal.bean.Urls1000Body;
+import org.nanking.knightingal.dao.Local1000Dao;
 import org.nanking.knightingal.util.ApplicationContextProvider;
 import org.nanking.knightingal.util.EncryptUtil;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class DownloadImgRunnable implements Runnable {
 
-    public DownloadImgRunnable(Urls1000Body.ImgSrcBean imgSrcBean, String dirName, String fileName) {
-        this.imgSrcBean = imgSrcBean;
-        this.dirName = dirName;
-        this.fileName = fileName;
-    }
 
     private EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
 
-    private final Urls1000Body.ImgSrcBean imgSrcBean;
+    private Local1000Dao local1000Dao = (Local1000Dao) ApplicationContextProvider.getBean("local1000Dao");
 
     private final String dirName;
 
-    private final String fileName;
+    private final Flow1000Img flow1000Img;
 
     OkHttpClient client = new OkHttpClient();
+
+    public DownloadImgRunnable(Flow1000Img flow1000Img, String dirName) {
+        this.dirName = dirName;
+        this.flow1000Img = flow1000Img;
+    }
 
     String run(String url) throws IOException {
         Request request = new Request.Builder()
@@ -40,16 +45,16 @@ public class DownloadImgRunnable implements Runnable {
 
     @Override
     public void run() {
+        String fileName = flow1000Img.getName();
 
-
-        System.out.println("start to download " + imgSrcBean.getSrc() + " to dirName " + dirName);
-        Request request = new Request.Builder().url(imgSrcBean.getSrc()).
+        System.out.println("start to download " + flow1000Img.getSrc() + " to dirName " + dirName);
+        Request request = new Request.Builder().url(flow1000Img.getSrc()).
                 addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36").
                 addHeader("Connection", "keep-alive").
                 addHeader("Accept", "image/webp,image/*,*/*;q=0.8").
                 addHeader("Accept-Encoding", "gzip,deflate,sdch").
                 addHeader("Accept-Language", "zh-CN,zh;q=0.8").
-                addHeader("Referer", imgSrcBean.getRef()).
+                addHeader("Referer", flow1000Img.getHref()).
                 addHeader("Pragma","no-cache").
                 addHeader("Cache-Control","no-cache").
                 build();
@@ -69,6 +74,10 @@ public class DownloadImgRunnable implements Runnable {
             fileOutputStream.write(respBytes);
             fileOutputStream.close();
 
+            BufferedImage sourceImg = ImageIO.read(new FileInputStream(file));
+            int width = sourceImg.getWidth();
+            int height = sourceImg.getHeight();
+            System.out.println("file name:" + fileName + " width:" + width + " height:" + height);
 
             byte[] encryptedBytes = encryptUtil.encrypt(respBytes);
             absPath = "/home/knightingal/download/linux1000/encrypted/" + dirName + "/";
@@ -83,11 +92,14 @@ public class DownloadImgRunnable implements Runnable {
             fileOutputStream = new FileOutputStream(file);
             fileOutputStream.write(encryptedBytes);
             fileOutputStream.close();
+            this.flow1000Img.setWidth(width);
+            this.flow1000Img.setHeight(height);
+            local1000Dao.updateFlow1000Img(this.flow1000Img);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
 
-        System.out.println(imgSrcBean.getSrc() + " download end");
+        System.out.println(flow1000Img.getSrc() + " download end");
     }
 }

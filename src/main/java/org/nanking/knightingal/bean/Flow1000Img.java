@@ -26,6 +26,10 @@ public class Flow1000Img {
 
     private int height;
 
+    private String src;
+
+    private String href;
+
     public int getId() {
         return id;
     }
@@ -72,5 +76,21 @@ public class Flow1000Img {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public String getSrc() {
+        return src;
+    }
+
+    public void setSrc(String src) {
+        this.src = src;
+    }
+
+    public String getHref() {
+        return href;
+    }
+
+    public void setHref(String href) {
+        this.href = href;
     }
 }

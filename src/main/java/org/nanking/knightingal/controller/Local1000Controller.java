@@ -91,12 +91,13 @@ public class Local1000Controller {
                     urls1000Body.getImgSrcArray().lastIndexOf(imgSrcBean) == 0 ? 1 : 0
             );
             flow1000Img.setSectionId(flow1000Section.getId());
+            flow1000Img.setSrc(imgSrcBean.getSrc());
+            flow1000Img.setHref(imgSrcBean.getRef());
             flow1000ImgList.add(flow1000Img);
         }
         local1000Dao.insertFlow1000Img(flow1000ImgList);
-        for (Urls1000Body.ImgSrcBean imgSrcBean: urls1000Body.getImgSrcArray()) {
-            String fileName = fileUtil.getFileNameByUrl(imgSrcBean.getSrc());
-            threadPoolExecutor.execute(new DownloadImgRunnable(imgSrcBean, dirName, fileName));
+        for (Flow1000Img flow1000Img : flow1000ImgList) {
+            threadPoolExecutor.execute(new DownloadImgRunnable(flow1000Img, dirName));
         }
     }
 
