@@ -18,6 +18,8 @@ public interface Local1000Dao {
 
     void insertFlow1000Img(List<Flow1000Img> flow1000ImgList);
 
+    void updateFlow1000Img(Flow1000Img flow1000Img);
+
     void deleteFlow1000SectionById(int id);
 
     void deleteFlow1000ImgBySectionId(int sectionId);

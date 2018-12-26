@@ -1,5 +1,8 @@
 package org.nanking.knightingal.bean;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.List;
 
 public class Urls1000Body {
@@ -26,6 +29,16 @@ public class Urls1000Body {
 
     public List<ImgSrcBean> getImgSrcArray() {
         return imgSrcArray;
+    }
+
+    @Override
+    public String toString() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "";
+        }
     }
 
     public void setImgSrcArray(List<ImgSrcBean> imgSrcArray) {

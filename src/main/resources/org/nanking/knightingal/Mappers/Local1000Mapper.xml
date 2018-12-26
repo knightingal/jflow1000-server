@@ -45,12 +45,21 @@
         values (#{name}, #{dirName}, #{createTime}, #{cover}, #{album})
     </insert>
 
-    <insert id="insertFlow1000Img" parameterType="org.nanking.knightingal.bean.Flow1000Img">
+    <insert id="insertFlow1000Img" parameterType="org.nanking.knightingal.bean.Flow1000Img"
+            useGeneratedKeys="true"
+            keyProperty="id">
         insert into flow1000img(name, section_id, in_cover) values
         <foreach collection="list" item="item" separator=",">
             (#{item.name}, #{item.sectionId}, #{item.inCover})
         </foreach>
     </insert>
+
+    <update id="updateFlow1000Img" parameterType="org.nanking.knightingal.bean.Flow1000Img">
+        update flow1000img set
+        width = #{width},
+        height = #{height}
+        where id = #{id}
+    </update>
 
     <delete id="deleteFlow1000SectionById" parameterType="int">
         delete
