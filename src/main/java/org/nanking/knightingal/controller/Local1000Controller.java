@@ -1,5 +1,7 @@
 package org.nanking.knightingal.controller;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000Dao;
 import org.nanking.knightingal.runnable.DownloadImgRunnable;
@@ -19,6 +21,8 @@ import java.util.concurrent.Executor;
 @RestController
 public class Local1000Controller {
 
+    private static final Log log = LogFactory.getLog(Local1000Controller.class);
+
     @Autowired
     private Local1000Dao local1000Dao;
 
@@ -30,6 +34,7 @@ public class Local1000Controller {
 
     @RequestMapping("/picDetailAjax")
     public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
+        log.info("handle /picDetailAjax, id=" + id);
         Flow1000Section flow1000Section = local1000Dao.queryFlow1000SectionById(id);
         List<Flow1000Img> flow1000ImgList = local1000Dao.queryFlow1000ImgBySectionId(id);
         List<ImgDetail> imgDetailList = new ArrayList<>();
@@ -46,6 +51,7 @@ public class Local1000Controller {
 
     @RequestMapping("/picIndexAjax")
     public List<PicIndex> picIndexAjax(@RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp) {
+        log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
         List<Flow1000Section> flow1000SectionList = local1000Dao.queryFlow1000SectionByCreateTime(timeStamp);
         List<PicIndex> picIndexList = new ArrayList<>();
 
@@ -63,7 +69,7 @@ public class Local1000Controller {
     @RequestMapping(value="/urls1000", method={RequestMethod.POST})
     @Transactional
     public void urls1000(@RequestBody Urls1000Body urls1000Body) {
-        System.out.println("handle urls1000, body=" + urls1000Body.toString());
+        log.info("handle /urls1000, body=" + urls1000Body.toString());
         String timeStamp = ((TimeUtil) applicationContext.getBean("timeUtil")).timeStamp();
         FileUtil fileUtil = (FileUtil) applicationContext.getBean("fileUtil");
         String dirName = timeStamp + urls1000Body.getTitle();
@@ -104,6 +110,7 @@ public class Local1000Controller {
     @RequestMapping(value="/deleteSection", method={RequestMethod.POST})
     @Transactional
     public void deleteSection(@RequestBody SectionDetail sectionDetail) {
+        log.info("handle /deleteSection, sectionDetail=" + sectionDetail.toString());
         if (sectionDetail.getId() == null || sectionDetail.getId() <= 0) {
             return;
         }
