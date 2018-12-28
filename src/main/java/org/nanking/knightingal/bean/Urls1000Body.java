@@ -33,12 +33,10 @@ public class Urls1000Body {
 
     @Override
     public String toString() {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            return "";
-        }
+        return "Urls1000Body{" +
+                "title='" + title + '\'' +
+                ", imgSrcArray=" + imgSrcArray +
+                '}';
     }
 
     public void setImgSrcArray(List<ImgSrcBean> imgSrcArray) {
@@ -72,6 +70,14 @@ public class Urls1000Body {
 
         public void setRef(String ref) {
             this.ref = ref;
+        }
+
+        @Override
+        public String toString() {
+            return "ImgSrcBean{" +
+                    "src='" + src + '\'' +
+                    ", ref='" + ref + '\'' +
+                    '}';
         }
     }
 }

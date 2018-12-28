@@ -52,4 +52,14 @@ public class SectionDetail {
     public void setId(Integer id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "SectionDetail{" +
+                "id=" + id +
+                ", dirName='" + dirName + '\'' +
+                ", picPage=" + picPage +
+                ", pics=" + pics +
+                '}';
+    }
 }
