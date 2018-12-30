@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 @RequestMapping("/local1000")
@@ -30,7 +31,10 @@ public class Local1000Controller {
     private ApplicationContext applicationContext;
 
     @Autowired
-    private Executor threadPoolExecutor;
+    private Executor downloadImgThreadPoolExecutor;
+
+    @Autowired
+    private Executor downloadSectionThreadPoolExecutor;
 
     @RequestMapping("/picDetailAjax")
     public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
@@ -102,9 +106,25 @@ public class Local1000Controller {
             flow1000ImgList.add(flow1000Img);
         }
         local1000Dao.insertFlow1000Img(flow1000ImgList);
-        for (Flow1000Img flow1000Img : flow1000ImgList) {
-            threadPoolExecutor.execute(new DownloadImgRunnable(flow1000Img, dirName));
-        }
+        downloadSectionThreadPoolExecutor.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                CountDownLatch countDownLatch = new CountDownLatch(flow1000ImgList.size());
+
+                for (Flow1000Img flow1000Img : flow1000ImgList) {
+                    downloadImgThreadPoolExecutor.execute(new DownloadImgRunnable(flow1000Img, dirName, countDownLatch));
+                }
+                try {
+                    countDownLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                log.info(flow1000Section.getDirName() + " download complete");
+            }
+
+
+        });
     }
 
     @RequestMapping(value="/deleteSection", method={RequestMethod.POST})

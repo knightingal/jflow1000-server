@@ -41,8 +41,13 @@ public class Application {
     }
 
     @Bean
-    public Executor threadPoolExecutor() {
+    public Executor downloadImgThreadPoolExecutor() {
         return Executors.newScheduledThreadPool(30);
+    }
+
+    @Bean
+    public Executor downloadSectionThreadPoolExecutor() {
+        return Executors.newScheduledThreadPool(3);
     }
 
     @Bean

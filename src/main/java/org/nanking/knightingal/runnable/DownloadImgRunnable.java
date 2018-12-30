@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 public class DownloadImgRunnable implements Runnable {
 
@@ -27,11 +28,14 @@ public class DownloadImgRunnable implements Runnable {
 
     private final Flow1000Img flow1000Img;
 
+    private final CountDownLatch countDownLatch;
+
     OkHttpClient client = new OkHttpClient();
 
-    public DownloadImgRunnable(Flow1000Img flow1000Img, String dirName) {
+    public DownloadImgRunnable(Flow1000Img flow1000Img, String dirName, CountDownLatch countDownLatch) {
         this.dirName = dirName;
         this.flow1000Img = flow1000Img;
+        this.countDownLatch = countDownLatch;
     }
 
     String run(String url) throws IOException {
@@ -101,5 +105,6 @@ public class DownloadImgRunnable implements Runnable {
 
 
         System.out.println(flow1000Img.getSrc() + " download end");
+        countDownLatch.countDown();
     }
 }
