@@ -53,6 +53,19 @@ public class Local1000Controller {
         return new SectionDetail(flow1000Section.getDirName(), flow1000Section.getId(), imgDetailList);
     }
 
+    @RequestMapping("/picContentAjax")
+    public SectionContent picContentAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
+        log.info("handle /picDetailAjax, id=" + id);
+        Flow1000Section flow1000Section = local1000Dao.queryFlow1000SectionById(id);
+        List<Flow1000Img> flow1000ImgList = local1000Dao.queryFlow1000ImgBySectionId(id);
+        List<String> imgList = new ArrayList<>();
+        for (Flow1000Img flow1000Img : flow1000ImgList) {
+            imgList.add(flow1000Img.getName());
+        }
+
+        return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId(), imgList);
+    }
+
     @RequestMapping("/picIndexAjax")
     public List<PicIndex> picIndexAjax(@RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp) {
         log.info("handle /picIndexAjax, timeStamp=" + timeStamp);

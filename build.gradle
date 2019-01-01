@@ -14,10 +14,6 @@ apply plugin: 'io.spring.dependency-management'
 group 'org.nanking.knightingal'
 version '1.0-SNAPSHOT'
 
-bootJar {
-    baseName = 'gs-spring-boot'
-    version =  '0.1.0'
-}
 repositories {
     mavenCentral()
 }
