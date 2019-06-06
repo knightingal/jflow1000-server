@@ -83,6 +83,25 @@ public class Local1000Controller {
         return picIndexList;
     }
 
+    @RequestMapping("/picIndexAjaxByPage")
+    public PicIndexPage picIndexAjaxByPage(
+            @RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp
+    ) {
+        log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
+        List<Flow1000Section> flow1000SectionList = local1000Dao.queryFlow1000SectionByCreateTime(timeStamp);
+        List<PicIndex> picIndexList = new ArrayList<>();
+
+        for (Flow1000Section flow1000Section : flow1000SectionList) {
+            picIndexList.add(new PicIndex(
+                    flow1000Section.getId(),
+                    flow1000Section.getDirName(),
+                    flow1000Section.getCreateTime()
+            ));
+        }
+
+        return new PicIndexPage(picIndexList.subList(0, 10), picIndexList.size());
+    }
+
     @RequestMapping(value="/urls1000", method={RequestMethod.POST})
     @Transactional
     public void urls1000(@RequestBody Urls1000Body urls1000Body) {
