@@ -22,6 +22,7 @@ public class DownloadImgRunnable implements Runnable {
 
     private static final Log log = LogFactory.getLog(DownloadImgRunnable.class);
 
+    private static final String BASE_DIR = "C:\\Users\\Knightingal\\linux1000";
     private final static EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
 
     private final static Local1000Dao local1000Dao = (Local1000Dao) ApplicationContextProvider.getBean("local1000Dao");
@@ -68,7 +69,7 @@ public class DownloadImgRunnable implements Runnable {
         try {
             Response response = client.newCall(request).execute();
             byte[] respBytes = response.body().bytes();
-            String absPath = "/home/knightingal/download/linux1000/source/" + dirName + "/";
+            String absPath = BASE_DIR + "\\source\\" + dirName + "\\";
             File dirFile = new File(absPath);
             dirFile.mkdirs();
             File file = new File(absPath + fileName);
@@ -87,7 +88,8 @@ public class DownloadImgRunnable implements Runnable {
             log.info("file name:" + fileName + " width:" + width + " height:" + height);
 
             byte[] encryptedBytes = encryptUtil.encrypt(respBytes);
-            absPath = "/home/knightingal/download/linux1000/encrypted/" + dirName + "/";
+            absPath = BASE_DIR + "\\encrypted\\" + dirName + "\\";
+
             dirFile = new File(absPath);
             dirFile.mkdirs();
             file = new File(absPath + fileName + ".bin");
