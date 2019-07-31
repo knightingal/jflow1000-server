@@ -51,3 +51,6 @@ start.sh
 .classpath
 .project
 .settings/
+target/
+application.properties
+application.properties.bak
