@@ -38,6 +38,25 @@
             where create_time > #{createTime}
     </select>
 
+    <select id="queryFlow1000Section" parameterType="org.nanking.knightingal.bean.Flow1000Section" resultType="org.nanking.knightingal.bean.Flow1000Section">
+        select
+            id as id,
+            name as name,
+            dir_name as dirName,
+            create_time as createTime,
+            cover as cover,
+            album as album
+        from flow1000section
+        <where>
+            <if test="createTime != null">
+                create_time > #{createTime}
+            </if>
+            <if test="album != null">
+                and album = #{album}
+            </if>
+        </where>
+    </select>
+
     <insert id="insertFlow1000Section" parameterType="org.nanking.knightingal.bean.Flow1000Section"
             useGeneratedKeys="true"
             keyProperty="id">
