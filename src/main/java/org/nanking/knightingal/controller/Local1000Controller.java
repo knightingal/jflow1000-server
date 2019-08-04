@@ -67,9 +67,17 @@ public class Local1000Controller {
     }
 
     @RequestMapping("/picIndexAjax")
-    public List<PicIndex> picIndexAjax(@RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp) {
+    public List<PicIndex> picIndexAjax(
+            @RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp,
+            @RequestParam(value="album", defaultValue="")String album
+    ) {
         log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
-        List<Flow1000Section> flow1000SectionList = local1000Dao.queryFlow1000SectionByCreateTime(timeStamp);
+        Flow1000Section condition = new Flow1000Section();
+        if (album != null && album.length() != 0) {
+            condition.setAlbum(album);
+        }
+        condition.setCreateTime(timeStamp);
+        List<Flow1000Section> flow1000SectionList = local1000Dao.queryFlow1000Section(condition);
         List<PicIndex> picIndexList = new ArrayList<>();
 
         for (Flow1000Section flow1000Section : flow1000SectionList) {

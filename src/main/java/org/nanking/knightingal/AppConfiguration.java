@@ -22,7 +22,7 @@ public class AppConfiguration {
 
     @Bean
     public DateFormat fmt() {
-        return new SimpleDateFormat("YYYYMMddHHmmss");
+        return new SimpleDateFormat("yyyyMMddHHmmss");
     }
 
     @Bean
