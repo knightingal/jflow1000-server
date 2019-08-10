@@ -1,10 +1,12 @@
 package org.nanking.knightingal.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000Dao;
 import org.nanking.knightingal.runnable.DownloadImgRunnable;
+import org.nanking.knightingal.service.WsMsgService;
 import org.nanking.knightingal.util.FileUtil;
 import org.nanking.knightingal.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+
 
 @RequestMapping("/local1000")
 @RestController
@@ -35,6 +38,9 @@ public class Local1000Controller {
 
     @Autowired
     private Executor downloadSectionThreadPoolExecutor;
+
+    @Autowired
+    private WsMsgService wsMsgService;
 
     @RequestMapping("/picDetailAjax")
     public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
@@ -161,9 +167,18 @@ public class Local1000Controller {
                     e.printStackTrace();
                 }
                 log.info(flow1000Section.getDirName() + " download complete");
+                PicIndex picIndex = new PicIndex(
+                        flow1000Section.getId(),
+                        flow1000Section.getDirName(),
+                        flow1000Section.getCreateTime()
+                );
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    wsMsgService.sendWsMsg(mapper.writeValueAsString(picIndex));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-
-
         });
     }
 
