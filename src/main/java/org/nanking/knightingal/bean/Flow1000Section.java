@@ -5,15 +5,6 @@ public class Flow1000Section {
     public Flow1000Section() {
     }
 
-    public Flow1000Section(int id, String name, String dirName, String createTime, String cover, String album) {
-        this.id = id;
-        this.name = name;
-        this.dirName = dirName;
-        this.createTime = createTime;
-        this.cover = cover;
-        this.album = album;
-    }
-
     private int id;
 
     private String name;
@@ -25,6 +16,10 @@ public class Flow1000Section {
     private String cover;
 
     private String album;
+
+    private int coverWidth;
+
+    private int coverHeight;
 
     public int getId() {
         return id;
@@ -72,5 +67,21 @@ public class Flow1000Section {
 
     public void setAlbum(String album) {
         this.album = album;
+    }
+
+    public int getCoverWidth() {
+        return coverWidth;
+    }
+
+    public void setCoverWidth(int coverWidth) {
+        this.coverWidth = coverWidth;
+    }
+
+    public int getCoverHeight() {
+        return coverHeight;
+    }
+
+    public void setCoverHeight(int coverHeight) {
+        this.coverHeight = coverHeight;
     }
 }

@@ -38,21 +38,26 @@
             where create_time > #{createTime}
     </select>
 
-    <select id="queryFlow1000Section" parameterType="org.nanking.knightingal.bean.Flow1000Section" resultType="org.nanking.knightingal.bean.Flow1000Section">
+    <select id="queryFlow1000Section"
+            parameterType="org.nanking.knightingal.bean.Flow1000Section"
+            resultType="org.nanking.knightingal.bean.Flow1000Section">
         select
-            id as id,
-            name as name,
-            dir_name as dirName,
-            create_time as createTime,
-            cover as cover,
-            album as album
-        from flow1000section
+            s.id as id,
+            s.name as name,
+            s.dir_name as dirName,
+            s.create_time as createTime,
+            s.cover as cover,
+            i.width as coverWidth,
+            i.height as coverHeight,
+            s.album as album
+        from flow1000section s, flow1000img i
         <where>
+            i.section_id = s.id and i.in_cover = 1
             <if test="createTime != null">
-                create_time > #{createTime}
+                and s.create_time > #{createTime}
             </if>
             <if test="album != null">
-                and album = #{album}
+                and s.album = #{album}
             </if>
         </where>
     </select>

@@ -10,6 +10,7 @@ import org.nanking.knightingal.service.WsMsgService;
 import org.nanking.knightingal.util.FileUtil;
 import org.nanking.knightingal.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +42,9 @@ public class Local1000Controller {
 
     @Autowired
     private WsMsgService wsMsgService;
+
+    @Value("${baseDir}")
+    private String baseDir;
 
     @RequestMapping("/picDetailAjax")
     public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
@@ -90,7 +94,10 @@ public class Local1000Controller {
             picIndexList.add(new PicIndex(
                     flow1000Section.getId(),
                     flow1000Section.getDirName(),
-                    flow1000Section.getCreateTime()
+                    flow1000Section.getCreateTime(),
+                    flow1000Section.getCover(),
+                    flow1000Section.getCoverWidth(),
+                    flow1000Section.getCoverHeight()
             ));
         }
 
@@ -109,7 +116,10 @@ public class Local1000Controller {
             picIndexList.add(new PicIndex(
                     flow1000Section.getId(),
                     flow1000Section.getDirName(),
-                    flow1000Section.getCreateTime()
+                    flow1000Section.getCreateTime(),
+                    flow1000Section.getCover(),
+                    flow1000Section.getCoverWidth(),
+                    flow1000Section.getCoverHeight()
             ));
         }
 
@@ -159,7 +169,9 @@ public class Local1000Controller {
                 CountDownLatch countDownLatch = new CountDownLatch(flow1000ImgList.size());
 
                 for (Flow1000Img flow1000Img : flow1000ImgList) {
-                    downloadImgThreadPoolExecutor.execute(new DownloadImgRunnable(flow1000Img, dirName, countDownLatch));
+                    downloadImgThreadPoolExecutor.execute(new DownloadImgRunnable(
+                            flow1000Img, dirName, countDownLatch, baseDir
+                    ));
                 }
                 try {
                     countDownLatch.await();
@@ -170,7 +182,10 @@ public class Local1000Controller {
                 PicIndex picIndex = new PicIndex(
                         flow1000Section.getId(),
                         flow1000Section.getDirName(),
-                        flow1000Section.getCreateTime()
+                        flow1000Section.getCreateTime(),
+                        flow1000Section.getCover(),
+                        flow1000Section.getCoverWidth(),
+                        flow1000Section.getCoverHeight()
                 );
                 ObjectMapper mapper = new ObjectMapper();
                 try {
