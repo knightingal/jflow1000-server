@@ -47,14 +47,6 @@ public class DownloadImgRunnable implements Runnable {
         this.baseDir = baseDir;
     }
 
-    String run(String url) throws IOException {
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        Response response = CLIENT.newCall(request).execute();
-        return response.body().string();
-    }
 
     @Override
     public void run() {

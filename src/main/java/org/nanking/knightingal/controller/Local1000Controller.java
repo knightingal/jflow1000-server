@@ -130,7 +130,6 @@ public class Local1000Controller {
     }
 
     @RequestMapping(value="/urls1000", method={RequestMethod.POST})
-    @Transactional
     public void urls1000(@RequestBody Urls1000Body urls1000Body) {
         log.info("handle /urls1000, body=" + urls1000Body.toString());
         String timeStamp = ((TimeUtil) applicationContext.getBean("timeUtil")).timeStamp();
@@ -165,43 +164,38 @@ public class Local1000Controller {
             flow1000ImgList.add(flow1000Img);
         }
         local1000Dao.insertFlow1000Img(flow1000ImgList);
-        downloadSectionThreadPoolExecutor.execute(new Runnable() {
+        downloadSectionThreadPoolExecutor.execute(() -> {
+            CountDownLatch countDownLatch = new CountDownLatch(flow1000ImgList.size());
 
-            @Override
-            public void run() {
-                CountDownLatch countDownLatch = new CountDownLatch(flow1000ImgList.size());
-
-                for (Flow1000Img flow1000Img : flow1000ImgList) {
-                    downloadImgThreadPoolExecutor.execute(new DownloadImgRunnable(
-                            flow1000Img, dirName, countDownLatch, baseDir
-                    ));
-                }
-                try {
-                    countDownLatch.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                log.info(flow1000Section.getDirName() + " download complete");
-                PicIndex picIndex = new PicIndex(
-                        flow1000Section.getId(),
-                        flow1000Section.getDirName(),
-                        flow1000Section.getCreateTime(),
-                        flow1000Section.getCover(),
-                        flow1000Section.getCoverWidth(),
-                        flow1000Section.getCoverHeight()
-                );
-                ObjectMapper mapper = new ObjectMapper();
-                try {
-                    wsMsgService.sendWsMsg(mapper.writeValueAsString(picIndex));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            for (Flow1000Img flow1000Img : flow1000ImgList) {
+                downloadImgThreadPoolExecutor.execute(new DownloadImgRunnable(
+                        flow1000Img, dirName, countDownLatch, baseDir
+                ));
+            }
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            log.info(flow1000Section.getDirName() + " download complete");
+            PicIndex picIndex = new PicIndex(
+                    flow1000Section.getId(),
+                    flow1000Section.getDirName(),
+                    flow1000Section.getCreateTime(),
+                    flow1000Section.getCover(),
+                    flow1000Section.getCoverWidth(),
+                    flow1000Section.getCoverHeight()
+            );
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                wsMsgService.sendWsMsg(mapper.writeValueAsString(picIndex));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
 
     @RequestMapping(value="/deleteSection", method={RequestMethod.POST})
-    @Transactional
     public void deleteSection(@RequestBody SectionDetail sectionDetail) {
         log.info("handle /deleteSection, sectionDetail=" + sectionDetail.toString());
         if (sectionDetail.getId() == null || sectionDetail.getId() <= 0) {

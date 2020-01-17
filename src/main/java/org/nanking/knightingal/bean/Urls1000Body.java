@@ -13,11 +13,6 @@ public class Urls1000Body {
     public Urls1000Body() {
     }
 
-    public Urls1000Body(String title, List<ImgSrcBean> imgSrcArray) {
-        this.title = title;
-        this.imgSrcArray = imgSrcArray;
-    }
-
     private String title;
 
     private List<ImgSrcBean> imgSrcArray;
