@@ -13,6 +13,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 @Configuration
 public class AppConfiguration {
     @Bean
@@ -47,6 +49,6 @@ public class AppConfiguration {
 
     @Bean("client")
     public OkHttpClient okHttpclient() {
-        return new OkHttpClient();
+        return new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build();
     }
 }
