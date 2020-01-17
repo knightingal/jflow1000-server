@@ -2,6 +2,9 @@ package org.nanking.knightingal.bean;
 
 import java.util.List;
 
+/**
+ * @author Knightingal
+ */
 public class SectionContent {
 
     public SectionContent(String dirName, int picPage, List<String> pics) {

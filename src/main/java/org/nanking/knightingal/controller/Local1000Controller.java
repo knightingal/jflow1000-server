@@ -22,6 +22,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 
+/**
+ * @author Knightingal
+ */
 @RequestMapping("/local1000")
 @RestController
 public class Local1000Controller {

@@ -11,8 +11,11 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-public class KWebSocketHandler extends TextWebSocketHandler {
-    private static final Log log = LogFactory.getLog(KWebSocketHandler.class);
+/**
+ * @author Knightingal
+ */
+public class Flow1000WebSocketHandler extends TextWebSocketHandler {
+    private static final Log log = LogFactory.getLog(Flow1000WebSocketHandler.class);
 
     @Autowired
     WsMsgService wsMsgService;

@@ -15,6 +15,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author Knightingal
+ */
 @Configuration
 public class AppConfiguration {
     @Bean

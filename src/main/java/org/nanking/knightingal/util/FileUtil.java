@@ -4,6 +4,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * @author Knightingal
+ */
 public class FileUtil {
 
     public String getFileNameByUrl(String urlString) {

@@ -2,6 +2,9 @@ package org.nanking.knightingal.bean;
 
 import java.util.List;
 
+/**
+ * @author Knightingal
+ */
 public class PicIndexPage {
 
     public PicIndexPage(List<PicIndex> rows, int total) {

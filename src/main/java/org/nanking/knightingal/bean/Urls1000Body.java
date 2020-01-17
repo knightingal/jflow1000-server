@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
+/**
+ * @author Knightingal
+ */
 public class Urls1000Body {
 
     public Urls1000Body() {

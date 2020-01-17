@@ -4,6 +4,9 @@ import org.springframework.web.socket.WebSocketSession;
 
 import javax.websocket.Session;
 
+/**
+ * @author Knightingal
+ */
 public interface WsMsgService {
 
     void sendWsMsg(String msg);

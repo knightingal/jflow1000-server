@@ -5,6 +5,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author Knightingal
+ */
 @Component
 public class ApplicationContextProvider
         implements ApplicationContextAware
@@ -13,7 +16,7 @@ public class ApplicationContextProvider
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+        ApplicationContextProvider.applicationContext = applicationContext;
     }
 
     public static ApplicationContext getApplicationContext() {

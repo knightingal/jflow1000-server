@@ -6,6 +6,9 @@ import org.nanking.knightingal.bean.Flow1000Section;
 
 import java.util.List;
 
+/**
+ * @author Knightingal
+ */
 @Mapper
 public interface Local1000Dao {
     Flow1000Section queryFlow1000SectionById(int id);

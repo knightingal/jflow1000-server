@@ -1,5 +1,8 @@
 package org.nanking.knightingal.bean;
 
+/**
+ * @author Knightingal
+ */
 public class Flow1000Section {
 
     public Flow1000Section() {

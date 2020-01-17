@@ -18,16 +18,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * @author Knightingal
+ */
 public class DownloadImgRunnable implements Runnable {
 
     private static final Log log = LogFactory.getLog(DownloadImgRunnable.class);
 
-//    private static final String BASE_DIR = "C:\\Users\\Knightingal\\linux1000";
-    private final static EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
+    private final static EncryptUtil ENCRYPT_UTIL = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
 
-    private final static Local1000Dao local1000Dao = (Local1000Dao) ApplicationContextProvider.getBean("local1000Dao");
+    private final static Local1000Dao LOCAL_1000_DAO = (Local1000Dao) ApplicationContextProvider.getBean("local1000Dao");
 
-    private final static OkHttpClient client = (OkHttpClient) ApplicationContextProvider.getBean("client");
+    private final static OkHttpClient CLIENT = (OkHttpClient) ApplicationContextProvider.getBean("client");
 
     private final String dirName;
 
@@ -50,7 +52,7 @@ public class DownloadImgRunnable implements Runnable {
                 .url(url)
                 .build();
 
-        Response response = client.newCall(request).execute();
+        Response response = CLIENT.newCall(request).execute();
         return response.body().string();
     }
 
@@ -70,7 +72,7 @@ public class DownloadImgRunnable implements Runnable {
                 addHeader("Cache-Control","no-cache").
                 build();
         try {
-            Response response = client.newCall(request).execute();
+            Response response = CLIENT.newCall(request).execute();
             byte[] respBytes = response.body().bytes();
             String absPath = baseDir + "\\source\\" + dirName + "\\";
             File dirFile = new File(absPath);
@@ -90,7 +92,7 @@ public class DownloadImgRunnable implements Runnable {
             int height = sourceImg.getHeight();
             log.info("file name:" + fileName + " width:" + width + " height:" + height);
 
-            byte[] encryptedBytes = encryptUtil.encrypt(respBytes);
+            byte[] encryptedBytes = ENCRYPT_UTIL.encrypt(respBytes);
             absPath = baseDir + "\\encrypted\\" + dirName + "\\";
 
             dirFile = new File(absPath);
@@ -106,7 +108,7 @@ public class DownloadImgRunnable implements Runnable {
             fileOutputStream.close();
             this.flow1000Img.setWidth(width);
             this.flow1000Img.setHeight(height);
-            local1000Dao.updateFlow1000Img(this.flow1000Img);
+            LOCAL_1000_DAO.updateFlow1000Img(this.flow1000Img);
         } catch (IOException e) {
             e.printStackTrace();
         }

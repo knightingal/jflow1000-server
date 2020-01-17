@@ -1,5 +1,8 @@
 package org.nanking.knightingal.bean;
 
+/**
+ * @author Knightingal
+ */
 public class ImgDetail {
 
     public ImgDetail() {

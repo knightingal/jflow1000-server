@@ -6,6 +6,9 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * @author Knightingal
+ */
 public class EncryptUtil {
 
     @Value("${encryptUtil.iv}")

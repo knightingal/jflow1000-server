@@ -8,6 +8,9 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 
+/**
+ * @author Knightingal
+ */
 @Service
 public class WsMsgServiceImpl implements WsMsgService {
 
