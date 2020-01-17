@@ -22,7 +22,7 @@ public class DownloadImgRunnable implements Runnable {
 
     private static final Log log = LogFactory.getLog(DownloadImgRunnable.class);
 
-    private static final String BASE_DIR = "C:\\Users\\Knightingal\\linux1000";
+//    private static final String BASE_DIR = "C:\\Users\\Knightingal\\linux1000";
     private final static EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
 
     private final static Local1000Dao local1000Dao = (Local1000Dao) ApplicationContextProvider.getBean("local1000Dao");
@@ -35,11 +35,14 @@ public class DownloadImgRunnable implements Runnable {
 
     private final CountDownLatch countDownLatch;
 
+    private final String baseDir;
 
-    public DownloadImgRunnable(Flow1000Img flow1000Img, String dirName, CountDownLatch countDownLatch) {
+
+    public DownloadImgRunnable(Flow1000Img flow1000Img, String dirName, CountDownLatch countDownLatch, String baseDir) {
         this.dirName = dirName;
         this.flow1000Img = flow1000Img;
         this.countDownLatch = countDownLatch;
+        this.baseDir = baseDir;
     }
 
     String run(String url) throws IOException {
@@ -69,7 +72,7 @@ public class DownloadImgRunnable implements Runnable {
         try {
             Response response = client.newCall(request).execute();
             byte[] respBytes = response.body().bytes();
-            String absPath = BASE_DIR + "\\source\\" + dirName + "\\";
+            String absPath = baseDir + "\\source\\" + dirName + "\\";
             File dirFile = new File(absPath);
             dirFile.mkdirs();
             File file = new File(absPath + fileName);
@@ -88,7 +91,7 @@ public class DownloadImgRunnable implements Runnable {
             log.info("file name:" + fileName + " width:" + width + " height:" + height);
 
             byte[] encryptedBytes = encryptUtil.encrypt(respBytes);
-            absPath = BASE_DIR + "\\encrypted\\" + dirName + "\\";
+            absPath = baseDir + "\\encrypted\\" + dirName + "\\";
 
             dirFile = new File(absPath);
             dirFile.mkdirs();
