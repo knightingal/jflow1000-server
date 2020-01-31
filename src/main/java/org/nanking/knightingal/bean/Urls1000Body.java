@@ -1,8 +1,5 @@
 package org.nanking.knightingal.bean;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.List;
 
 /**

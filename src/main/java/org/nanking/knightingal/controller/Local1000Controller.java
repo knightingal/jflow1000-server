@@ -12,7 +12,6 @@ import org.nanking.knightingal.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
@@ -149,7 +148,6 @@ public class Local1000Controller {
                 fileUtil.getFileNameByUrl(urls1000Body.getImgSrcArray().get(0).getSrc())
         );
         flow1000Section.setAlbum("flow1000");
-        local1000Dao.insertFlow1000Section(flow1000Section);
         List<Flow1000Img> flow1000ImgList = new ArrayList<>();
         for (Urls1000Body.ImgSrcBean imgSrcBean : urls1000Body.getImgSrcArray()) {
             String fileName = fileUtil.getFileNameByUrl(imgSrcBean.getSrc());
@@ -163,7 +161,6 @@ public class Local1000Controller {
             flow1000Img.setHref(imgSrcBean.getRef());
             flow1000ImgList.add(flow1000Img);
         }
-        local1000Dao.insertFlow1000Img(flow1000ImgList);
         downloadSectionThreadPoolExecutor.execute(() -> {
             CountDownLatch countDownLatch = new CountDownLatch(flow1000ImgList.size());
 
@@ -178,6 +175,11 @@ public class Local1000Controller {
                 e.printStackTrace();
             }
             log.info(flow1000Section.getDirName() + " download complete");
+            local1000Dao.insertFlow1000Section(flow1000Section);
+            flow1000ImgList.forEach(flow1000Img -> {
+                flow1000Img.setSectionId(flow1000Section.getId());
+            });
+            local1000Dao.insertFlow1000Img(flow1000ImgList);
             PicIndex picIndex = new PicIndex(
                     flow1000Section.getId(),
                     flow1000Section.getDirName(),

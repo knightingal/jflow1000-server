@@ -6,7 +6,6 @@ import okhttp3.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nanking.knightingal.bean.Flow1000Img;
-import org.nanking.knightingal.dao.Local1000Dao;
 import org.nanking.knightingal.util.ApplicationContextProvider;
 import org.nanking.knightingal.util.EncryptUtil;
 
@@ -15,7 +14,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -27,8 +25,6 @@ public class DownloadImgRunnable implements Runnable {
 
     private final static EncryptUtil ENCRYPT_UTIL = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
 
-    private final static Local1000Dao LOCAL_1000_DAO = (Local1000Dao) ApplicationContextProvider.getBean("local1000Dao");
-
     private final static OkHttpClient CLIENT = (OkHttpClient) ApplicationContextProvider.getBean("client");
 
     private final String dirName;
@@ -38,6 +34,8 @@ public class DownloadImgRunnable implements Runnable {
     private final CountDownLatch countDownLatch;
 
     private final String baseDir;
+
+    private final static int TRY_LOOP_COUNT = 64;
 
 
     public DownloadImgRunnable(Flow1000Img flow1000Img, String dirName, CountDownLatch countDownLatch, String baseDir) {
@@ -63,46 +61,48 @@ public class DownloadImgRunnable implements Runnable {
                 addHeader("Pragma","no-cache").
                 addHeader("Cache-Control","no-cache").
                 build();
-        try {
-            Response response = CLIENT.newCall(request).execute();
-            byte[] respBytes = response.body().bytes();
-            String absPath = baseDir + "\\source\\" + dirName + "\\";
-            File dirFile = new File(absPath);
-            dirFile.mkdirs();
-            File file = new File(absPath + fileName);
-            boolean createRet = file.createNewFile();
-            if (!createRet) {
-                log.error("cannot create " + absPath);
-                return;
+        for (int i = 0; i < TRY_LOOP_COUNT; i++) {
+            try {
+                Response response = CLIENT.newCall(request).execute();
+                byte[] respBytes = response.body().bytes();
+                String absPath = baseDir + "\\source\\" + dirName + "\\";
+                File dirFile = new File(absPath);
+                dirFile.mkdirs();
+                File file = new File(absPath + fileName);
+                boolean createRet = file.createNewFile();
+                if (!createRet) {
+                    log.error("cannot create " + absPath);
+                    return;
+                }
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                fileOutputStream.write(respBytes);
+                fileOutputStream.close();
+
+                BufferedImage sourceImg = ImageIO.read(new FileInputStream(file));
+                int width = sourceImg.getWidth();
+                int height = sourceImg.getHeight();
+                log.info("file name:" + fileName + " width:" + width + " height:" + height);
+
+                byte[] encryptedBytes = ENCRYPT_UTIL.encrypt(respBytes);
+                absPath = baseDir + "\\encrypted\\" + dirName + "\\";
+
+                dirFile = new File(absPath);
+                dirFile.mkdirs();
+                file = new File(absPath + fileName + ".bin");
+                createRet = file.createNewFile();
+                if (!createRet) {
+                    log.error("cannot create " + absPath);
+                    return;
+                }
+                fileOutputStream = new FileOutputStream(file);
+                fileOutputStream.write(encryptedBytes);
+                fileOutputStream.close();
+                this.flow1000Img.setWidth(width);
+                this.flow1000Img.setHeight(height);
+                break;
+            } catch (Exception e) {
+                log.warn("download " + flow1000Img.getSrc() + " failed, try again...");
             }
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(respBytes);
-            fileOutputStream.close();
-
-            BufferedImage sourceImg = ImageIO.read(new FileInputStream(file));
-            int width = sourceImg.getWidth();
-            int height = sourceImg.getHeight();
-            log.info("file name:" + fileName + " width:" + width + " height:" + height);
-
-            byte[] encryptedBytes = ENCRYPT_UTIL.encrypt(respBytes);
-            absPath = baseDir + "\\encrypted\\" + dirName + "\\";
-
-            dirFile = new File(absPath);
-            dirFile.mkdirs();
-            file = new File(absPath + fileName + ".bin");
-            createRet = file.createNewFile();
-            if (!createRet) {
-                log.error("cannot create " + absPath);
-                return;
-            }
-            fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(encryptedBytes);
-            fileOutputStream.close();
-            this.flow1000Img.setWidth(width);
-            this.flow1000Img.setHeight(height);
-            LOCAL_1000_DAO.updateFlow1000Img(this.flow1000Img);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         log.info(flow1000Img.getSrc() + " download end");

@@ -2,8 +2,6 @@ package org.nanking.knightingal.service;
 
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.websocket.Session;
-
 /**
  * @author Knightingal
  */
