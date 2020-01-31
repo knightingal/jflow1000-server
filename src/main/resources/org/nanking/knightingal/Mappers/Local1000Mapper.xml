@@ -61,6 +61,25 @@
             </if>
         </where>
     </select>
+    
+    <select id="searchFlow1000SectionByName"
+            parameterType="java.lang.String"
+            resultType="org.nanking.knightingal.bean.Flow1000Section">
+        select
+            s.id as id,
+            s.name as name,
+            s.dir_name as dirName,
+            s.create_time as createTime,
+            s.cover as cover,
+            i.width as coverWidth,
+            i.height as coverHeight,
+            s.album as album
+        from flow1000section s, flow1000img i
+        <where>
+            i.section_id = s.id and i.in_cover = 1
+            and s.name like #{name}
+        </where>
+    </select>
 
     <insert id="insertFlow1000Section" parameterType="org.nanking.knightingal.bean.Flow1000Section"
             useGeneratedKeys="true"

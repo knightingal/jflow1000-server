@@ -19,6 +19,14 @@ public interface Local1000Dao {
 
     List<Flow1000Section> queryFlow1000Section(Flow1000Section flow1000Section);
 
+    /**
+     * 根据sectoinName模糊查询
+     * @param name name参数，需已拼接%
+     * 
+     * @return 返回查询结果
+     */
+    List<Flow1000Section> searchFlow1000SectionByName(String name);
+
     void insertFlow1000Section(Flow1000Section flow1000Section);
 
     /**

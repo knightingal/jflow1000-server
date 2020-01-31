@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 
 /**
@@ -78,6 +79,25 @@ public class Local1000Controller {
         return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId(), imgList);
     }
 
+    @RequestMapping("/searchSection")
+    public List<PicIndex> searchSection(@RequestParam(value="name", defaultValue="")String name) {
+        log.debug("searchSection request, name=" + name);
+        if ("".equals(name)) {
+            return new ArrayList<PicIndex>();
+        }
+        name = "%" + name + "%";
+        List<Flow1000Section> searchResult = local1000Dao.searchFlow1000SectionByName(name);        
+
+        return searchResult.stream().map(flow1000Section -> new PicIndex(
+                flow1000Section.getId(),
+                flow1000Section.getDirName(),
+                flow1000Section.getCreateTime(),
+                flow1000Section.getCover(),
+                flow1000Section.getCoverWidth(),
+                flow1000Section.getCoverHeight()
+        )).collect(Collectors.toList());
+    }
+
     @RequestMapping("/picIndexAjax")
     public List<PicIndex> picIndexAjax(
             @RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp,
@@ -90,20 +110,17 @@ public class Local1000Controller {
         }
         condition.setCreateTime(timeStamp);
         List<Flow1000Section> flow1000SectionList = local1000Dao.queryFlow1000Section(condition);
-        List<PicIndex> picIndexList = new ArrayList<>();
 
-        for (Flow1000Section flow1000Section : flow1000SectionList) {
-            picIndexList.add(new PicIndex(
+        return flow1000SectionList.stream().map(flow1000Section -> {
+            return new PicIndex(
                     flow1000Section.getId(),
                     flow1000Section.getDirName(),
                     flow1000Section.getCreateTime(),
                     flow1000Section.getCover(),
                     flow1000Section.getCoverWidth(),
                     flow1000Section.getCoverHeight()
-            ));
-        }
-
-        return picIndexList;
+            );
+        }).collect(Collectors.toList());
     }
 
     @RequestMapping("/picIndexAjaxByPage")
