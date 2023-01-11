@@ -1,13 +1,18 @@
 package org.nanking.knightingal.bean;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 /**
  * @author Knightingal
  */
+@Entity
 public class Flow1000Section {
 
     public Flow1000Section() {
     }
 
+    @Id
     private int id;
 
     private String name;

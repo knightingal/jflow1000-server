@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nanking.knightingal.bean.*;
-import org.nanking.knightingal.dao.Local1000Dao;
+import org.nanking.knightingal.dao.Local1000ImgDao;
+import org.nanking.knightingal.dao.Local1000SectionDao;
 import org.nanking.knightingal.runnable.DownloadImgRunnable;
 import org.nanking.knightingal.service.WsMsgService;
 import org.nanking.knightingal.util.FileUtil;
@@ -32,7 +33,10 @@ public class Local1000Controller {
     private static final Log log = LogFactory.getLog(Local1000Controller.class);
 
     @Autowired
-    private Local1000Dao local1000Dao;
+    private Local1000SectionDao local1000SectionDao;
+
+    @Autowired
+    private Local1000ImgDao local1000ImgDao;
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -52,8 +56,8 @@ public class Local1000Controller {
     @RequestMapping("/picDetailAjax")
     public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
         log.info("handle /picDetailAjax, id=" + id);
-        Flow1000Section flow1000Section = local1000Dao.queryFlow1000SectionById(id);
-        List<Flow1000Img> flow1000ImgList = local1000Dao.queryFlow1000ImgBySectionId(id);
+        Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
+        List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryFlow1000ImgBySectionId(id);
         List<ImgDetail> imgDetailList = new ArrayList<>();
         for (Flow1000Img flow1000Img : flow1000ImgList) {
             imgDetailList.add(new ImgDetail(
@@ -69,8 +73,8 @@ public class Local1000Controller {
     @RequestMapping("/picContentAjax")
     public SectionContent picContentAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
         log.info("handle /picDetailAjax, id=" + id);
-        Flow1000Section flow1000Section = local1000Dao.queryFlow1000SectionById(id);
-        List<Flow1000Img> flow1000ImgList = local1000Dao.queryFlow1000ImgBySectionId(id);
+        Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
+        List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryFlow1000ImgBySectionId(id);
         List<String> imgList = new ArrayList<>();
         for (Flow1000Img flow1000Img : flow1000ImgList) {
             imgList.add(flow1000Img.getName());
@@ -86,7 +90,7 @@ public class Local1000Controller {
             return new ArrayList<PicIndex>();
         }
         name = "%" + name + "%";
-        List<Flow1000Section> searchResult = local1000Dao.searchFlow1000SectionByName(name);        
+        List<Flow1000Section> searchResult = local1000SectionDao.searchFlow1000SectionByName(name);        
 
         return searchResult.stream().map(flow1000Section -> new PicIndex(
                 flow1000Section.getId(),
@@ -109,7 +113,7 @@ public class Local1000Controller {
             condition.setAlbum(album);
         }
         condition.setCreateTime(timeStamp);
-        List<Flow1000Section> flow1000SectionList = local1000Dao.queryFlow1000Section(condition);
+        List<Flow1000Section> flow1000SectionList = local1000SectionDao.queryFlow1000Section(condition);
 
         return flow1000SectionList.stream().map(flow1000Section -> {
             return new PicIndex(
@@ -128,7 +132,7 @@ public class Local1000Controller {
             @RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp
     ) {
         log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
-        List<Flow1000Section> flow1000SectionList = local1000Dao.queryFlow1000SectionByCreateTime(timeStamp);
+        List<Flow1000Section> flow1000SectionList = local1000SectionDao.queryFlow1000SectionByCreateTime(timeStamp);
         List<PicIndex> picIndexList = new ArrayList<>();
 
         for (Flow1000Section flow1000Section : flow1000SectionList) {
@@ -192,11 +196,11 @@ public class Local1000Controller {
                 e.printStackTrace();
             }
             log.info(flow1000Section.getDirName() + " download complete");
-            local1000Dao.insertFlow1000Section(flow1000Section);
+            local1000SectionDao.insertFlow1000Section(flow1000Section);
             flow1000ImgList.forEach(flow1000Img -> {
                 flow1000Img.setSectionId(flow1000Section.getId());
             });
-            local1000Dao.insertFlow1000Img(flow1000ImgList);
+            local1000ImgDao.insertFlow1000Img(flow1000ImgList);
             PicIndex picIndex = new PicIndex(
                     flow1000Section.getId(),
                     flow1000Section.getDirName(),
@@ -220,7 +224,7 @@ public class Local1000Controller {
         if (sectionDetail.getId() == null || sectionDetail.getId() <= 0) {
             return;
         }
-        local1000Dao.deleteFlow1000ImgBySectionId(sectionDetail.getId());
-        local1000Dao.deleteFlow1000SectionById(sectionDetail.getId());
+        local1000ImgDao.deleteFlow1000ImgBySectionId(sectionDetail.getId());
+        local1000SectionDao.deleteFlow1000SectionById(sectionDetail.getId());
     }
 }

@@ -1,8 +1,12 @@
 package org.nanking.knightingal.bean;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 /**
  * @author Knightingal
  */
+@Entity
 public class Flow1000Img {
 
     public Flow1000Img() {
@@ -17,6 +21,7 @@ public class Flow1000Img {
         this.height = height;
     }
 
+    @Id
     private int id;
 
     private String name;
