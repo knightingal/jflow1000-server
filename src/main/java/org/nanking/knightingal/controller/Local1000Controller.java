@@ -60,7 +60,7 @@ public class Local1000Controller {
     public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
         log.info("handle /picDetailAjax, id=" + id);
         Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
-        List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryFlow1000ImgBySectionId(id);
+        List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryBySectionId(id);
         List<ImgDetail> imgDetailList = new ArrayList<>();
         for (Flow1000Img flow1000Img : flow1000ImgList) {
             imgDetailList.add(new ImgDetail(
@@ -77,7 +77,7 @@ public class Local1000Controller {
     public SectionContent picContentAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
         log.info("handle /picDetailAjax, id=" + id);
         Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
-        List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryFlow1000ImgBySectionId(id);
+        List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryBySectionId(id);
         List<String> imgList = new ArrayList<>();
         for (Flow1000Img flow1000Img : flow1000ImgList) {
             imgList.add(flow1000Img.getName());
@@ -210,7 +210,7 @@ public class Local1000Controller {
             flow1000ImgList.forEach(flow1000Img -> {
                 flow1000Img.setSectionId(flow1000Section.getId());
             });
-            local1000ImgDao.insertFlow1000Img(flow1000ImgList);
+            // local1000ImgDao.insertFlow1000Img(flow1000ImgList);
             PicIndex picIndex = new PicIndex(
                     flow1000Section.getId(),
                     flow1000Section.getDirName(),
@@ -234,7 +234,7 @@ public class Local1000Controller {
         if (sectionDetail.getId() == null || sectionDetail.getId() <= 0) {
             return;
         }
-        local1000ImgDao.deleteFlow1000ImgBySectionId(sectionDetail.getId());
+        local1000ImgDao.deleteById(sectionDetail.getId());
         local1000SectionDao.deleteById(sectionDetail.getId());
     }
 }
