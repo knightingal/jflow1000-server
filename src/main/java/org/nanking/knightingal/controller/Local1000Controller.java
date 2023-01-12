@@ -86,24 +86,24 @@ public class Local1000Controller {
         return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId(), imgList);
     }
 
-    @RequestMapping("/searchSection")
-    public List<PicIndex> searchSection(@RequestParam(value="name", defaultValue="")String name) {
-        log.debug("searchSection request, name=" + name);
-        if ("".equals(name)) {
-            return new ArrayList<PicIndex>();
-        }
-        name = "%" + name + "%";
-        List<Flow1000Section> searchResult = local1000SectionDao.searchFlow1000SectionByName(name);        
+    // @RequestMapping("/searchSection")
+    // public List<PicIndex> searchSection(@RequestParam(value="name", defaultValue="")String name) {
+    //     log.debug("searchSection request, name=" + name);
+    //     if ("".equals(name)) {
+    //         return new ArrayList<PicIndex>();
+    //     }
+    //     name = "%" + name + "%";
+    //     List<Flow1000Section> searchResult = local1000SectionDao.searchFlow1000SectionByName(name);        
 
-        return searchResult.stream().map(flow1000Section -> new PicIndex(
-                flow1000Section.getId(),
-                flow1000Section.getDirName(),
-                flow1000Section.getCreateTime(),
-                flow1000Section.getCover(),
-                flow1000Section.getCoverWidth(),
-                flow1000Section.getCoverHeight()
-        )).collect(Collectors.toList());
-    }
+    //     return searchResult.stream().map(flow1000Section -> new PicIndex(
+    //             flow1000Section.getId(),
+    //             flow1000Section.getDirName(),
+    //             flow1000Section.getCreateTime(),
+    //             flow1000Section.getCover(),
+    //             flow1000Section.getCoverWidth(),
+    //             flow1000Section.getCoverHeight()
+    //     )).collect(Collectors.toList());
+    // }
 
     @RequestMapping("/picIndexAjax")
     public List<PicIndex> picIndexAjax(
@@ -206,7 +206,7 @@ public class Local1000Controller {
                 e.printStackTrace();
             }
             log.info(flow1000Section.getDirName() + " download complete");
-            local1000SectionDao.insertFlow1000Section(flow1000Section);
+            // local1000SectionDao.insertFlow1000Section(flow1000Section);
             flow1000ImgList.forEach(flow1000Img -> {
                 flow1000Img.setSectionId(flow1000Section.getId());
             });
@@ -235,6 +235,6 @@ public class Local1000Controller {
             return;
         }
         local1000ImgDao.deleteFlow1000ImgBySectionId(sectionDetail.getId());
-        local1000SectionDao.deleteFlow1000SectionById(sectionDetail.getId());
+        local1000SectionDao.deleteById(sectionDetail.getId());
     }
 }

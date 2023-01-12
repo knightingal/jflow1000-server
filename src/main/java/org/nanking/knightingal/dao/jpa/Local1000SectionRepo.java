@@ -27,14 +27,14 @@ public interface Local1000SectionRepo extends Local1000SectionDao, JpaRepository
      * 
      * @return 返回查询结果
      */
-    List<Flow1000Section> searchFlow1000SectionByName(String name);
+    // List<Flow1000Section> searchFlow1000SectionByName(String name);
 
-    void insertFlow1000Section(Flow1000Section flow1000Section);
+    // void insertFlow1000Section(Flow1000Section flow1000Section);
 
 
     /**
      * 根据id删除section记录
      * @param id section id
      */
-    void deleteFlow1000SectionById(int id);
+    void deleteById(int id);
 }
