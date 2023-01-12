@@ -1,8 +1,11 @@
 package org.nanking.knightingal.dao;
 
 import org.nanking.knightingal.bean.Flow1000Section;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Knightingal
@@ -12,7 +15,6 @@ public interface Local1000SectionDao {
 
     List<Flow1000Section> queryFlow1000SectionByCreateTime(String timeStamp);
 
-    List<Flow1000Section> queryFlow1000Section(Flow1000Section flow1000Section);
 
     /**
      * 根据sectoinName模糊查询
@@ -30,4 +32,24 @@ public interface Local1000SectionDao {
      * @param id section id
      */
     void deleteFlow1000SectionById(int id);
+
+
+
+	/**
+	 * Returns a single entity matching the given {@link Specification} or {@link Optional#empty()} if none found.
+	 *
+	 * @param spec can be {@literal null}.
+	 * @return never {@literal null}.
+	 * @throws org.springframework.dao.IncorrectResultSizeDataAccessException if more than one entity found.
+	 */
+	Optional<Flow1000Section> findOne(@Nullable Specification<Flow1000Section> spec);
+
+	/**
+	 * Returns all entities matching the given {@link Specification}.
+	 *
+	 * @param spec can be {@literal null}.
+	 * @return never {@literal null}.
+	 */
+	List<Flow1000Section> findAll(@Nullable Specification<Flow1000Section> spec);
+
 }

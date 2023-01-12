@@ -13,6 +13,7 @@ import org.nanking.knightingal.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
@@ -21,6 +22,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+
+import javax.persistence.criteria.Predicate;
 
 
 /**
@@ -108,12 +111,19 @@ public class Local1000Controller {
             @RequestParam(value="album", defaultValue="")String album
     ) {
         log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
-        Flow1000Section condition = new Flow1000Section();
-        if (album != null && album.length() != 0) {
-            condition.setAlbum(album);
-        }
-        condition.setCreateTime(timeStamp);
-        List<Flow1000Section> flow1000SectionList = local1000SectionDao.queryFlow1000Section(condition);
+        List<Flow1000Section> flow1000SectionList = local1000SectionDao.findAll(
+            (Specification<Flow1000Section>) (root, query, builder) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                if (album != null && album.length() != 0) {
+                    Predicate albumPredicate = builder.equal(root.get("album"), album);
+                    predicates.add(albumPredicate);
+                }
+
+                Predicate createTimePredicate = builder.greaterThan(root.get("createTime"), timeStamp);
+                predicates.add(createTimePredicate);
+                return builder.and(predicates.toArray(new Predicate[] {}));
+            }
+        );
 
         return flow1000SectionList.stream().map(flow1000Section -> {
             return new PicIndex(
