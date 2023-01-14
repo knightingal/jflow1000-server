@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface Local1000SectionRepo extends Local1000SectionDao, JpaRepository<Flow1000Section, Integer>, JpaSpecificationExecutor<Flow1000Section> {
+public interface Local1000SectionRepo extends Local1000SectionDao, JpaRepository<Flow1000Section, Long>, JpaSpecificationExecutor<Flow1000Section> {
 
     @Query("select s from Flow1000Section s where s.id=:id")
     Flow1000Section queryFlow1000SectionById(@Param("id") int id);
@@ -37,4 +37,9 @@ public interface Local1000SectionRepo extends Local1000SectionDao, JpaRepository
      * @param id section id
      */
     void deleteById(int id);
+
+
+	default List<Flow1000Section> saveEntitiesAllAndFlush(Iterable<Flow1000Section> entities) {
+        return saveAllAndFlush(entities);
+    }
 }

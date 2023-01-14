@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface Local1000ImgDao {
 
-    List<Flow1000Img> queryBySectionId(int sectionId);
+    List<Flow1000Img> queryBySectionId(Long sectionId);
 
     // /**
     //  * img列表入库
@@ -28,5 +28,5 @@ public interface Local1000ImgDao {
      * 根据section id，删除section下的img记录
      * @param sectionId section id
      */
-    void deleteById(int sectionId);
+    void deleteById(Long sectionId);
 }

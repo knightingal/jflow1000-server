@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.criteria.Predicate;
 
@@ -56,10 +57,33 @@ public class Local1000Controller {
     @Value("${baseDir}")
     private String baseDir;
 
+    @RequestMapping("/init")
+    public Object init() {
+        File baseDirFile = new File(baseDir + "/source");
+        String[] list = baseDirFile.list();
+
+        List<Flow1000Section> sectionList = Stream.of(list).limit(10).map(dirName -> {
+                String timeStamp = dirName.substring(0, 14);
+                String name = dirName.substring(14);
+                Flow1000Section flow1000Section = new Flow1000Section();
+                flow1000Section.setName(name);
+                flow1000Section.setCreateTime(timeStamp);
+                flow1000Section.setDirName(dirName);
+                return flow1000Section;
+        }).collect(Collectors.toList());;        
+
+        local1000SectionDao.saveEntitiesAllAndFlush(sectionList);
+        return sectionList;
+    }
+
+
     @RequestMapping("/picDetailAjax")
-    public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
+    public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") Long id) {
         log.info("handle /picDetailAjax, id=" + id);
         Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
+        if (flow1000Section == null) {
+            return new SectionDetail();
+        }
         List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryBySectionId(id);
         List<ImgDetail> imgDetailList = new ArrayList<>();
         for (Flow1000Img flow1000Img : flow1000ImgList) {
@@ -74,7 +98,7 @@ public class Local1000Controller {
     }
 
     @RequestMapping("/picContentAjax")
-    public SectionContent picContentAjax(@RequestParam(value = "id", defaultValue = "1") int id) {
+    public SectionContent picContentAjax(@RequestParam(value = "id", defaultValue = "1") Long id) {
         log.info("handle /picDetailAjax, id=" + id);
         Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
         List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryBySectionId(id);
@@ -83,7 +107,7 @@ public class Local1000Controller {
             imgList.add(flow1000Img.getName());
         }
 
-        return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId(), imgList);
+        return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId().intValue(), imgList);
     }
 
     // @RequestMapping("/searchSection")
@@ -127,7 +151,7 @@ public class Local1000Controller {
 
         return flow1000SectionList.stream().map(flow1000Section -> {
             return new PicIndex(
-                    flow1000Section.getId(),
+                    flow1000Section.getId().intValue(),
                     flow1000Section.getDirName(),
                     flow1000Section.getCreateTime(),
                     flow1000Section.getCover(),
@@ -147,7 +171,7 @@ public class Local1000Controller {
 
         for (Flow1000Section flow1000Section : flow1000SectionList) {
             picIndexList.add(new PicIndex(
-                    flow1000Section.getId(),
+                    flow1000Section.getId().intValue(),
                     flow1000Section.getDirName(),
                     flow1000Section.getCreateTime(),
                     flow1000Section.getCover(),
@@ -212,7 +236,7 @@ public class Local1000Controller {
             });
             // local1000ImgDao.insertFlow1000Img(flow1000ImgList);
             PicIndex picIndex = new PicIndex(
-                    flow1000Section.getId(),
+                    flow1000Section.getId().intValue(),
                     flow1000Section.getDirName(),
                     flow1000Section.getCreateTime(),
                     flow1000Section.getCover(),

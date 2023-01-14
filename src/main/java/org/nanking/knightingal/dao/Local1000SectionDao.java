@@ -11,7 +11,7 @@ import java.util.Optional;
  * @author Knightingal
  */
 public interface Local1000SectionDao {
-    Flow1000Section queryFlow1000SectionById(int id);
+    Flow1000Section queryFlow1000SectionById(Long id);
 
     List<Flow1000Section> queryFlow1000SectionByCreateTime(String timeStamp);
 
@@ -31,7 +31,7 @@ public interface Local1000SectionDao {
      * 根据id删除section记录
      * @param id section id
      */
-    void deleteById(int id);
+    void deleteById(Long id);
 
 
 
@@ -51,5 +51,9 @@ public interface Local1000SectionDao {
 	 * @return never {@literal null}.
 	 */
 	List<Flow1000Section> findAll(@Nullable Specification<Flow1000Section> spec);
+
+
+	List<Flow1000Section> saveEntitiesAllAndFlush(Iterable<Flow1000Section> entities);
+
 
 }

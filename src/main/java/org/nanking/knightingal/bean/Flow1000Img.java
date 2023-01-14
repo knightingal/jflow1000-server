@@ -12,7 +12,7 @@ public class Flow1000Img {
     public Flow1000Img() {
     }
 
-    public Flow1000Img(int id, String name, int sectionId, int inCover, int width, int height) {
+    public Flow1000Img(int id, String name, Long sectionId, int inCover, int width, int height) {
         this.id = id;
         this.name = name;
         this.sectionId = sectionId;
@@ -26,7 +26,7 @@ public class Flow1000Img {
 
     private String name;
 
-    private int sectionId;
+    private Long sectionId;
 
     private int inCover;
 
@@ -54,11 +54,11 @@ public class Flow1000Img {
         this.name = name;
     }
 
-    public int getSectionId() {
+    public Long getSectionId() {
         return sectionId;
     }
 
-    public void setSectionId(int sectionId) {
+    public void setSectionId(Long sectionId) {
         this.sectionId = sectionId;
     }
 

@@ -7,7 +7,7 @@ import java.util.List;
  */
 public class SectionDetail {
 
-    public SectionDetail(String dirName, int picPage, List<ImgDetail> pics) {
+    public SectionDetail(String dirName, Long picPage, List<ImgDetail> pics) {
         this.dirName = dirName;
         this.picPage = picPage;
         this.pics = pics;
@@ -16,11 +16,11 @@ public class SectionDetail {
     public SectionDetail() {
     }
 
-    private Integer id;
+    private Long id;
 
     private String dirName;
 
-    private int picPage;
+    private Long picPage;
 
     private List<ImgDetail> pics;
 
@@ -32,11 +32,11 @@ public class SectionDetail {
         this.dirName = dirName;
     }
 
-    public int getPicPage() {
+    public Long getPicPage() {
         return picPage;
     }
 
-    public void setPicPage(int picPage) {
+    public void setPicPage(Long picPage) {
         this.picPage = picPage;
     }
 
@@ -48,11 +48,11 @@ public class SectionDetail {
         this.pics = pics;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
