@@ -16,7 +16,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -24,6 +27,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.imageio.ImageIO;
 import javax.persistence.criteria.Predicate;
 
 
@@ -69,11 +73,42 @@ public class Local1000Controller {
                 flow1000Section.setName(name);
                 flow1000Section.setCreateTime(timeStamp);
                 flow1000Section.setDirName(dirName);
-                return flow1000Section;
-        }).collect(Collectors.toList());;        
 
-        local1000SectionDao.saveEntitiesAllAndFlush(sectionList);
-        return sectionList;
+                File dirFile = new File(baseDirFile + "/" + dirName);
+                String[] imgNameArray = dirFile.list((dir, fileName) -> {
+                    if (fileName != null && (
+                            fileName.endsWith(".jpg") 
+                            || fileName.endsWith(".JPG")
+                            || fileName.endsWith(".jpeg")
+                            || fileName.endsWith(".JPEG")
+                            || fileName.endsWith(".png")
+                            || fileName.endsWith(".PNG")
+                            )) {
+                        return true;
+                    }
+                    return false;
+                });
+
+                String imgName = imgNameArray[0];
+
+
+                flow1000Section.setCover(imgName);
+
+                try {
+                    BufferedImage sourceImg = ImageIO.read(new FileInputStream(baseDirFile + "/" + dirName + "/" + imgName));
+                    int width = sourceImg.getWidth();
+                    int height = sourceImg.getHeight();
+                    flow1000Section.setCoverHeight(height);
+                    flow1000Section.setCoverWidth(width);
+                } catch (IOException e) {
+                }
+
+
+                return flow1000Section;
+        }).collect(Collectors.toList());        
+
+        List<Flow1000Section> saveed = local1000SectionDao.saveEntitiesAllAndFlush(sectionList);
+        return saveed;
     }
 
 
