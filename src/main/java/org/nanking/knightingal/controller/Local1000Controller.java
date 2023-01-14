@@ -103,7 +103,22 @@ public class Local1000Controller {
                 } catch (IOException e) {
                 }
 
-
+                List<Flow1000Img> imgList = Stream.of(imgNameArray).map(imgNameItem -> {
+                    try {
+                        BufferedImage sourceImg = ImageIO.read(new FileInputStream(baseDirFile + "/" + dirName + "/" + imgNameItem));
+                        int width = sourceImg.getWidth();
+                        int height = sourceImg.getHeight();
+                        Flow1000Img flow1000Img = new Flow1000Img();
+                        flow1000Img.setName(imgNameItem);
+                        flow1000Img.setHeight(height);
+                        flow1000Img.setWidth(width);
+                        flow1000Img.setFlow1000Section(flow1000Section);
+                        return flow1000Img;
+                    } catch (IOException e) {
+                    }
+                    return null;
+                }).collect(Collectors.toList());
+                flow1000Section.setImages(imgList);
                 return flow1000Section;
         }).collect(Collectors.toList());        
 
@@ -119,15 +134,15 @@ public class Local1000Controller {
         if (flow1000Section == null) {
             return new SectionDetail();
         }
-        List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryBySectionId(id);
+        // List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryBySectionId(id);
         List<ImgDetail> imgDetailList = new ArrayList<>();
-        for (Flow1000Img flow1000Img : flow1000ImgList) {
-            imgDetailList.add(new ImgDetail(
-                    flow1000Img.getName(),
-                    flow1000Img.getWidth(),
-                    flow1000Img.getHeight())
-            );
-        }
+        // for (Flow1000Img flow1000Img : flow1000ImgList) {
+        //     imgDetailList.add(new ImgDetail(
+        //             flow1000Img.getName(),
+        //             flow1000Img.getWidth(),
+        //             flow1000Img.getHeight())
+        //     );
+        // }
 
         return new SectionDetail(flow1000Section.getDirName(), flow1000Section.getId(), imgDetailList);
     }
@@ -136,11 +151,11 @@ public class Local1000Controller {
     public SectionContent picContentAjax(@RequestParam(value = "id", defaultValue = "1") Long id) {
         log.info("handle /picDetailAjax, id=" + id);
         Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
-        List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryBySectionId(id);
+        // List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryBySectionId(id);
         List<String> imgList = new ArrayList<>();
-        for (Flow1000Img flow1000Img : flow1000ImgList) {
-            imgList.add(flow1000Img.getName());
-        }
+        // for (Flow1000Img flow1000Img : flow1000ImgList) {
+        //     imgList.add(flow1000Img.getName());
+        // }
 
         return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId().intValue(), imgList);
     }
@@ -246,7 +261,6 @@ public class Local1000Controller {
             flow1000Img.setInCover(
                     urls1000Body.getImgSrcArray().lastIndexOf(imgSrcBean) == 0 ? 1 : 0
             );
-            flow1000Img.setSectionId(flow1000Section.getId());
             flow1000Img.setSrc(imgSrcBean.getSrc());
             flow1000Img.setHref(imgSrcBean.getRef());
             flow1000ImgList.add(flow1000Img);
@@ -267,7 +281,6 @@ public class Local1000Controller {
             log.info(flow1000Section.getDirName() + " download complete");
             // local1000SectionDao.insertFlow1000Section(flow1000Section);
             flow1000ImgList.forEach(flow1000Img -> {
-                flow1000Img.setSectionId(flow1000Section.getId());
             });
             // local1000ImgDao.insertFlow1000Img(flow1000ImgList);
             PicIndex picIndex = new PicIndex(

@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface Local1000ImgDao {
 
-    List<Flow1000Img> queryBySectionId(Long sectionId);
+    // List<Flow1000Img> queryBySectionId(Long sectionId);
 
     // /**
     //  * img列表入库

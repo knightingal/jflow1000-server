@@ -1,15 +1,25 @@
 package org.nanking.knightingal.bean;
 
+import java.io.Serializable;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author Knightingal
  */
 @Entity
-public class Flow1000Section {
+@Getter
+@Setter
+public class Flow1000Section implements Serializable{
 
     public Flow1000Section() {
     }
@@ -32,67 +42,7 @@ public class Flow1000Section {
 
     private int coverHeight;
 
-    public Long getId() {
-        return id;
-    }
+    @OneToMany(mappedBy = "flow1000Section", cascade = CascadeType.PERSIST)
+    private List<Flow1000Img> images;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDirName() {
-        return dirName;
-    }
-
-    public void setDirName(String dirName) {
-        this.dirName = dirName;
-    }
-
-    public String getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(String createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getCover() {
-        return cover;
-    }
-
-    public void setCover(String cover) {
-        this.cover = cover;
-    }
-
-    public String getAlbum() {
-        return album;
-    }
-
-    public void setAlbum(String album) {
-        this.album = album;
-    }
-
-    public int getCoverWidth() {
-        return coverWidth;
-    }
-
-    public void setCoverWidth(int coverWidth) {
-        this.coverWidth = coverWidth;
-    }
-
-    public int getCoverHeight() {
-        return coverHeight;
-    }
-
-    public void setCoverHeight(int coverHeight) {
-        this.coverHeight = coverHeight;
-    }
 }

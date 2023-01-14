@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface Local1000ImgRepo extends Local1000ImgDao, JpaRepository<Flow1000Img, Long>{
 
-    List<Flow1000Img> queryBySectionId(Long sectionId);
+    // List<Flow1000Img> queryBySectionId(Long sectionId);
 }

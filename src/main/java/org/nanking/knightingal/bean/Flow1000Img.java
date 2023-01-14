@@ -1,32 +1,44 @@
 package org.nanking.knightingal.bean;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author Knightingal
  */
 @Entity
-public class Flow1000Img {
+@Getter
+@Setter
+public class Flow1000Img implements Serializable{
 
     public Flow1000Img() {
     }
 
-    public Flow1000Img(int id, String name, Long sectionId, int inCover, int width, int height) {
+    public Flow1000Img(Long id, String name, int inCover, int width, int height) {
         this.id = id;
         this.name = name;
-        this.sectionId = sectionId;
         this.inCover = inCover;
         this.width = width;
         this.height = height;
     }
 
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String name;
 
-    private Long sectionId;
 
     private int inCover;
 
@@ -38,67 +50,9 @@ public class Flow1000Img {
 
     private String href;
 
-    public int getId() {
-        return id;
-    }
+    @ManyToOne
+    @JoinColumn(name = "sectionId", referencedColumnName = "id")
+    @JsonIgnore
+    private Flow1000Section flow1000Section;
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getSectionId() {
-        return sectionId;
-    }
-
-    public void setSectionId(Long sectionId) {
-        this.sectionId = sectionId;
-    }
-
-    public int getInCover() {
-        return inCover;
-    }
-
-    public void setInCover(int inCover) {
-        this.inCover = inCover;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public String getSrc() {
-        return src;
-    }
-
-    public void setSrc(String src) {
-        this.src = src;
-    }
-
-    public String getHref() {
-        return href;
-    }
-
-    public void setHref(String href) {
-        this.href = href;
-    }
 }
