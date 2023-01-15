@@ -278,19 +278,16 @@ public class Local1000Controller {
 
     private String[] listImages(String dirName) {
         File dirFile = new File(baseDir + "/source" + "/" + dirName);
-        return dirFile.list((dir, fileName) -> {
-            if (fileName != null && (
-                    fileName.endsWith(".jpg")
-                    || fileName.endsWith(".JPG")
-                    || fileName.endsWith(".jpeg")
-                    || fileName.endsWith(".JPEG")
-                    || fileName.endsWith(".png")
+        return dirFile.list((dir, fileName) -> 
+            fileName != null && (
+                fileName.endsWith(".jpg") 
+                    || fileName.endsWith(".JPG") 
+                    || fileName.endsWith(".jpeg") 
+                    || fileName.endsWith(".JPEG") 
+                    || fileName.endsWith(".png") 
                     || fileName.endsWith(".PNG")
-                    )) {
-                return true;
-            }
-            return false;
-        });
+            )
+        );
     }
 
     private static int compareImgName(String name1, String name2) {
