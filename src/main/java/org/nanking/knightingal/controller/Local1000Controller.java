@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,10 +42,15 @@ public class Local1000Controller {
 
     private static final Log log = LogFactory.getLog(Local1000Controller.class);
 
-    @Autowired
+    private static ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    public Local1000Controller(Local1000SectionDao local1000SectionDao, Local1000ImgDao local1000ImgDao) {
+        this.local1000ImgDao = local1000ImgDao;
+        this.local1000SectionDao = local1000SectionDao;
+    }
+
     private Local1000SectionDao local1000SectionDao;
 
-    @Autowired
     private Local1000ImgDao local1000ImgDao;
 
     @Autowired
@@ -66,7 +73,10 @@ public class Local1000Controller {
         File baseDirFile = new File(baseDir + "/source");
         String[] list = baseDirFile.list();
 
-        List<Flow1000Section> sectionList = Stream.of(list).limit(10).map(dirName -> {
+        executorService.submit(() -> {
+        List<Flow1000Section> sectionList = Stream.of(list).map(dirName -> {
+                log.error("process " + dirName);
+                log.error("===========================");
                 String timeStamp = dirName.substring(0, 14);
                 String name = dirName.substring(14);
                 Flow1000Section flow1000Section = new Flow1000Section();
@@ -123,7 +133,10 @@ public class Local1000Controller {
         }).collect(Collectors.toList());        
 
         List<Flow1000Section> saveed = local1000SectionDao.saveEntitiesAllAndFlush(sectionList);
-        return saveed;
+
+        });
+
+        return null;
     }
 
 
@@ -134,15 +147,9 @@ public class Local1000Controller {
         if (flow1000Section == null) {
             return new SectionDetail();
         }
-        // List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryBySectionId(id);
-        List<ImgDetail> imgDetailList = new ArrayList<>();
-        // for (Flow1000Img flow1000Img : flow1000ImgList) {
-        //     imgDetailList.add(new ImgDetail(
-        //             flow1000Img.getName(),
-        //             flow1000Img.getWidth(),
-        //             flow1000Img.getHeight())
-        //     );
-        // }
+        List<ImgDetail> imgDetailList = flow1000Section.getImages().stream().map(image -> 
+            new ImgDetail(image.getName(), image.getWidth(), image.getHeight())
+        ).collect(Collectors.toList());
 
         return new SectionDetail(flow1000Section.getDirName(), flow1000Section.getId(), imgDetailList);
     }
@@ -151,11 +158,8 @@ public class Local1000Controller {
     public SectionContent picContentAjax(@RequestParam(value = "id", defaultValue = "1") Long id) {
         log.info("handle /picDetailAjax, id=" + id);
         Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
-        // List<Flow1000Img> flow1000ImgList = local1000ImgDao.queryBySectionId(id);
-        List<String> imgList = new ArrayList<>();
-        // for (Flow1000Img flow1000Img : flow1000ImgList) {
-        //     imgList.add(flow1000Img.getName());
-        // }
+
+        List<String> imgList = flow1000Section.getImages().stream().map(image -> image.getName()).collect(Collectors.toList());
 
         return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId().intValue(), imgList);
     }
