@@ -164,24 +164,17 @@ public class Local1000Controller {
         return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId().intValue(), imgList);
     }
 
-    // @RequestMapping("/searchSection")
-    // public List<PicIndex> searchSection(@RequestParam(value="name", defaultValue="")String name) {
-    //     log.debug("searchSection request, name=" + name);
-    //     if ("".equals(name)) {
-    //         return new ArrayList<PicIndex>();
-    //     }
-    //     name = "%" + name + "%";
-    //     List<Flow1000Section> searchResult = local1000SectionDao.searchFlow1000SectionByName(name);        
+    @RequestMapping("/searchSection")
+    public List<Flow1000Section> searchSection(@RequestParam(value = "name", defaultValue = "") String name) {
+        log.debug("searchSection request, name=" + name);
+        if ("".equals(name)) {
+            return new ArrayList<Flow1000Section>();
+        }
+        name = "%" + name + "%";
+        List<Flow1000Section> searchResult = local1000SectionDao.searchFlow1000SectionByName(name);        
 
-    //     return searchResult.stream().map(flow1000Section -> new PicIndex(
-    //             flow1000Section.getId(),
-    //             flow1000Section.getDirName(),
-    //             flow1000Section.getCreateTime(),
-    //             flow1000Section.getCover(),
-    //             flow1000Section.getCoverWidth(),
-    //             flow1000Section.getCoverHeight()
-    //     )).collect(Collectors.toList());
-    // }
+        return searchResult;
+    }
 
     @RequestMapping("/picIndexAjax")
     public List<PicIndex> picIndexAjax(

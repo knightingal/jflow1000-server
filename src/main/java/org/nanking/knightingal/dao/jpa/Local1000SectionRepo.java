@@ -27,7 +27,8 @@ public interface Local1000SectionRepo extends Local1000SectionDao, JpaRepository
      * 
      * @return 返回查询结果
      */
-    // List<Flow1000Section> searchFlow1000SectionByName(String name);
+    @Query("select s from Flow1000Section s where s.name like :name")
+    List<Flow1000Section> searchFlow1000SectionByName(@Param("name") String name);
 
     // void insertFlow1000Section(Flow1000Section flow1000Section);
 
