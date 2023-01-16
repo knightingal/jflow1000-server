@@ -70,7 +70,7 @@ public class AppConfiguration {
                     return "Local1000SectionDao".hashCode();
                 }
 
-                Class[] argClazzs = null;
+                Class<?>[] argClazzs = null;
                 if (args != null) {
                     argClazzs = new Class[args.length];
 
@@ -78,13 +78,14 @@ public class AppConfiguration {
                         argClazzs[i] = args[i].getClass();
                     }
 
+                    if (method.getName().equals("findAll")) {
+                        if (args[0] instanceof Specification) {
+                            argClazzs[0] = Specification.class;
+                        }
+                    }
+
                 }
 
-                if (method.getName().equals("findAll")) {
-                    if (args[0] instanceof Specification) {
-                        argClazzs[0] = Specification.class;
-                    }
-                }
 
                 Local1000SectionRepo target = ApplicationContextProvider.getBean(Local1000SectionRepo.class);
 

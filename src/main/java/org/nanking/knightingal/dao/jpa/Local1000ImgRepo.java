@@ -1,6 +1,5 @@
 package org.nanking.knightingal.dao.jpa;
 
-import java.util.List;
 
 import org.nanking.knightingal.bean.Flow1000Img;
 import org.nanking.knightingal.dao.Local1000ImgDao;

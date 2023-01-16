@@ -1,8 +1,5 @@
 package org.nanking.knightingal.dao;
 
-import org.nanking.knightingal.bean.Flow1000Img;
-
-import java.util.List;
 
 /**
  * @author Knightingal
