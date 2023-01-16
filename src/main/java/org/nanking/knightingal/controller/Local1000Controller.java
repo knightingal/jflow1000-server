@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.image.BufferedImage;
@@ -32,7 +33,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 
 /**
@@ -151,19 +155,9 @@ public class Local1000Controller {
             @RequestParam(value="album", defaultValue="")String album
     ) {
         log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
-        List<Flow1000Section> flow1000SectionList = local1000SectionDao.findAll(
-            (Specification<Flow1000Section>) (root, query, builder) -> {
-                List<Predicate> predicates = new ArrayList<>();
-                if (album != null && album.length() != 0) {
-                    Predicate albumPredicate = builder.equal(root.get("album"), album);
-                    predicates.add(albumPredicate);
-                }
 
-                Predicate createTimePredicate = builder.greaterThan(root.get("createTime"), timeStamp);
-                predicates.add(createTimePredicate);
-                return builder.and(predicates.toArray(new Predicate[] {}));
-            }
-        );
+        Specification<Flow1000Section> specification = new Flow1000SectionSpecification<>() ;
+        List<Flow1000Section> flow1000SectionList = local1000SectionDao.findAll( specification);
 
         return flow1000SectionList.stream().map(flow1000Section -> {
             return new PicIndex(
