@@ -3,6 +3,7 @@ package org.nanking.knightingal;
 import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.domain.Specification;
 import org.nanking.knightingal.dao.Local1000SectionDao;
 import org.nanking.knightingal.dao.jpa.Local1000SectionRepo;
 import org.nanking.knightingal.util.ApplicationContextProvider;
@@ -75,6 +76,12 @@ public class AppConfiguration {
                     argClazzs[i] = args[i].getClass();
                 }
 
+            }
+
+            if (method.getName().equals("findAll")) {
+                if (args[0] instanceof Specification) {
+                    argClazzs[0] = Specification.class;
+                }
             }
 
             Local1000SectionRepo target = ApplicationContextProvider.getBean(Local1000SectionRepo.class);
