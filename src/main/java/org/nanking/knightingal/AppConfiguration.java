@@ -60,38 +60,43 @@ public class AppConfiguration {
 
     @Bean("local1000SectionDao")
     public Local1000SectionDao local1000SectionDao() {
-        // return new Local1000SectionDaoImpl();
 
-        Local1000SectionDao local1000SectionDao = (Local1000SectionDao) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{Local1000SectionDao.class}, (proxy, method, args) -> {
+        Local1000SectionDao local1000SectionDao = (Local1000SectionDao) Proxy.newProxyInstance(
+            getClass().getClassLoader(), 
+            new Class[]{Local1000SectionDao.class}, 
+            (proxy, method, args) -> {
 
-            if (method.getName().equals("hashCode")) {
-                return "Local1000SectionDao".hashCode();
-            }
-
-            Class[] argClazzs = null;
-            if (args != null) {
-                argClazzs = new Class[args.length];
-
-                for (int i = 0; i < args.length; i++) {
-                    argClazzs[i] = args[i].getClass();
+                if (method.getName().equals("hashCode")) {
+                    return "Local1000SectionDao".hashCode();
                 }
 
-            }
+                Class[] argClazzs = null;
+                if (args != null) {
+                    argClazzs = new Class[args.length];
 
-            if (method.getName().equals("findAll")) {
-                if (args[0] instanceof Specification) {
-                    argClazzs[0] = Specification.class;
+                    for (int i = 0; i < args.length; i++) {
+                        argClazzs[i] = args[i].getClass();
+                    }
+
                 }
-            }
 
-            Local1000SectionRepo target = ApplicationContextProvider.getBean(Local1000SectionRepo.class);
+                if (method.getName().equals("findAll")) {
+                    if (args[0] instanceof Specification) {
+                        argClazzs[0] = Specification.class;
+                    }
+                }
 
-            method = Local1000SectionRepo.class.getMethod(method.getName(), argClazzs);
-            if (method == null) {
-                throw new RuntimeException("method not found");
+                Local1000SectionRepo target = ApplicationContextProvider.getBean(Local1000SectionRepo.class);
+
+                try {
+                    method = Local1000SectionRepo.class.getMethod(method.getName(), argClazzs);
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException("method not found");
+                }
+
+                return method.invoke(target, args);
             }
-            return method.invoke(target, args);
-        });
+        );
 
         return local1000SectionDao;
     }
