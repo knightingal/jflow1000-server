@@ -4,6 +4,9 @@ import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.domain.Specification;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.nanking.knightingal.dao.Local1000SectionDao;
 import org.nanking.knightingal.dao.jpa.Local1000SectionRepo;
 import org.nanking.knightingal.util.ApplicationContextProvider;
@@ -17,16 +20,15 @@ import java.text.SimpleDateFormat;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Knightingal
  */
 @Configuration
+@Slf4j
 public class AppConfiguration {
 
-    private static final Log log = LogFactory.getLog(AppConfiguration.class);
+    // private static final Log log = LogFactory.getLog(AppConfiguration.class);
     @Bean
     public TimeUtil timeUtil() {
         return new TimeUtil();
@@ -69,6 +71,7 @@ public class AppConfiguration {
             getClass().getClassLoader(), 
             new Class[]{Local1000SectionDao.class}, 
             (proxy, method, args) -> {
+                log.error("call method{}", method.getName());
 
                 if (method.getName().equals("hashCode")) {
                     return "Local1000SectionDao".hashCode();
