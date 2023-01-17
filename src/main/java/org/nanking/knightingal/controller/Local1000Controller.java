@@ -100,7 +100,7 @@ public class Local1000Controller {
                     return flow1000Section;
             }).collect(Collectors.toList());        
 
-            local1000SectionDao.saveEntitiesAllAndFlush(sectionList);
+            local1000SectionDao.saveAllAndFlush(sectionList);
 
         });
 

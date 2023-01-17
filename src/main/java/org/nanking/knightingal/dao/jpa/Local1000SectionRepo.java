@@ -34,9 +34,9 @@ public interface Local1000SectionRepo extends JpaRepository<Flow1000Section, Lon
 
     // void insertFlow1000Section(Flow1000Section flow1000Section);
 
-	default List<Flow1000Section> saveEntitiesAllAndFlush(Iterable<Flow1000Section> entities) {
-        return saveAllAndFlush(entities);
-    }
+	// default List<Flow1000Section> saveEntitiesAllAndFlush(Iterable<Flow1000Section> entities) {
+    //     return saveAllAndFlush(entities);
+    // }
 
     /**
      * 根据id删除section记录

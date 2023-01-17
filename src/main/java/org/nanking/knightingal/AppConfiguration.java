@@ -17,12 +17,16 @@ import java.text.SimpleDateFormat;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Knightingal
  */
 @Configuration
 public class AppConfiguration {
+
+    private static final Log log = LogFactory.getLog(AppConfiguration.class);
     @Bean
     public TimeUtil timeUtil() {
         return new TimeUtil();
@@ -78,20 +82,27 @@ public class AppConfiguration {
                         argClazzs[i] = args[i].getClass();
                     }
 
+                    // 处理各种重载版本的findAll，
+                    // 这里的入参经常是各种lambda的匿名类，直接getMethod会找不到
                     if (method.getName().equals("findAll")) {
                         if (args[0] instanceof Specification) {
                             argClazzs[0] = Specification.class;
                         }
+                    } else if (method.getName().equals("saveAllAndFlush")) {
+                        if (args[0] instanceof Iterable) {
+                            argClazzs[0] = Iterable.class;
+                        }
+
                     }
 
                 }
-
 
                 Local1000SectionRepo target = ApplicationContextProvider.getBean(Local1000SectionRepo.class);
 
                 try {
                     method = Local1000SectionRepo.class.getMethod(method.getName(), argClazzs);
                 } catch (NoSuchMethodException e) {
+                    log.error("method not found", e);
                     throw new RuntimeException("method not found");
                 }
 

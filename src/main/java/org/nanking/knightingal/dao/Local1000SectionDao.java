@@ -53,7 +53,7 @@ public interface Local1000SectionDao {
 	List<Flow1000Section> findAll(@Nullable Specification<Flow1000Section> spec);
 
 
-	List<Flow1000Section> saveEntitiesAllAndFlush(Iterable<Flow1000Section> entities);
+	List<Flow1000Section> saveAllAndFlush(Iterable<Flow1000Section> entities);
 
 
 }
