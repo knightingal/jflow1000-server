@@ -1,8 +1,11 @@
 package org.nanking.knightingal.bean;
 
+import lombok.Builder;
+
 /**
  * @author Knightingal
  */
+@Builder
 public class PicIndex {
 
     public PicIndex() {
