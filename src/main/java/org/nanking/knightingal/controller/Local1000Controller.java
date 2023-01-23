@@ -74,7 +74,8 @@ public class Local1000Controller {
     public Object init() {
         File baseDirFile = new File(baseDir + "/source");
         String[] list = baseDirFile.list();
-        final String[] dirList = Arrays.copyOfRange(list, 0, 10);
+        // final String[] dirList = Arrays.copyOfRange(list, 0, 10);
+        final String[] dirList = list;
 
         executorService.submit(() -> {
             List<Flow1000Section> sectionList = Stream.of(dirList).map(dirName -> {
@@ -172,8 +173,8 @@ public class Local1000Controller {
                 .name(flow1000Section.getDirName())
                 .mtime(flow1000Section.getCreateTime())
                 .cover(flow1000Section.getCover())
-                .coverHeight(flow1000Section.getCoverWidth())
-                .coverWidth(flow1000Section.getCoverHeight())
+                .coverHeight(flow1000Section.getCoverHeight())
+                .coverWidth(flow1000Section.getCoverWidth())
                 .build()
         ).collect(Collectors.toList());
     }
