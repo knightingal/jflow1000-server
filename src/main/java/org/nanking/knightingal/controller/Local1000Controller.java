@@ -149,6 +149,7 @@ public class Local1000Controller {
     @RequestMapping("/picIndexAjax")
     public List<PicIndex> picIndexAjax(
             @RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp,
+            @RequestParam(value="searchKey", defaultValue="")String searchKey,
             @RequestParam(value="album", defaultValue="")String album
     ) {
         log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
@@ -158,6 +159,12 @@ public class Local1000Controller {
                 List<Predicate> predicates = new ArrayList<>();
                 if (album != null && album.length() != 0) {
                     Predicate albumPredicate = builder.equal(root.get("album"), album);
+                    predicates.add(albumPredicate);
+                }
+
+                if (searchKey != null && searchKey.length() != 0) {
+                    String name = "%" + searchKey + "%";
+                    Predicate albumPredicate = builder.like(root.get("name"), name);
                     predicates.add(albumPredicate);
                 }
 
