@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -118,7 +117,8 @@ public class Local1000Controller {
                 .map(image -> new ImgDetail(image.getName(), image.getWidth(), image.getHeight()))
                 .collect(Collectors.toList());
 
-        return new SectionDetail(flow1000Section.getDirName(), flow1000Section.getId(), imgDetailList);
+        return new SectionDetail(flow1000Section.getDirName(), flow1000Section.getId(), imgDetailList,
+                flow1000Section.getAlbum());
     }
 
     @RequestMapping("/picContentAjax")
