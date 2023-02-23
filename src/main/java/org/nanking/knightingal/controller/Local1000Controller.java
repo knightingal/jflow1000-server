@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.persistence.criteria.Predicate;
 
-
 /**
  * @author Knightingal
  */
@@ -79,27 +78,27 @@ public class Local1000Controller {
 
         executorService.submit(() -> {
             List<Flow1000Section> sectionList = Stream.of(dirList).map(dirName -> {
-                    log.error("process " + dirName);
-                    log.error("===========================");
-                    String timeStamp = dirName.substring(0, 14);
-                    String name = dirName.substring(14);
-                    Flow1000Section flow1000Section = new Flow1000Section();
-                    flow1000Section.setName(name);
-                    flow1000Section.setCreateTime(timeStamp);
-                    flow1000Section.setDirName(dirName);
+                log.error("process " + dirName);
+                log.error("===========================");
+                String timeStamp = dirName.substring(0, 14);
+                String name = dirName.substring(14);
+                Flow1000Section flow1000Section = new Flow1000Section();
+                flow1000Section.setName(name);
+                flow1000Section.setCreateTime(timeStamp);
+                flow1000Section.setDirName(dirName);
 
-                    String[] imgNameArray = listImages(dirName);
-                    
-                    List<Flow1000Img> imgList = Stream.of(imgNameArray)
-                            .sorted(Local1000Controller::compareImgName)
-                            .map(imgNameItem -> generate1000Img(imgNameItem, flow1000Section))
-                            .collect(Collectors.toList());
-                    flow1000Section.setImages(imgList);
-                    flow1000Section.setCover(imgList.get(0).getName());
-                    flow1000Section.setCoverHeight(imgList.get(0).getHeight());
-                    flow1000Section.setCoverWidth(imgList.get(0).getWidth());
-                    return flow1000Section;
-            }).collect(Collectors.toList());        
+                String[] imgNameArray = listImages(dirName);
+
+                List<Flow1000Img> imgList = Stream.of(imgNameArray)
+                        .sorted(Local1000Controller::compareImgName)
+                        .map(imgNameItem -> generate1000Img(imgNameItem, flow1000Section))
+                        .collect(Collectors.toList());
+                flow1000Section.setImages(imgList);
+                flow1000Section.setCover(imgList.get(0).getName());
+                flow1000Section.setCoverHeight(imgList.get(0).getHeight());
+                flow1000Section.setCoverWidth(imgList.get(0).getWidth());
+                return flow1000Section;
+            }).collect(Collectors.toList());
 
             local1000SectionDao.saveAllAndFlush(sectionList);
 
@@ -108,8 +107,6 @@ public class Local1000Controller {
         return null;
     }
 
-
-
     @RequestMapping("/picDetailAjax")
     public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") Long id) {
         log.info("handle /picDetailAjax, id=" + id);
@@ -117,9 +114,9 @@ public class Local1000Controller {
         if (flow1000Section == null) {
             return new SectionDetail();
         }
-        List<ImgDetail> imgDetailList = flow1000Section.getImages().stream().map(image -> 
-            new ImgDetail(image.getName(), image.getWidth(), image.getHeight())
-        ).collect(Collectors.toList());
+        List<ImgDetail> imgDetailList = flow1000Section.getImages().stream()
+                .map(image -> new ImgDetail(image.getName(), image.getWidth(), image.getHeight()))
+                .collect(Collectors.toList());
 
         return new SectionDetail(flow1000Section.getDirName(), flow1000Section.getId(), imgDetailList);
     }
@@ -129,7 +126,8 @@ public class Local1000Controller {
         log.info("handle /picDetailAjax, id=" + id);
         Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
 
-        List<String> imgList = flow1000Section.getImages().stream().map(image -> image.getName()).collect(Collectors.toList());
+        List<String> imgList = flow1000Section.getImages().stream().map(image -> image.getName())
+                .collect(Collectors.toList());
 
         return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId().intValue(), imgList);
     }
@@ -141,39 +139,36 @@ public class Local1000Controller {
             return new ArrayList<Flow1000Section>();
         }
         name = "%" + name + "%";
-        List<Flow1000Section> searchResult = local1000SectionDao.searchFlow1000SectionByName(name);        
+        List<Flow1000Section> searchResult = local1000SectionDao.searchFlow1000SectionByName(name);
 
         return searchResult;
     }
 
     @RequestMapping("/picIndexAjax")
     public List<PicIndex> picIndexAjax(
-            @RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp,
-            @RequestParam(value="searchKey", defaultValue="")String searchKey,
-            @RequestParam(value="album", defaultValue="")String album
-    ) {
+            @RequestParam(value = "time_stamp", defaultValue = "19700101000000") String timeStamp,
+            @RequestParam(value = "searchKey", defaultValue = "") String searchKey,
+            @RequestParam(value = "album", defaultValue = "") String album) {
         log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
 
         List<Flow1000Section> flow1000SectionList = local1000SectionDao.findAll(
-            (Specification<Flow1000Section>) (root, query, builder) -> {
-                List<Predicate> predicates = new ArrayList<>();
-                if (album != null && album.length() != 0) {
-                    Predicate albumPredicate = builder.equal(root.get("album"), album);
-                    predicates.add(albumPredicate);
-                }
+                (Specification<Flow1000Section>) (root, query, builder) -> {
+                    List<Predicate> predicates = new ArrayList<>();
+                    if (album != null && album.length() != 0) {
+                        Predicate albumPredicate = builder.equal(root.get("album"), album);
+                        predicates.add(albumPredicate);
+                    }
 
-                if (searchKey != null && searchKey.length() != 0) {
-                    String name = "%" + searchKey + "%";
-                    Predicate albumPredicate = builder.like(root.get("name"), name);
-                    predicates.add(albumPredicate);
-                }
+                    if (searchKey != null && searchKey.length() != 0) {
+                        String name = "%" + searchKey + "%";
+                        Predicate albumPredicate = builder.like(root.get("name"), name);
+                        predicates.add(albumPredicate);
+                    }
 
-                Predicate createTimePredicate = builder.greaterThan(root.get("createTime"), timeStamp);
-                predicates.add(createTimePredicate);
-                return builder.and(predicates.toArray(new Predicate[] {}));
-            }
-        );
-
+                    Predicate createTimePredicate = builder.greaterThan(root.get("createTime"), timeStamp);
+                    predicates.add(createTimePredicate);
+                    return builder.and(predicates.toArray(new Predicate[] {}));
+                });
 
         return flow1000SectionList.stream().map(flow1000Section -> PicIndex.builder()
                 .index(flow1000Section.getId().intValue())
@@ -182,14 +177,12 @@ public class Local1000Controller {
                 .cover(flow1000Section.getCover())
                 .coverHeight(flow1000Section.getCoverHeight())
                 .coverWidth(flow1000Section.getCoverWidth())
-                .build()
-        ).collect(Collectors.toList());
+                .build()).collect(Collectors.toList());
     }
 
     @RequestMapping("/picIndexAjaxByPage")
     public PicIndexPage picIndexAjaxByPage(
-            @RequestParam(value="time_stamp", defaultValue="19700101000000")String timeStamp
-    ) {
+            @RequestParam(value = "time_stamp", defaultValue = "19700101000000") String timeStamp) {
         log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
         List<Flow1000Section> flow1000SectionList = local1000SectionDao.queryFlow1000SectionByCreateTime(timeStamp);
         List<PicIndex> picIndexList = new ArrayList<>();
@@ -201,14 +194,13 @@ public class Local1000Controller {
                     flow1000Section.getCreateTime(),
                     flow1000Section.getCover(),
                     flow1000Section.getCoverWidth(),
-                    flow1000Section.getCoverHeight()
-            ));
+                    flow1000Section.getCoverHeight()));
         }
 
         return new PicIndexPage(picIndexList.subList(0, 10), picIndexList.size());
     }
 
-    @RequestMapping(value="/urls1000", method={RequestMethod.POST})
+    @RequestMapping(value = "/urls1000", method = { RequestMethod.POST })
     public void urls1000(@RequestBody Urls1000Body urls1000Body) {
         log.info("handle /urls1000, body=" + urls1000Body.toString());
         String timeStamp = ((TimeUtil) applicationContext.getBean("timeUtil")).timeStamp();
@@ -225,8 +217,7 @@ public class Local1000Controller {
         flow1000Section.setDirName(dirName);
         flow1000Section.setCreateTime(timeStamp);
         flow1000Section.setCover(
-                fileUtil.getFileNameByUrl(urls1000Body.getImgSrcArray().get(0).getSrc())
-        );
+                fileUtil.getFileNameByUrl(urls1000Body.getImgSrcArray().get(0).getSrc()));
         flow1000Section.setAlbum("flow1000");
         List<Flow1000Img> flow1000ImgList = new ArrayList<>();
         for (Urls1000Body.ImgSrcBean imgSrcBean : urls1000Body.getImgSrcArray()) {
@@ -234,8 +225,7 @@ public class Local1000Controller {
             Flow1000Img flow1000Img = new Flow1000Img();
             flow1000Img.setName(fileName);
             flow1000Img.setInCover(
-                    urls1000Body.getImgSrcArray().lastIndexOf(imgSrcBean) == 0 ? 1 : 0
-            );
+                    urls1000Body.getImgSrcArray().lastIndexOf(imgSrcBean) == 0 ? 1 : 0);
             flow1000Img.setSrc(imgSrcBean.getSrc());
             flow1000Img.setHref(imgSrcBean.getRef());
             flow1000ImgList.add(flow1000Img);
@@ -245,8 +235,7 @@ public class Local1000Controller {
 
             for (Flow1000Img flow1000Img : flow1000ImgList) {
                 downloadImgThreadPoolExecutor.execute(new DownloadImgRunnable(
-                        flow1000Img, dirName, countDownLatch, baseDir
-                ));
+                        flow1000Img, dirName, countDownLatch, baseDir));
             }
             try {
                 countDownLatch.await();
@@ -264,8 +253,7 @@ public class Local1000Controller {
                     flow1000Section.getCreateTime(),
                     flow1000Section.getCover(),
                     flow1000Section.getCoverWidth(),
-                    flow1000Section.getCoverHeight()
-            );
+                    flow1000Section.getCoverHeight());
             ObjectMapper mapper = new ObjectMapper();
             try {
                 wsMsgService.sendWsMsg(mapper.writeValueAsString(picIndex));
@@ -275,7 +263,7 @@ public class Local1000Controller {
         });
     }
 
-    @RequestMapping(value="/deleteSection", method={RequestMethod.POST})
+    @RequestMapping(value = "/deleteSection", method = { RequestMethod.POST })
     public void deleteSection(@RequestBody SectionDetail sectionDetail) {
         log.info("handle /deleteSection, sectionDetail=" + sectionDetail.toString());
         if (sectionDetail.getId() == null || sectionDetail.getId() <= 0) {
@@ -287,16 +275,12 @@ public class Local1000Controller {
 
     private String[] listImages(String dirName) {
         File dirFile = new File(baseDir + "/source" + "/" + dirName);
-        return dirFile.list((dir, fileName) -> 
-            fileName != null && (
-                fileName.endsWith(".jpg") 
-                    || fileName.endsWith(".JPG") 
-                    || fileName.endsWith(".jpeg") 
-                    || fileName.endsWith(".JPEG") 
-                    || fileName.endsWith(".png") 
-                    || fileName.endsWith(".PNG")
-            )
-        );
+        return dirFile.list((dir, fileName) -> fileName != null && (fileName.endsWith(".jpg")
+                || fileName.endsWith(".JPG")
+                || fileName.endsWith(".jpeg")
+                || fileName.endsWith(".JPEG")
+                || fileName.endsWith(".png")
+                || fileName.endsWith(".PNG")));
     }
 
     private static int compareImgName(String name1, String name2) {
@@ -312,7 +296,8 @@ public class Local1000Controller {
 
     private Flow1000Img generate1000Img(String imgName, Flow1000Section flow1000Section) {
         try {
-            BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Paths.get(baseDir + "/source" + "/" + flow1000Section.getDirName() + "/" + imgName)));
+            BufferedImage sourceImg = ImageIO.read(Files.newInputStream(
+                    Paths.get(baseDir + "/source" + "/" + flow1000Section.getDirName() + "/" + imgName)));
             int width = sourceImg.getWidth();
             int height = sourceImg.getHeight();
             Flow1000Img flow1000Img = new Flow1000Img();
