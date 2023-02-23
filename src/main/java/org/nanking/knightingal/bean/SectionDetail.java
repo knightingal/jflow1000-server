@@ -7,10 +7,11 @@ import java.util.List;
  */
 public class SectionDetail {
 
-    public SectionDetail(String dirName, Long picPage, List<ImgDetail> pics) {
+    public SectionDetail(String dirName, Long picPage, List<ImgDetail> pics, String album) {
         this.dirName = dirName;
         this.picPage = picPage;
         this.pics = pics;
+        this.album = album;
     }
 
     public SectionDetail() {
@@ -23,6 +24,8 @@ public class SectionDetail {
     private Long picPage;
 
     private List<ImgDetail> pics;
+
+    private String album;
 
     public String getDirName() {
         return dirName;
@@ -54,6 +57,14 @@ public class SectionDetail {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(String album) {
+        this.album = album;
     }
 
     @Override
