@@ -11,13 +11,14 @@ public class PicIndex {
     public PicIndex() {
     }
 
-    public PicIndex(int index, String name, String mtime, String cover, int coverWidth, int coverHeight) {
+    public PicIndex(int index, String name, String mtime, String cover, int coverWidth, int coverHeight, String album) {
         this.index = index;
         this.name = name;
         this.mtime = mtime;
         this.cover = cover;
         this.coverWidth = coverWidth;
         this.coverHeight = coverHeight;
+        this.album = album;
     }
 
     private int index;
@@ -31,6 +32,16 @@ public class PicIndex {
     private int coverWidth;
 
     private int coverHeight;
+
+    private String album;
+
+    public String getAlbum() {
+        return album;
+    }
+
+    public void setAlbum(String album) {
+        this.album = album;
+    }
 
     public int getIndex() {
         return index;

@@ -177,6 +177,7 @@ public class Local1000Controller {
                 .cover(flow1000Section.getCover())
                 .coverHeight(flow1000Section.getCoverHeight())
                 .coverWidth(flow1000Section.getCoverWidth())
+                .album(flow1000Section.getAlbum())
                 .build()).collect(Collectors.toList());
     }
 
@@ -194,7 +195,8 @@ public class Local1000Controller {
                     flow1000Section.getCreateTime(),
                     flow1000Section.getCover(),
                     flow1000Section.getCoverWidth(),
-                    flow1000Section.getCoverHeight()));
+                    flow1000Section.getCoverHeight(),
+                    flow1000Section.getAlbum()));
         }
 
         return new PicIndexPage(picIndexList.subList(0, 10), picIndexList.size());
@@ -253,7 +255,8 @@ public class Local1000Controller {
                     flow1000Section.getCreateTime(),
                     flow1000Section.getCover(),
                     flow1000Section.getCoverWidth(),
-                    flow1000Section.getCoverHeight());
+                    flow1000Section.getCoverHeight(),
+                    flow1000Section.getAlbum());
             ObjectMapper mapper = new ObjectMapper();
             try {
                 wsMsgService.sendWsMsg(mapper.writeValueAsString(picIndex));
