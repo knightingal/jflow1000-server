@@ -1,5 +1,6 @@
 package org.nanking.knightingal.dao;
 
+import org.nanking.knightingal.annotation.Repo;
 import org.nanking.knightingal.bean.Flow1000Section;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
@@ -10,6 +11,7 @@ import java.util.Optional;
 /**
  * @author Knightingal
  */
+@Repo("local1000SectionRepo")
 public interface Local1000SectionDao {
     Flow1000Section queryFlow1000SectionById(Long id);
 

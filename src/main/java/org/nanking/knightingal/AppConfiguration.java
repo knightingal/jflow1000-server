@@ -1,6 +1,7 @@
 package org.nanking.knightingal;
 
 import okhttp3.OkHttpClient;
+import org.nanking.knightingal.annotation.Repo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,6 +15,8 @@ import org.nanking.knightingal.util.EncryptUtil;
 import org.nanking.knightingal.util.FileUtil;
 import org.nanking.knightingal.util.TimeUtil;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -64,13 +67,21 @@ public class AppConfiguration {
         return new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build();
     }
 
-    @Bean("local1000SectionDao")
-    public Local1000SectionDao local1000SectionDao() {
 
-        Local1000SectionDao local1000SectionDao = (Local1000SectionDao) Proxy.newProxyInstance(
-            getClass().getClassLoader(), 
-            new Class[]{Local1000SectionDao.class}, 
-            (proxy, method, args) -> {
+    private static <T> T getDao(Class<T> dao) {
+        Repo annotation = dao.getAnnotation(Repo.class);
+
+        String[] value = annotation.value();
+
+        if (value.length == 0) {
+            return null;
+        }
+
+        String repoBeanName = value[0];
+
+        Object proxy = Proxy.newProxyInstance(dao.getClassLoader(), new Class[]{dao}, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 log.error("call method{}", method.getName());
 
                 if (method.getName().equals("hashCode")) {
@@ -100,10 +111,10 @@ public class AppConfiguration {
 
                 }
 
-                Local1000SectionRepo target = ApplicationContextProvider.getBean(Local1000SectionRepo.class);
+                Object target = ApplicationContextProvider.getBean(repoBeanName);
 
                 try {
-                    method = Local1000SectionRepo.class.getMethod(method.getName(), argClazzs);
+                    method = target.getClass().getMethod(method.getName(), argClazzs);
                 } catch (NoSuchMethodException e) {
                     log.error("method not found", e);
                     throw new RuntimeException("method not found");
@@ -111,9 +122,14 @@ public class AppConfiguration {
 
                 return method.invoke(target, args);
             }
-        );
+        });
 
-        return local1000SectionDao;
+        return (T) proxy;
+    }
+
+    @Bean("local1000SectionDao")
+    public Local1000SectionDao local1000SectionDao() {
+        return getDao(Local1000SectionDao.class);
     }
 
 }
