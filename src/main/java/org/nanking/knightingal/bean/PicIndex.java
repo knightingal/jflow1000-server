@@ -8,18 +8,7 @@ import lombok.Builder;
 @Builder
 public class PicIndex {
 
-    public PicIndex() {
-    }
 
-    public PicIndex(int index, String name, String mtime, String cover, int coverWidth, int coverHeight, String album) {
-        this.index = index;
-        this.name = name;
-        this.mtime = mtime;
-        this.cover = cover;
-        this.coverWidth = coverWidth;
-        this.coverHeight = coverHeight;
-        this.album = album;
-    }
 
     private int index;
 
@@ -34,6 +23,8 @@ public class PicIndex {
     private int coverHeight;
 
     private String album;
+
+    private ClientStatus clientStatus;
 
     public String getAlbum() {
         return album;
@@ -89,5 +80,19 @@ public class PicIndex {
 
     public void setCoverHeight(int coverHeight) {
         this.coverHeight = coverHeight;
+    }
+
+    public ClientStatus getClientStatus() {
+        return clientStatus;
+    }
+
+    public void setClientStatus(ClientStatus clientStatus) {
+        this.clientStatus = clientStatus;
+    }
+
+    public static enum ClientStatus {
+        NONE,
+        PENDING,
+        LOCAL
     }
 }

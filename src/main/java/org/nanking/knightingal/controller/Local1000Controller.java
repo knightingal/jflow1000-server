@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.image.BufferedImage;
@@ -178,29 +180,10 @@ public class Local1000Controller {
                 .coverHeight(flow1000Section.getCoverHeight())
                 .coverWidth(flow1000Section.getCoverWidth())
                 .album(flow1000Section.getAlbum())
+                .clientStatus(PicIndex.ClientStatus.valueOf(flow1000Section.getClientStatus().name()))
                 .build()).collect(Collectors.toList());
     }
 
-    @RequestMapping("/picIndexAjaxByPage")
-    public PicIndexPage picIndexAjaxByPage(
-            @RequestParam(value = "time_stamp", defaultValue = "19700101000000") String timeStamp) {
-        log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
-        List<Flow1000Section> flow1000SectionList = local1000SectionDao.queryFlow1000SectionByCreateTime(timeStamp);
-        List<PicIndex> picIndexList = new ArrayList<>();
-
-        for (Flow1000Section flow1000Section : flow1000SectionList) {
-            picIndexList.add(new PicIndex(
-                    flow1000Section.getId().intValue(),
-                    flow1000Section.getDirName(),
-                    flow1000Section.getCreateTime(),
-                    flow1000Section.getCover(),
-                    flow1000Section.getCoverWidth(),
-                    flow1000Section.getCoverHeight(),
-                    flow1000Section.getAlbum()));
-        }
-
-        return new PicIndexPage(picIndexList.subList(0, 10), picIndexList.size());
-    }
 
     @RequestMapping(value = "/urls1000", method = { RequestMethod.POST })
     public void urls1000(@RequestBody Urls1000Body urls1000Body) {
@@ -249,14 +232,17 @@ public class Local1000Controller {
             flow1000ImgList.forEach(flow1000Img -> {
             });
             // local1000ImgDao.insertFlow1000Img(flow1000ImgList);
-            PicIndex picIndex = new PicIndex(
-                    flow1000Section.getId().intValue(),
-                    flow1000Section.getDirName(),
-                    flow1000Section.getCreateTime(),
-                    flow1000Section.getCover(),
-                    flow1000Section.getCoverWidth(),
-                    flow1000Section.getCoverHeight(),
-                    flow1000Section.getAlbum());
+
+            PicIndex picIndex = PicIndex.builder()
+                    .index(flow1000Section.getId().intValue())
+                    .name(flow1000Section.getDirName())
+                    .mtime(flow1000Section.getCreateTime())
+                    .cover(flow1000Section.getCover())
+                    .coverHeight(flow1000Section.getCoverHeight())
+                    .coverWidth(flow1000Section.getCoverWidth())
+                    .album(flow1000Section.getAlbum())
+                    .build();
+
             ObjectMapper mapper = new ObjectMapper();
             try {
                 wsMsgService.sendWsMsg(mapper.writeValueAsString(picIndex));
@@ -312,5 +298,26 @@ public class Local1000Controller {
         } catch (IOException e) {
         }
         return null;
+    }
+
+    @PostMapping("/downloadSection")
+    public ResponseEntity<PicIndex> downloadSection(@RequestParam(value = "id", defaultValue = "1") Long id) {
+        Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
+        if (flow1000Section == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        flow1000Section.setClientStatus(Flow1000Section.ClientStatus.PENDING);
+        local1000SectionDao.saveAndFlush(flow1000Section);
+        PicIndex picIndex = PicIndex.builder()
+                .index(flow1000Section.getId().intValue())
+                .name(flow1000Section.getDirName())
+                .mtime(flow1000Section.getCreateTime())
+                .cover(flow1000Section.getCover())
+                .coverHeight(flow1000Section.getCoverHeight())
+                .coverWidth(flow1000Section.getCoverWidth())
+                .album(flow1000Section.getAlbum())
+                .build();
+        return ResponseEntity.ok(picIndex);
     }
 }

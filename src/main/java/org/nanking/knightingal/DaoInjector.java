@@ -36,17 +36,23 @@ public class DaoInjector {
                     argClazzs[i] = args[i].getClass();
                 }
 
-                // 处理各种重载版本的findAll，
-                // 这里的入参经常是各种lambda的匿名类，直接getMethod会找不到
-                if (method.getName().equals("findAll")) {
-                    if (args[0] instanceof Specification) {
-                        argClazzs[0] = Specification.class;
-                    }
-                } else if (method.getName().equals("saveAllAndFlush")) {
-                    if (args[0] instanceof Iterable) {
-                        argClazzs[0] = Iterable.class;
-                    }
-
+                switch (method.getName()) {
+                    case "findAll":
+                        // 处理各种重载版本的findAll，
+                        // 这里的入参经常是各种lambda的匿名类，直接getMethod会找不到
+                        if (args[0] instanceof Specification) {
+                            argClazzs[0] = Specification.class;
+                        }
+                        break;
+                    case "saveAllAndFlush":
+                        if (args[0] instanceof Iterable) {
+                            argClazzs[0] = Iterable.class;
+                        }
+                        break;
+                    case "saveAndFlush":
+                        // 注意这里会有泛型擦除，不能直接那入参的类型去反射方法
+                        argClazzs[0] = Object.class;
+                        break;
                 }
 
             }

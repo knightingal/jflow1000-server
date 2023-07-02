@@ -57,5 +57,5 @@ public interface Local1000SectionDao {
 
 	List<Flow1000Section> saveAllAndFlush(Iterable<Flow1000Section> entities);
 
-
+	Flow1000Section saveAndFlush(Flow1000Section entity);
 }

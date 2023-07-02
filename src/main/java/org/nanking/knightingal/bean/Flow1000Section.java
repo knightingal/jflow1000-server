@@ -3,12 +3,7 @@ package org.nanking.knightingal.bean;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +37,18 @@ public class Flow1000Section implements Serializable{
 
     private int coverHeight;
 
+    @Column(length = 32)
+    @Enumerated(EnumType.STRING)
+    private ClientStatus clientStatus = ClientStatus.NONE;
+
+
     @OneToMany(mappedBy = "flow1000Section", cascade = CascadeType.PERSIST)
     private List<Flow1000Img> images;
+
+    public static enum ClientStatus {
+        NONE,
+        PENDING,
+        LOCAL
+    }
 
 }
