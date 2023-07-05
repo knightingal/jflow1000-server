@@ -67,7 +67,6 @@ public class Local1000Controller {
     @Autowired
     private WsMsgService wsMsgService;
 
-    @Value("${baseDir}")
     private String baseDir;
 
     @RequestMapping("/init")
