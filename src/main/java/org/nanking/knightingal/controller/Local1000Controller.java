@@ -148,10 +148,19 @@ public class Local1000Controller {
     @RequestMapping("/picIndexAjax")
     public List<PicIndex> picIndexAjax(
             @RequestParam(value = "time_stamp", defaultValue = "19700101000000") String timeStamp,
-            @RequestParam(value = "searchKey", defaultValue = "") String searchKey,
-            @RequestParam(value = "album", defaultValue = "") String album) {
+            @RequestParam(value = "searchKey", required = false) String searchKey,
+            @RequestParam(value = "client_status", required = false) String clientStatus,
+            @RequestParam(value = "album", required = false) String album) {
         log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
+        Flow1000Section.ClientStatus clientStatusCondition = null;
+        if (clientStatus != null && clientStatus.length() != 0) {
+            try {
+                clientStatusCondition = Flow1000Section.ClientStatus.valueOf(clientStatus);
+            } catch (IllegalArgumentException e) {
+            }
+        }
 
+        Flow1000Section.ClientStatus finalClientStatusCondition = clientStatusCondition;
         List<Flow1000Section> flow1000SectionList = local1000SectionDao.findAll(
                 (Specification<Flow1000Section>) (root, query, builder) -> {
                     List<Predicate> predicates = new ArrayList<>();
@@ -165,7 +174,10 @@ public class Local1000Controller {
                         Predicate albumPredicate = builder.like(root.get("name"), name);
                         predicates.add(albumPredicate);
                     }
-
+                    if (finalClientStatusCondition != null)  {
+                        Predicate albumPredicate = builder.equal(root.get("clientStatus"), finalClientStatusCondition);
+                        predicates.add(albumPredicate);
+                    }
                     Predicate createTimePredicate = builder.greaterThan(root.get("createTime"), timeStamp);
                     predicates.add(createTimePredicate);
                     return builder.and(predicates.toArray(new Predicate[] {}));
