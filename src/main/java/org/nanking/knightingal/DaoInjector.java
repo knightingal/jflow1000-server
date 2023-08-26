@@ -10,22 +10,23 @@ import java.lang.reflect.Proxy;
 @Slf4j
 public class DaoInjector {
 
+    @SuppressWarnings("unchecked")
     public static <T> T injectDaoToRepo(Class<T> dao) {
         Repo annotation = dao.getAnnotation(Repo.class);
 
         String[] value = annotation.value();
 
         if (value.length == 0) {
-            return null;
+            throw new RuntimeException("not provide annotation value");
         }
 
         String repoBeanName = value[0];
 
-        Object proxyObj = Proxy.newProxyInstance(dao.getClassLoader(), new Class[]{dao}, (proxy, method, args) -> {
+        return (T) Proxy.newProxyInstance(dao.getClassLoader(), new Class[]{dao}, (proxy, method, args) -> {
             log.error("call method{}", method.getName());
 
             if (method.getName().equals("hashCode")) {
-                return "Local1000SectionDao".hashCode();
+                return (repoBeanName + "-dao").hashCode();
             }
 
             Class<?>[] argClazzs = null;
@@ -69,6 +70,5 @@ public class DaoInjector {
             return method.invoke(target, args);
         });
 
-        return (T) proxyObj;
     }
 }

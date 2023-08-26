@@ -1,6 +1,7 @@
 package org.nanking.knightingal;
 
 import okhttp3.OkHttpClient;
+import org.nanking.knightingal.dao.Local1000AlbumConfigDao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -65,6 +66,11 @@ public class AppConfiguration {
     @Bean("local1000SectionDao")
     public Local1000SectionDao local1000SectionDao() {
         return DaoInjector.injectDaoToRepo(Local1000SectionDao.class);
+    }
+
+    @Bean("local1000AlbumConfigDao")
+    public Local1000AlbumConfigDao local1000AlbumConfigDao() {
+        return DaoInjector.injectDaoToRepo(Local1000AlbumConfigDao.class);
     }
 
 }
