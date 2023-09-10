@@ -332,6 +332,27 @@ public class Local1000Controller {
         return ResponseEntity.ok(picIndex);
     }
 
+    @PostMapping("/completeSection")
+    public ResponseEntity<PicIndex> completeSection(@RequestParam(value = "id", defaultValue = "1") Long id) {
+        Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
+        if (flow1000Section == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        flow1000Section.setClientStatus(Flow1000Section.ClientStatus.LOCAL);
+        local1000SectionDao.saveAndFlush(flow1000Section);
+        PicIndex picIndex = PicIndex.builder()
+                .index(flow1000Section.getId().intValue())
+                .name(flow1000Section.getDirName())
+                .mtime(flow1000Section.getCreateTime())
+                .cover(flow1000Section.getCover())
+                .coverHeight(flow1000Section.getCoverHeight())
+                .coverWidth(flow1000Section.getCoverWidth())
+                .album(flow1000Section.getAlbum())
+                .build();
+        return ResponseEntity.ok(picIndex);
+    }
+
     @GetMapping("/albumConfig/list")
     public List<AlbumConfig> albumConfigList() {
         return local1000AlbumConfigDao.findAll();
