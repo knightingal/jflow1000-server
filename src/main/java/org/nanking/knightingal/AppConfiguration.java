@@ -5,7 +5,6 @@ import org.nanking.knightingal.dao.Local1000AlbumConfigDao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import lombok.extern.slf4j.Slf4j;
 
 import org.nanking.knightingal.dao.Local1000SectionDao;
 import org.nanking.knightingal.util.EncryptUtil;
@@ -22,7 +21,6 @@ import java.util.concurrent.TimeUnit;
  * @author Knightingal
  */
 @Configuration
-@Slf4j
 public class AppConfiguration {
 
     // private static final Log log = LogFactory.getLog(AppConfiguration.class);
