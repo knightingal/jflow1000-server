@@ -53,3 +53,5 @@ start.sh
 target/
 application.properties
 application.properties.bak
+
+.vscode/settings.json
