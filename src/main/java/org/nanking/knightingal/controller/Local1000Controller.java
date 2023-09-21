@@ -1,6 +1,9 @@
 package org.nanking.knightingal.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.persistence.criteria.Predicate;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.nanking.knightingal.bean.*;
@@ -33,7 +36,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
-import javax.persistence.criteria.Predicate;
 
 /**
  * @author Knightingal
