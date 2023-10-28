@@ -36,7 +36,7 @@ public class ApkConfigController {
     @Value("${apk.filepath.base}")
     private String apkFilePathBase;
 
-    @Value("${apk.filepath.base}")
+    @Value("${apk.filepath.aapt.path}")
     private String aaptPath;
 
     public ApkConfigController(Local1000ApkConfigDao local1000ApkConfigDao) {
@@ -51,7 +51,7 @@ public class ApkConfigController {
         try {
             file.transferTo(dest);
 
-            Process exec = Runtime.getRuntime().exec(new String[]{"/home/knightingal/aapt2", "dump", "badging", dest.getAbsolutePath()});
+            Process exec = Runtime.getRuntime().exec(new String[]{aaptPath, "dump", "badging", dest.getAbsolutePath()});
             List<String> dumpBadgings = new BufferedReader(
                     new InputStreamReader(exec.getInputStream()
             )).lines().filter(line -> line.startsWith("package:")).toList();
