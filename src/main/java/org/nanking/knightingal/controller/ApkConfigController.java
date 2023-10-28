@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class ApkConfigController {
 
     @PostMapping("/upload")
     public ResponseEntity<Object> uploadPackage(@RequestParam("file") MultipartFile file) {
-        String fileName = file.getOriginalFilename();
+        String fileName = new File(Objects.requireNonNull(file.getOriginalFilename())).getName();
         String filePath = apkFilePathBase + fileName;
         File dest = new File(filePath);
         try {
