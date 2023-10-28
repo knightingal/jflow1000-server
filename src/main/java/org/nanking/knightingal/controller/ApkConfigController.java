@@ -15,19 +15,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @RequestMapping("/apkConfig")
 @RestController
 @Slf4j
 public class ApkConfigController {
 
+    private static final Pattern packagePattern = Pattern.compile("package: name='(.*)' versionCode='(.*)' versionName='(.*)' platformBuildVersionName='(.*)'");
     final private Local1000ApkConfigDao local1000ApkConfigDao;
 
     @Value("${apk.filepath.base}")
     private String apkFilePathBase;
+
+    @Value("${apk.filepath.base}")
+    private String aaptPath;
 
     public ApkConfigController(Local1000ApkConfigDao local1000ApkConfigDao) {
         this.local1000ApkConfigDao = local1000ApkConfigDao;
@@ -41,22 +51,39 @@ public class ApkConfigController {
         try {
             file.transferTo(dest);
 
+            Process exec = Runtime.getRuntime().exec(new String[]{"/home/knightingal/aapt2", "dump", "badging", dest.getAbsolutePath()});
+            List<String> dumpBadgings = new BufferedReader(
+                    new InputStreamReader(exec.getInputStream()
+            )).lines().filter(line -> line.startsWith("package:")).toList();
+
+            String packageId = "";
+            Long versionCode = null;
+            String versionName = "";
+
+            boolean parseSucc = false;
+
+            if (!dumpBadgings.isEmpty()) {
+                String line = dumpBadgings.get(0);
+                Matcher matcher = packagePattern.matcher(line);
+                if (matcher.matches()) {
+                    packageId = matcher.group(1);
+                    versionCode = Long.parseLong(matcher.group(2));
+                    versionName = matcher.group(3);
+                    System.out.println("packageId=" + packageId + ", versionCode=" + versionCode + ", versionName=" + versionName);
+                    parseSucc = true;
+                }
+            }
+            if (!parseSucc) {
+                throw new Exception("failed to parse apk file");
+            }
             local1000ApkConfigDao.saveAndFlush(ApkConfig.builder()
-                            .apkName(fileName).applicationId("app").versionName("v1").versionCode(0L)
-                            .uploadTime(new Date())
+                    .apkName(fileName).applicationId(packageId).versionName(versionName).versionCode(versionCode)
+                    .uploadTime(new Date())
                     .build());
 
-//            AaptInvoker aaptInvoker = ApkAnalyzerCli.getAaptInvokerFromSdk("/home/knightingal/Android/Sdk");
-//            List<String> dumpBadgings = aaptInvoker.dumpBadging(dest);
-//
-//            AndroidApplicationInfo apkInfo = AndroidApplicationInfo.parseBadging(dumpBadgings);
-//            log.debug("versionName:{}" , apkInfo.versionName);
-//            log.debug("versionCode:{}" , apkInfo.versionCode);
-//            log.debug("packageId:{}" , apkInfo.packageId);
-
             return ResponseEntity.ok().build();
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
 //        } catch (ProcessException e) {
 //            throw new RuntimeException(e);
         }
