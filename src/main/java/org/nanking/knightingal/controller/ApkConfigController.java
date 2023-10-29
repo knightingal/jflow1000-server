@@ -1,9 +1,5 @@
 package org.nanking.knightingal.controller;
 
-//import com.android.ide.common.process.ProcessException;
-//import com.android.tools.apk.analyzer.AaptInvoker;
-//import com.android.tools.apk.analyzer.AndroidApplicationInfo;
-//import com.android.tools.apk.analyzer.ApkAnalyzerCli;
 import lombok.extern.slf4j.Slf4j;
 import org.nanking.knightingal.bean.ApkConfig;
 import org.nanking.knightingal.dao.Local1000ApkConfigDao;
@@ -17,14 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @RequestMapping("/apkConfig")
 @RestController
@@ -85,8 +79,6 @@ public class ApkConfigController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
-//        } catch (ProcessException e) {
-//            throw new RuntimeException(e);
         }
     }
 }
