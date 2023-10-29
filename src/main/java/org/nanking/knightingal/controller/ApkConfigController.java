@@ -5,6 +5,7 @@ import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.nanking.knightingal.bean.ApkConfig;
 import org.nanking.knightingal.dao.Local1000ApkConfigDao;
+import org.nanking.knightingal.vo.ApkConfigVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,12 +35,15 @@ public class ApkConfigController {
     @Value("${apk.filepath.aapt.path}")
     private String aaptPath;
 
+    @Value("${apk.download.url.prefix}")
+    private String apkDownloadUrlPrefix;
+
     public ApkConfigController(Local1000ApkConfigDao local1000ApkConfigDao) {
         this.local1000ApkConfigDao = local1000ApkConfigDao;
     }
 
     @GetMapping("/newest/package/{id}")
-    public ResponseEntity<ApkConfig> newestPackage(@PathVariable("id") String packageId) {
+    public ResponseEntity<ApkConfigVO> newestPackage(@PathVariable("id") String packageId) {
         Page<ApkConfig> one = local1000ApkConfigDao.findAll((Specification<ApkConfig>) (root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
             Predicate packagePredicate = builder.equal(root.get("applicationId"), packageId);
@@ -53,8 +57,20 @@ public class ApkConfigController {
         if (one.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
-            return ResponseEntity.ok().body(one.getContent().get(0));
+            ApkConfig apkConfig = one.getContent().get(0);
+            ApkConfigVO vo = ApkConfigVO.builder()
+                    .apkName(apkConfig.getApkName())
+                    .applicationId(apkConfig.getApplicationId())
+                    .versionCode(apkConfig.getVersionCode())
+                    .versionName(apkConfig.getVersionName())
+                    .downloadUrl(apkDownloadUrlPrefix + toApkVersionedName(apkConfig))
+                    .build();
+            return ResponseEntity.ok().body(vo);
         }
+    }
+
+    private String toApkVersionedName(ApkConfig apkConfig) {
+        return apkConfig.getApplicationId() + "_" + apkConfig.getVersionCode() + "_" + apkConfig.getVersionName() + ".apk";
     }
 
     @PostMapping("/upload")
@@ -90,10 +106,17 @@ public class ApkConfigController {
             if (!parseSucc) {
                 throw new Exception("failed to parse apk file");
             }
-            local1000ApkConfigDao.saveAndFlush(ApkConfig.builder()
-                    .apkName(fileName).applicationId(packageId).versionName(versionName).versionCode(versionCode)
+            ApkConfig apkConfig = ApkConfig.builder()
+                    .applicationId(packageId).versionName(versionName).versionCode(versionCode)
                     .uploadTime(new Date())
-                    .build());
+                    .build();
+            apkConfig.setApkName(toApkVersionedName(apkConfig));
+
+            String destApkName = apkFilePathBase + toApkVersionedName(apkConfig);
+            if (!dest.renameTo(new File(destApkName))) {
+                throw new Exception("failed to rename apk to " + destApkName);
+            }
+            local1000ApkConfigDao.saveAndFlush(apkConfig);
 
             return ResponseEntity.ok().build();
         } catch (Exception e) {
