@@ -3,6 +3,7 @@ package org.nanking.knightingal;
 import lombok.extern.slf4j.Slf4j;
 import org.nanking.knightingal.annotation.Repo;
 import org.nanking.knightingal.util.ApplicationContextProvider;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.lang.reflect.Proxy;
@@ -38,11 +39,15 @@ public class DaoInjector {
                 }
 
                 switch (method.getName()) {
-                    case "findAll":
+                    case "findAll", "findOne":
                         // 处理各种重载版本的findAll，
                         // 这里的入参经常是各种lambda的匿名类，直接getMethod会找不到
                         if (args[0] instanceof Specification) {
                             argClazzs[0] = Specification.class;
+                        }
+                        // wtf, 参数是继承类型也不能反射出来，垃了
+                        if (args.length >= 2 && args[1] instanceof Pageable) {
+                            argClazzs[1] = Pageable.class;
                         }
                         break;
                     case "saveAllAndFlush":
