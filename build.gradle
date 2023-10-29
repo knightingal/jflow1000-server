@@ -37,6 +37,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
   implementation("com.squareup.okhttp3:okhttp:4.10.0")
+	implementation('com.google.code.findbugs:annotations:3.0.1u2')
 //	implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
