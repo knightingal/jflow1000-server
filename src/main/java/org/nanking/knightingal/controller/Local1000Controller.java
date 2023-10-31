@@ -46,7 +46,7 @@ public class Local1000Controller {
 
     private static final Log log = LogFactory.getLog(Local1000Controller.class);
 
-    private static ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public Local1000Controller(Local1000SectionDao local1000SectionDao, Local1000ImgDao local1000ImgDao, Local1000AlbumConfigDao local1000AlbumConfigDao) {
         this.local1000ImgDao = local1000ImgDao;
@@ -77,9 +77,8 @@ public class Local1000Controller {
     @RequestMapping("/init")
     public Object init() {
         File baseDirFile = new File(baseDir + "/source");
-        String[] list = baseDirFile.list();
         // final String[] dirList = Arrays.copyOfRange(list, 0, 10);
-        final String[] dirList = list;
+        final String[] dirList = baseDirFile.list();
 
         executorService.submit(() -> {
             List<Flow1000Section> sectionList = Stream.of(dirList).map(dirName -> {
