@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.nanking.knightingal.bean.ApkConfig;
 import org.nanking.knightingal.dao.Local1000ApkConfigDao;
 import org.nanking.knightingal.vo.ApkConfigVO;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,17 +28,17 @@ public class ApkConfigController {
     private static final Pattern packagePattern = Pattern.compile("package: name='(.*)' versionCode='(.*)' versionName='(.*)' platformBuildVersionName='(.*)'");
     final private Local1000ApkConfigDao local1000ApkConfigDao;
 
-    @Value("${apk.filepath.base}")
-    private String apkFilePathBase;
+    private final String apkFilePathBase;
 
-    @Value("${apk.filepath.aapt.path}")
-    private String aaptPath;
+    private final String aaptPath;
 
-    @Value("${apk.download.url.prefix}")
-    private String apkDownloadUrlPrefix;
+    private final String apkDownloadUrlPrefix;
 
-    public ApkConfigController(Local1000ApkConfigDao local1000ApkConfigDao) {
+    public ApkConfigController(Local1000ApkConfigDao local1000ApkConfigDao, String apkFilePathBase, String aaptPath, String apkDownloadUrlPrefix) {
         this.local1000ApkConfigDao = local1000ApkConfigDao;
+        this.apkFilePathBase = apkFilePathBase;
+        this.aaptPath = aaptPath;
+        this.apkDownloadUrlPrefix = apkDownloadUrlPrefix;
     }
 
     @GetMapping("/newest/package/{id}")
