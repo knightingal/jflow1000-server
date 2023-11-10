@@ -82,7 +82,7 @@ public class ApkConfigController {
             file.transferTo(dest);
 
             Process exec = Runtime.getRuntime().exec(new String[]{aaptPath, "dump", "badging", dest.getAbsolutePath()});
-            List<String> dumpBadgings = new BufferedReader(
+            List<String> dumpBadgingList = new BufferedReader(
                     new InputStreamReader(exec.getInputStream()
             )).lines().filter(line -> line.startsWith("package:")).toList();
 
@@ -92,8 +92,8 @@ public class ApkConfigController {
 
             boolean parseSucc = false;
 
-            if (!dumpBadgings.isEmpty()) {
-                String line = dumpBadgings.get(0);
+            if (!dumpBadgingList.isEmpty()) {
+                String line = dumpBadgingList.get(0);
                 Matcher matcher = packagePattern.matcher(line);
                 if (matcher.matches()) {
                     packageId = matcher.group(1);
