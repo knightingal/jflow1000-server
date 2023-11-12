@@ -187,7 +187,7 @@ public class Local1000Controller {
                 });
 
         return flow1000SectionList.stream().map(flow1000Section -> PicIndex.builder()
-                .index(flow1000Section.getId().intValue())
+                .index(flow1000Section.getId())
                 .name(flow1000Section.getDirName())
                 .mtime(flow1000Section.getCreateTime())
                 .cover(flow1000Section.getCover())
