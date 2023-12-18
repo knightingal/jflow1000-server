@@ -99,7 +99,7 @@ public class ApkConfigController {
                     packageId = matcher.group(1);
                     versionCode = Long.parseLong(matcher.group(2));
                     versionName = matcher.group(3);
-                    System.out.println("packageId=" + packageId + ", versionCode=" + versionCode + ", versionName=" + versionName);
+                    log.info("packageId={}, versionCode={}, versionName={}", packageId, versionCode, versionName);
                     parseSucc = true;
                 }
             }
