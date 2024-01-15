@@ -1,0 +1,14 @@
+# systemd service config file for flow1000 service
+
+[Unit]
+Description=flow1000 service
+
+[Service]
+Type=simple
+WorkingDirectory=/root
+ExecStart=/root/start_flow1000.sh
+ExecStop=/root/stop_flow1000.sh
+
+
+[Install]
+WantedBy=multi-user.target
