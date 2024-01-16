@@ -1,7 +1,9 @@
 # systemd service config file for flow1000 service
+# put into /etc/systemd/system/flow1000.service
 
 [Unit]
 Description=flow1000 service
+Requires=docker.service
 
 [Service]
 Type=simple
