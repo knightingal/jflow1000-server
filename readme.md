@@ -33,7 +33,7 @@ docker run -d -p 3002:3002 -p 3001:3001 -p 3003:3003 --name nginx --network db-n
 * edit `/etc/fstab`
 ```
 vi /etc/fstab
-UUID=BEB27BE7B27BA317 /mnt ntfs defaults 0 2
+UUID=BEB27BE7B27BA317 /mnt ntfs defaults,nofail 0 2
 ```
 
 # Flow1000 service config
