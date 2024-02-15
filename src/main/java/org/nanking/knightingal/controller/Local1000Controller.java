@@ -354,7 +354,7 @@ public class Local1000Controller {
         return ResponseEntity.ok(picIndex);
     }
 
-    @PostMapping("/deleteSection")
+//    @PostMapping("/deleteSection")
     public ResponseEntity<PicIndex> deleteSection(@RequestParam(value = "id", defaultValue = "1") Long id) {
         Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
         if (flow1000Section == null) {
