@@ -6,6 +6,8 @@ docker buildx build -t flow1000:x.x -f Dockerfile .
 
 # How to run docker image
 ```
+docker network create db-network
+
 docker run -d --network db-network --name mariadb0 --env MARIADB_ROOT_PASSWORD=000000 -v /var/lib/mysql:/var/lib/mysql -p 3306:3306 mariadb:latest
 
 docker run -d  --network db-network -v /usr/share/nginx/html:/usr/share/nginx/html -v /home/knightingal/application.properties:/opt/app/config/application.properties -p 8000:8000 --name flow1000-server  flow1000:x.x
