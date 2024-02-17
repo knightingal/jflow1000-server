@@ -42,13 +42,21 @@ UUID=BEB27BE7B27BA317 /mnt ntfs defaults,nofail 0 2
 
 # Flow1000 service config
 
+## Enable docker service
+```
+systemctl enable docker.service
+```
+
+## Config flow1000 service
 put flow1000.service into /etc/systemd/system/
 
 put start_flow1000.sh and stop_flow1000.sh into /root
 
+close selinux
 ```
 chmod +x /root -R
-```
-```
+
+systemctl enable flow1000.service
+
 systemctl status flow1000.service
 ```
