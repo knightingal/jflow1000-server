@@ -5,6 +5,11 @@ docker buildx build -t flow1000:x.x -f Dockerfile .
 ```
 
 # How to run docker image
+
+cp `application.properties` into /home/knightingal
+
+set `apk.filepath.base` as `/opt/app/`, and set `apk.filepath.aapt.path` as `opt/app/aapt2`
+
 ```
 docker network create db-network
 
