@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -40,6 +41,22 @@ public class ApkConfigController {
 
     public ApkConfigController(Local1000ApkConfigDao local1000ApkConfigDao) {
         this.local1000ApkConfigDao = local1000ApkConfigDao;
+    }
+
+    @GetMapping("/list/packages")
+    public ResponseEntity<Object> listPackages() {
+        // Page<ApkConfig> one = local1000ApkConfigDao.findAll((Specification<ApkConfig>) (root, query, builder) -> {
+        //     List<Predicate> predicates = new ArrayList<>();
+        //     Predicate packagePredicate = builder.equal(root.get("applicationId"), packageId);
+        //     predicates.add(packagePredicate);
+        //     Order versionCode = builder.desc(root.get("versionCode"));
+        //     return query
+        //             .orderBy(versionCode)
+        //             .where(predicates.toArray(new Predicate[]{}))
+        //             .getRestriction();
+        // });
+        return null;
+
     }
 
     @GetMapping("/newest/package/{id}")
@@ -82,9 +99,15 @@ public class ApkConfigController {
             file.transferTo(dest);
 
             Process exec = Runtime.getRuntime().exec(new String[]{aaptPath, "dump", "badging", dest.getAbsolutePath()});
-            List<String> dumpBadgingList = new BufferedReader(
-                    new InputStreamReader(exec.getInputStream()
-            )).lines().filter(line -> line.startsWith("package:")).toList();
+            InputStream is = exec.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            List<String> dumpBadgingList = br.lines().filter(line -> line.startsWith("package:")).toList();
+            br.close();
+            isr.close();
+            is.close();
+            
+
 
             String packageId = "";
             Long versionCode = null;
