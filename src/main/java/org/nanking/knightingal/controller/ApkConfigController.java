@@ -44,19 +44,24 @@ public class ApkConfigController {
     }
 
     @GetMapping("/list/packages")
-    public ResponseEntity<Object> listPackages() {
-        // Page<ApkConfig> one = local1000ApkConfigDao.findAll((Specification<ApkConfig>) (root, query, builder) -> {
-        //     List<Predicate> predicates = new ArrayList<>();
-        //     Predicate packagePredicate = builder.equal(root.get("applicationId"), packageId);
-        //     predicates.add(packagePredicate);
-        //     Order versionCode = builder.desc(root.get("versionCode"));
-        //     return query
-        //             .orderBy(versionCode)
-        //             .where(predicates.toArray(new Predicate[]{}))
-        //             .getRestriction();
-        // });
-        return null;
+    public ResponseEntity<List<ApkConfigVO>> listPackages() {
+        List<ApkConfig> one = local1000ApkConfigDao.findAll((Specification<ApkConfig>) (root, query, builder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            Order versionCode = builder.desc(root.get("versionCode"));
+            return query
+                    .orderBy(versionCode)
+                    .where(predicates.toArray(new Predicate[]{}))
+                    .getRestriction();
+        });
 
+        List<ApkConfigVO> apkConfigVo = one.stream().map(apkConfig -> ApkConfigVO.builder()
+                .apkName(apkConfig.getApkName())
+                .applicationId(apkConfig.getApplicationId())
+                .versionCode(apkConfig.getVersionCode())
+                .versionName(apkConfig.getVersionName())
+                .downloadUrl(apkDownloadUrlPrefix + toApkVersionedName(apkConfig))
+                .build()).toList();
+        return ResponseEntity.ok(apkConfigVo);
     }
 
     @GetMapping("/newest/package/{id}")
