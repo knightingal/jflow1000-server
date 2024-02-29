@@ -8,7 +8,7 @@ docker buildx build -t flow1000:x.x -f Dockerfile .
 
 cp `application.properties` into /home/knightingal
 
-set `apk.filepath.base` as `/opt/app/`, and set `apk.filepath.aapt.path` as `opt/app/aapt2`
+set `apk.filepath.base` as `/usr/share/nginx/html/`, and set `apk.filepath.aapt.path` as `/opt/app/aapt2`
 
 ```
 docker network create db-network
