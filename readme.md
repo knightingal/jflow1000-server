@@ -17,7 +17,7 @@ docker run -d --network db-network --name mariadb0 --env MARIADB_ROOT_PASSWORD=0
 
 docker run -d  --network db-network -v /usr/share/nginx/html:/usr/share/nginx/html -v /home/knightingal/application.properties:/opt/app/config/application.properties -p 8000:8000 --name flow1000-server  flow1000:x.x
 
-docker run -d -p 3002:3002 -p 3001:3001 -p 3003:3003 --name nginx --network db-network -v /usr/share/nginx/html:/usr/share/nginx/html -v /home/knightingal/source/md-client/build:/usr/share/nginx/flow1000-front -v /usr/share/nginx/flutter-web:/usr/share/nginx/flutter-web -v /mnt:/mnt -v /etc/nginx/nginx.conf:/etc/nginx/nginx.conf nginx
+docker run -d -p 3002:3002 -p 3001:3001 -p 3003:3003 --name nginx --network db-network -v /usr/share/nginx/html:/usr/share/nginx/html -v /home/knightingal/source/md-client/build:/usr/share/nginx/flow1000-front -v /home/knightingal/source/mp4_viewer_client/build/web:/usr/share/nginx/flutter-web -v /mnt:/mnt -v /etc/nginx/nginx.conf:/etc/nginx/nginx.conf nginx
 ```
 
 # Auto mount drive
