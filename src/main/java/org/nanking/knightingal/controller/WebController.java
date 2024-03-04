@@ -11,12 +11,16 @@ import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
 import org.nanking.knightingal.bean.ApkConfig;
 import org.nanking.knightingal.dao.Local1000ApkConfigDao;
+import org.nanking.knightingal.util.QrCodeUtil;
 import org.nanking.knightingal.vo.ApkConfigVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.google.zxing.WriterException;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -67,9 +71,9 @@ public class WebController {
     }
 
     @GetMapping("/qr")
-    public void qrImage(HttpServletResponse httpServletResponse) throws IOException {
+    public void qrImage(@Param("content") String content, HttpServletResponse httpServletResponse) throws IOException, WriterException {
         httpServletResponse.addHeader("content-type", "image/png");
-        File qrFile = new File("./qrcode.png");
+        File qrFile = new File(QrCodeUtil.generateQrCode(content));
         InputStream fileIs = new FileInputStream(qrFile);
         while (true) {
             byte[] buffer = new byte[1024];

@@ -15,10 +15,12 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import java.util.Base64;
 public class QrCodeUtil {
     public static String generateQrCode(String content) throws WriterException, IOException {
 
-        String fileName = "./qrcode.png";
+        String contentBase64 = Base64.getEncoder().encodeToString(content.getBytes());
+        String fileName = "./" + contentBase64 + ".png";
 
         BitMatrix bitMatrix = setBitMatrix(content, 200, 200);
         BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
