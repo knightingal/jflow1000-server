@@ -1,9 +1,6 @@
 package org.nanking.knightingal.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,18 +70,7 @@ public class WebController {
     @GetMapping("/qr")
     public void qrImage(@Param("content") String content, HttpServletResponse httpServletResponse) throws IOException, WriterException {
         httpServletResponse.addHeader("content-type", "image/png");
-        File qrFile = new File(QrCodeUtil.generateQrCode(content));
-        InputStream fileIs = new FileInputStream(qrFile);
-        while (true) {
-            byte[] buffer = new byte[1024];
-            int readLen = fileIs.read(buffer);
-            if (readLen <= 0) {
-                break;
-            }
-            httpServletResponse.getOutputStream().write(buffer, 0, readLen);
-
-        }
-        fileIs.close();
+        QrCodeUtil.generateQrCode(content, httpServletResponse.getOutputStream());
     }
     
 }
