@@ -55,3 +55,4 @@ application.properties
 application.properties.bak
 
 .vscode/settings.json
+.vscode/launch.json
