@@ -24,7 +24,6 @@ public class DaoInjector {
         String repoBeanName = value[0];
 
         return (T) Proxy.newProxyInstance(dao.getClassLoader(), new Class[]{dao}, (proxy, method, args) -> {
-            log.error("call method{}", method.getName());
 
             if (method.getName().equals("hashCode")) {
                 return (repoBeanName + "-dao").hashCode();
