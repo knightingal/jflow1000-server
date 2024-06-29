@@ -119,10 +119,10 @@ public class Local1000Controller {
             return new SectionDetail();
         }
         List<ImgDetail> imgDetailList = flow1000Section.getImages().stream()
-                .map(image -> new ImgDetail(image.getName(), image.getWidth(), image.getHeight()))
+                .map(image -> new ImgDetail(image.getId(), image.getName(), image.getWidth(), image.getHeight()))
                 .collect(Collectors.toList());
 
-        return new SectionDetail(flow1000Section.getDirName(), flow1000Section.getId(), imgDetailList,
+        return new SectionDetail(flow1000Section.getId(), flow1000Section.getDirName(), flow1000Section.getId(), imgDetailList,
                 flow1000Section.getAlbum());
     }
 

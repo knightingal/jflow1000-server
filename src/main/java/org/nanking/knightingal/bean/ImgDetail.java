@@ -8,17 +8,28 @@ public class ImgDetail {
     public ImgDetail() {
     }
 
-    public ImgDetail(String name, int width, int height) {
+    public ImgDetail(long id, String name, int width, int height) {
+        this.id = id;
         this.name = name;
         this.width = width;
         this.height = height;
     }
+
+    private long id;
 
     private String name;
 
     private int width;
 
     private int height;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

@@ -7,11 +7,12 @@ import java.util.List;
  */
 public class SectionDetail {
 
-    public SectionDetail(String dirName, Long picPage, List<ImgDetail> pics, String album) {
+    public SectionDetail(Long id, String dirName, Long picPage, List<ImgDetail> pics, String album) {
         this.dirName = dirName;
         this.picPage = picPage;
         this.pics = pics;
         this.album = album;
+        this.id = id;
     }
 
     public SectionDetail() {
