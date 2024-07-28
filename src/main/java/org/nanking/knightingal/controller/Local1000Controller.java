@@ -36,6 +36,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 /**
  * @author Knightingal
@@ -109,6 +113,13 @@ public class Local1000Controller {
         });
 
         return null;
+    }
+
+    
+    @RequestMapping("/initv2")
+    public ResponseEntity<Object> initV2() {
+      return ResponseEntity.ok().build();
+
     }
 
     @RequestMapping("/picDetailAjax")
