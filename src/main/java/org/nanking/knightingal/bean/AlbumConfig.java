@@ -20,5 +20,8 @@ public class AlbumConfig {
 
     private boolean encrypted;
 
+    private String encryptedPath;
+    private String sourcePath;
+
     private String baseUrl;
 }
