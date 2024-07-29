@@ -15,6 +15,7 @@ import org.nanking.knightingal.service.WsMsgService;
 import org.nanking.knightingal.util.FileUtil;
 import org.nanking.knightingal.util.TimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -76,6 +78,7 @@ public class Local1000Controller {
     @Autowired
     private WsMsgService wsMsgService;
 
+    @Value("${local1000.base-dir}")
     private String baseDir;
 
     @RequestMapping("/init")
@@ -118,7 +121,31 @@ public class Local1000Controller {
     
     @RequestMapping("/initv2")
     public ResponseEntity<Object> initV2() {
+
+      List<AlbumConfig> albumConfigs = local1000AlbumConfigDao.findAll();
+      albumConfigs.forEach(albumConfig -> {
+        scanLocal1000AlbumDir(albumConfig);
+
+      });
+      
       return ResponseEntity.ok().build();
+    }
+
+    private void scanLocal1000AlbumDir(AlbumConfig albumConfig) {
+      String pathName = baseDir + "/" + albumConfig.getSourcePath();
+      File basePath = new File(pathName);
+      File[] sections = basePath.listFiles();
+
+      List<File> sectionList = Arrays.stream(sections).sorted((file1, file2) -> {
+        return (int)(file1.lastModified() - file2.lastModified());
+      }).collect(Collectors.toList());
+      for (File section : sectionList) {
+        log.info("section.getName()");
+        File[] images = section.listFiles();
+        for (File image : images) {
+          log.info(image.getName());
+        }
+      }
 
     }
 
