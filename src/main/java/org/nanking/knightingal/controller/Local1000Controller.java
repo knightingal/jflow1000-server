@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -131,20 +132,38 @@ public class Local1000Controller {
       return ResponseEntity.ok().build();
     }
 
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYYMMDDHHmmss");
+
+    private static boolean isTimeStampe(String str) {
+      try {
+        simpleDateFormat.parse(str);
+        return true;
+      } catch (Exception e) {
+        return false;
+      }
+    }
+
     private void scanLocal1000AlbumDir(AlbumConfig albumConfig) {
       String pathName = baseDir + "/" + albumConfig.getSourcePath();
       File basePath = new File(pathName);
       File[] sections = basePath.listFiles();
 
       List<File> sectionList = Arrays.stream(sections).sorted((file1, file2) -> {
+        if (isTimeStampe(file1.getName().substring(0, 14)) && isTimeStampe(file2.getName().substring(0, 14))) {
+          try {
+            return simpleDateFormat.parse(file1.getName().substring(0, 14)).before(simpleDateFormat.parse(file1.getName().substring(0, 14))) ? -1:1; 
+          } catch (Exception e) {
+            return (int)(file1.lastModified() - file2.lastModified());
+          }
+        }
         return (int)(file1.lastModified() - file2.lastModified());
       }).collect(Collectors.toList());
       for (File section : sectionList) {
-        log.info("section.getName()");
+        log.info(section.getName());
         File[] images = section.listFiles();
-        for (File image : images) {
-          log.info(image.getName());
-        }
+        // for (File image : images) {
+        //   log.info(image.getName());
+        // }
       }
 
     }
