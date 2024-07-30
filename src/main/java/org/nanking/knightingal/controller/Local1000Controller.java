@@ -30,7 +30,10 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -124,15 +127,17 @@ public class Local1000Controller {
     public ResponseEntity<Object> initV2() {
 
       List<AlbumConfig> albumConfigs = local1000AlbumConfigDao.findAll();
+      Map<String, List<Map<String, List<String>>>> albumConfigRest = new HashMap<>();
       albumConfigs.forEach(albumConfig -> {
-        scanLocal1000AlbumDir(albumConfig);
+        List<Map<String, List<String>>> resp = scanLocal1000AlbumDir(albumConfig);
+        albumConfigRest.put(albumConfig.getName(), resp);
 
       });
       
-      return ResponseEntity.ok().build();
+      return ResponseEntity.ok().body(albumConfigRest);
     }
 
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYYMMDDHHmmss");
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private static boolean isTimeStampe(String str) {
       try {
@@ -143,15 +148,19 @@ public class Local1000Controller {
       }
     }
 
-    private void scanLocal1000AlbumDir(AlbumConfig albumConfig) {
+    private List<Map<String, List<String>>> scanLocal1000AlbumDir(AlbumConfig albumConfig) {
       String pathName = baseDir + "/" + albumConfig.getSourcePath();
       File basePath = new File(pathName);
       File[] sections = basePath.listFiles();
+      List<Map<String, List<String>>> resp = new ArrayList<>(); 
 
       List<File> sectionList = Arrays.stream(sections).sorted((file1, file2) -> {
         if (isTimeStampe(file1.getName().substring(0, 14)) && isTimeStampe(file2.getName().substring(0, 14))) {
           try {
-            return simpleDateFormat.parse(file1.getName().substring(0, 14)).before(simpleDateFormat.parse(file1.getName().substring(0, 14))) ? -1:1; 
+            Date date1 = simpleDateFormat.parse(file1.getName().substring(0, 14));
+            Date date2 = simpleDateFormat.parse(file2.getName().substring(0, 14));
+            boolean isBefore = date1.before(date2);
+            return isBefore ? -1:1; 
           } catch (Exception e) {
             return (int)(file1.lastModified() - file2.lastModified());
           }
@@ -160,11 +169,38 @@ public class Local1000Controller {
       }).collect(Collectors.toList());
       for (File section : sectionList) {
         log.info(section.getName());
+        Map<String, List<String>> sectionItem = new HashMap<>();
+        sectionItem.put(section.getName(), new ArrayList<>());
+        resp.add(sectionItem);
+
         File[] images = section.listFiles();
-        // for (File image : images) {
-        //   log.info(image.getName());
-        // }
+        List<File> imagesList = Arrays.stream(images).filter((file) -> {
+          return !file.getName().endsWith(".html") && !file.getName().endsWith(".htm") && !file.getName().endsWith(".directory");
+        }).sorted((file1, file2) -> {
+          if (file1.getName().contains("-") && file2.getName().contains("-")) {
+            int num1 = Integer.parseInt(file1.getName().split("-")[0]);
+            int num2 = Integer.parseInt(file2.getName().split("-")[0]);
+            return num1 - num2;
+          } else {
+            try {
+              String fileName1 = file1.getName();
+              String fileName2 = file2.getName();
+              String[] fileSplite1 = fileName1.split("\\.");
+              String[] fileSplite2 = fileName2.split("\\.");
+              int num1 = Integer.parseInt(fileSplite1[0]);
+              int num2 = Integer.parseInt(fileSplite2[0]);
+              return num1 - num2;
+            } catch (Exception e) {
+              return (int)(file1.lastModified() - file2.lastModified());
+            }
+          }
+        }).collect(Collectors.toList());
+        for (File image : imagesList) {
+          log.info(image.getName());
+          sectionItem.get(section.getName()).add(image.getName());
+        }
       }
+      return resp;
 
     }
 
