@@ -179,7 +179,10 @@ public class Local1000Controller {
 
         File[] images = section.listFiles();
         List<File> imagesList = Arrays.stream(images).filter((file) -> {
-          return !file.getName().endsWith(".html") && !file.getName().endsWith(".htm") && !file.getName().endsWith(".directory");
+          return !file.getName().endsWith(".html") 
+            && !file.getName().endsWith(".htm") 
+            && !file.getName().endsWith(".directory")
+            && !file.getName().endsWith(".pdf");
         }).sorted((file1, file2) -> {
           if (file1.getName().contains("-") && file2.getName().contains("-")) {
             int num1 = Integer.parseInt(file1.getName().split("-")[0]);
