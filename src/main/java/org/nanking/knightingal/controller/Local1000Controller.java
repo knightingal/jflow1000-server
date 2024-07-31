@@ -26,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -175,7 +176,7 @@ public class Local1000Controller {
         Flow1000Section flow1000Section = new Flow1000Section();
         flow1000Section.setAlbum(albumConfig.getName());
         flow1000Section.setDirName(section.getName());
-        flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
+        // flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
 
         File[] images = section.listFiles();
         List<File> imagesList = Arrays.stream(images).filter((file) -> {
@@ -206,9 +207,16 @@ public class Local1000Controller {
           log.info(image.getName());
           sectionItem.get(section.getName()).add(image.getName());
           Flow1000Img flow1000Img = new Flow1000Img();
+          try {
+            BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(image.getAbsolutePath())));
+            int width = sourceImg.getWidth();
+            int height = sourceImg.getHeight();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
           flow1000Img.setName(image.getName());
-          flow1000Img.setFlow1000Section(flow1000Section);
-          local1000ImgDao.saveAndFlush(flow1000Img);
+          // flow1000Img.setFlow1000Section(flow1000Section);
+          // local1000ImgDao.saveAndFlush(flow1000Img);
         }
       }
       return resp;
