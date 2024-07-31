@@ -172,6 +172,10 @@ public class Local1000Controller {
         Map<String, List<String>> sectionItem = new HashMap<>();
         sectionItem.put(section.getName(), new ArrayList<>());
         resp.add(sectionItem);
+        Flow1000Section flow1000Section = new Flow1000Section();
+        flow1000Section.setAlbum(albumConfig.getName());
+        flow1000Section.setDirName(section.getName());
+        flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
 
         File[] images = section.listFiles();
         List<File> imagesList = Arrays.stream(images).filter((file) -> {
@@ -198,6 +202,10 @@ public class Local1000Controller {
         for (File image : imagesList) {
           log.info(image.getName());
           sectionItem.get(section.getName()).add(image.getName());
+          Flow1000Img flow1000Img = new Flow1000Img();
+          flow1000Img.setName(image.getName());
+          flow1000Img.setFlow1000Section(flow1000Section);
+          local1000ImgDao.saveAndFlush(flow1000Img);
         }
       }
       return resp;

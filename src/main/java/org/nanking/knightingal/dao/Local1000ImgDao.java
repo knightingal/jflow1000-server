@@ -1,5 +1,6 @@
 package org.nanking.knightingal.dao;
 
+import org.nanking.knightingal.bean.Flow1000Img;
 
 /**
  * @author Knightingal
@@ -26,4 +27,6 @@ public interface Local1000ImgDao {
      * @param sectionId section id
      */
     void deleteById(Long sectionId);
+
+    Flow1000Img saveAndFlush(Flow1000Img entity);
 }
