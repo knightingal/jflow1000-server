@@ -176,7 +176,8 @@ public class Local1000Controller {
         Flow1000Section flow1000Section = new Flow1000Section();
         flow1000Section.setAlbum(albumConfig.getName());
         flow1000Section.setDirName(section.getName());
-        // flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
+        flow1000Section.setName(section.getName());
+        flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
 
         File[] images = section.listFiles();
         List<File> imagesList = Arrays.stream(images).filter((file) -> {
@@ -211,12 +212,20 @@ public class Local1000Controller {
             BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(image.getAbsolutePath())));
             int width = sourceImg.getWidth();
             int height = sourceImg.getHeight();
+            flow1000Img.setHeight(height);
+            flow1000Img.setWidth(width);
           } catch (Exception e) {
             e.printStackTrace();
           }
           flow1000Img.setName(image.getName());
-          // flow1000Img.setFlow1000Section(flow1000Section);
-          // local1000ImgDao.saveAndFlush(flow1000Img);
+          flow1000Img.setFlow1000Section(flow1000Section);
+          local1000ImgDao.saveAndFlush(flow1000Img);
+          if (imagesList.indexOf(image) == 0) {
+            flow1000Section.setCover(flow1000Img.getName());
+            flow1000Section.setCoverHeight(flow1000Img.getHeight());
+            flow1000Section.setCoverWidth(flow1000Img.getWidth());
+            local1000SectionDao.saveAndFlush(flow1000Section);
+          }
         }
       }
       return resp;
