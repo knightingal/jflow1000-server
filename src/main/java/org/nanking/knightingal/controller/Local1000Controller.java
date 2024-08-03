@@ -217,7 +217,11 @@ public class Local1000Controller {
           } catch (Exception e) {
             e.printStackTrace();
           }
-          flow1000Img.setName(image.getName());
+          if (albumConfig.isEncrypted()) {
+            flow1000Img.setName(image.getName() + ".bin");
+          } else {
+            flow1000Img.setName(image.getName());
+          }
           flow1000Img.setFlow1000Section(flow1000Section);
           local1000ImgDao.saveAndFlush(flow1000Img);
           if (imagesList.indexOf(image) == 0) {
