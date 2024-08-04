@@ -177,6 +177,11 @@ public class Local1000Controller {
         flow1000Section.setAlbum(albumConfig.getName());
         flow1000Section.setDirName(section.getName());
         flow1000Section.setName(section.getName());
+        if (isTimeStampe(section.getName())) {
+          flow1000Section.setCreateTime(section.getName().substring(0, 14));
+        } else {
+          flow1000Section.setCreateTime(simpleDateFormat.format(section.lastModified()));
+        }
         flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
 
         File[] images = section.listFiles();
