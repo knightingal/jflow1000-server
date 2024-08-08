@@ -126,16 +126,20 @@ public class Local1000Controller {
     
     @RequestMapping("/initv2")
     public ResponseEntity<Object> initV2() {
-
-      List<AlbumConfig> albumConfigs = local1000AlbumConfigDao.findAll();
-      Map<String, List<Map<String, List<String>>>> albumConfigRest = new HashMap<>();
-      albumConfigs.forEach(albumConfig -> {
-        List<Map<String, List<String>>> resp = scanLocal1000AlbumDir(albumConfig);
-        albumConfigRest.put(albumConfig.getName(), resp);
-
-      });
+      final List<AlbumConfig> albumConfigs = local1000AlbumConfigDao.findAll();
+      Runnable rn = new Runnable() {
+        @Override
+        public void run() {
+          Map<String, List<Map<String, List<String>>>> albumConfigRest = new HashMap<>();
+          albumConfigs.forEach(albumConfig -> {
+            List<Map<String, List<String>>> resp = scanLocal1000AlbumDir(albumConfig);
+            albumConfigRest.put(albumConfig.getName(), resp);
+          });
+        }
+      };
+      new Thread(rn).start();
       
-      return ResponseEntity.ok().body(albumConfigRest);
+      return ResponseEntity.ok().body(albumConfigs);
     }
 
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
