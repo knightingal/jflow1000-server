@@ -127,7 +127,7 @@ public class Local1000Controller {
     @RequestMapping("/initv2")
     public ResponseEntity<Object> initV2() {
       final List<AlbumConfig> albumConfigs = local1000AlbumConfigDao.findAll();
-      Runnable rn = new Runnable() {
+      new Thread(new Runnable() {
         @Override
         public void run() {
           Map<String, List<Map<String, List<String>>>> albumConfigRest = new HashMap<>();
@@ -136,8 +136,7 @@ public class Local1000Controller {
             albumConfigRest.put(albumConfig.getName(), resp);
           });
         }
-      };
-      new Thread(rn).start();
+      }).start();
       
       return ResponseEntity.ok().body(albumConfigs);
     }
