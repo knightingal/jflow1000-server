@@ -152,6 +152,15 @@ public class Local1000Controller {
       }
     }
 
+    private static long getFileTimeStampe(File file) {
+      try {
+        Date date = simpleDateFormat.parse(file.getName().substring(0, 14));
+        return date.getTime();
+      } catch (Exception e) {
+        return file.lastModified();
+      }
+    }
+
     private List<Map<String, List<String>>> scanLocal1000AlbumDir(AlbumConfig albumConfig) {
       String pathName = baseDir + "/" + albumConfig.getSourcePath();
       File basePath = new File(pathName);
@@ -159,17 +168,7 @@ public class Local1000Controller {
       List<Map<String, List<String>>> resp = new ArrayList<>(); 
 
       List<File> sectionList = Arrays.stream(sections).sorted((file1, file2) -> {
-        if (isTimeStampe(file1.getName().substring(0, 14)) && isTimeStampe(file2.getName().substring(0, 14))) {
-          try {
-            Date date1 = simpleDateFormat.parse(file1.getName().substring(0, 14));
-            Date date2 = simpleDateFormat.parse(file2.getName().substring(0, 14));
-            boolean isBefore = date1.before(date2);
-            return isBefore ? -1:1; 
-          } catch (Exception e) {
-            return (int)(file1.lastModified() - file2.lastModified());
-          }
-        }
-        return (int)(file1.lastModified() - file2.lastModified());
+        return (int) (getFileTimeStampe(file1) - getFileTimeStampe(file2));
       }).collect(Collectors.toList());
       for (File section : sectionList) {
         log.info(section.getName());
