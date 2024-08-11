@@ -168,7 +168,7 @@ public class Local1000Controller {
       List<Map<String, List<String>>> resp = new ArrayList<>(); 
 
       List<File> sectionList = Arrays.stream(sections).sorted((file1, file2) -> {
-        return (int) (getFileTimeStampe(file1) - getFileTimeStampe(file2));
+        return getFileTimeStampe(file1) - getFileTimeStampe(file2) < 0 ? -1 : 1;
       }).collect(Collectors.toList());
       for (File section : sectionList) {
         log.info(section.getName());
