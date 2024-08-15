@@ -14,6 +14,8 @@ import org.nanking.knightingal.runnable.DownloadImgRunnable;
 import org.nanking.knightingal.service.WsMsgService;
 import org.nanking.knightingal.util.FileUtil;
 import org.nanking.knightingal.util.TimeUtil;
+import org.nanking.knightingal.util.WebpUtil;
+import org.nanking.knightingal.util.WebpUtil.WebpImageSize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -216,11 +219,17 @@ public class Local1000Controller {
           sectionItem.get(section.getName()).add(image.getName());
           Flow1000Img flow1000Img = new Flow1000Img();
           try {
-            BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(image.getAbsolutePath())));
-            int width = sourceImg.getWidth();
-            int height = sourceImg.getHeight();
-            flow1000Img.setHeight(height);
-            flow1000Img.setWidth(width);
+            if (image.getAbsolutePath().endsWith(".webp")) {
+              WebpImageSize webpImageSize = WebpUtil.parseWebpImage(new FileInputStream(image.getAbsolutePath()));
+              flow1000Img.setHeight(webpImageSize.height);
+              flow1000Img.setWidth(webpImageSize.width);
+            } else {
+              BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(image.getAbsolutePath())));
+              int width = sourceImg.getWidth();
+              int height = sourceImg.getHeight();
+              flow1000Img.setHeight(height);
+              flow1000Img.setWidth(width);
+            }
           } catch (Exception e) {
             e.printStackTrace();
           }
