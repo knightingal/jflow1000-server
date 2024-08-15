@@ -44,7 +44,7 @@ dependencies {
 	implementation('com.google.code.findbugs:annotations:3.0.1u2')
 
   // https://mvnrepository.com/artifact/org.sejda.imageio/webp-imageio
-  implementation group: 'org.sejda.imageio', name: 'webp-imageio', version: '0.1.6'
+  // implementation group: 'org.sejda.imageio', name: 'webp-imageio', version: '0.1.6'
 //	implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
