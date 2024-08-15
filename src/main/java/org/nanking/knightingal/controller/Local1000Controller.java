@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -165,6 +166,99 @@ public class Local1000Controller {
       }
     }
 
+    private void parseSection(File section, AlbumConfig albumConfig) {
+      log.info(section.getName());
+      Map<String, List<String>> sectionItem = new HashMap<>();
+      sectionItem.put(section.getName(), new ArrayList<>());
+      Optional<Flow1000Section> flow1000SectionOption 
+          = local1000SectionDao.searchFlow1000SectionByNameAndAblum(section.getName(), albumConfig.getName());
+      Flow1000Section flow1000Section;
+      if (!flow1000SectionOption.isPresent()) {
+        flow1000Section = new Flow1000Section();
+        flow1000Section.setAlbum(albumConfig.getName());
+        flow1000Section.setDirName(section.getName());
+        flow1000Section.setName(section.getName());
+        if (isTimeStampe(section.getName())) {
+          flow1000Section.setCreateTime(section.getName().substring(0, 14));
+        } else {
+          flow1000Section.setCreateTime(simpleDateFormat.format(section.lastModified()));
+        }
+        flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
+      } else {
+        flow1000Section = flow1000SectionOption.get();
+      }
+
+      File[] images = section.listFiles();
+      List<File> imagesList = Arrays.stream(images).filter((file) -> {
+        return !file.getName().endsWith(".html") 
+          && !file.getName().endsWith(".htm") 
+          && !file.getName().endsWith(".directory")
+          && !file.getName().endsWith(".pdf");
+      }).sorted((file1, file2) -> {
+        if (file1.getName().contains("-") && file2.getName().contains("-")) {
+          int num1 = Integer.parseInt(file1.getName().split("-")[0]);
+          int num2 = Integer.parseInt(file2.getName().split("-")[0]);
+          return num1 - num2;
+        } else {
+          try {
+            String fileName1 = file1.getName();
+            String fileName2 = file2.getName();
+            String[] fileSplite1 = fileName1.split("\\.");
+            String[] fileSplite2 = fileName2.split("\\.");
+            int num1 = Integer.parseInt(fileSplite1[0]);
+            int num2 = Integer.parseInt(fileSplite2[0]);
+            return num1 - num2;
+          } catch (Exception e) {
+            return (int)(file1.lastModified() - file2.lastModified());
+          }
+        }
+      }).collect(Collectors.toList());
+      for (File image : imagesList) {
+        log.info(image.getName());
+        sectionItem.get(section.getName()).add(image.getName());
+        Flow1000Img flow1000Img;
+        Optional<Flow1000Img> flow1000Optional = local1000ImgDao.searchFlow1000ImgByNameAndFlow1000Section(
+          albumConfig.isEncrypted() ? image.getName() + ".bin" : image.getName(), 
+          flow1000Section
+        );
+        if (!flow1000Optional.isPresent()) {
+          flow1000Img = new Flow1000Img();
+          if (albumConfig.isEncrypted()) {
+            flow1000Img.setName(image.getName() + ".bin");
+          } else {
+            flow1000Img.setName(image.getName());
+          }
+          flow1000Img.setFlow1000Section(flow1000Section);
+        } else {
+          flow1000Img = flow1000Optional.get();
+        }
+        try {
+          if (image.getAbsolutePath().endsWith(".webp")) {
+            InputStream fileInputStream = new FileInputStream(image.getAbsolutePath());
+            WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
+            fileInputStream.close();
+            flow1000Img.setHeight(webpImageSize.height);
+            flow1000Img.setWidth(webpImageSize.width);
+          } else {
+            BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(image.getAbsolutePath())));
+            int width = sourceImg.getWidth();
+            int height = sourceImg.getHeight();
+            flow1000Img.setHeight(height);
+            flow1000Img.setWidth(width);
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        local1000ImgDao.saveAndFlush(flow1000Img);
+        if (imagesList.indexOf(image) == 0) {
+          flow1000Section.setCover(flow1000Img.getName());
+          flow1000Section.setCoverHeight(flow1000Img.getHeight());
+          flow1000Section.setCoverWidth(flow1000Img.getWidth());
+          local1000SectionDao.saveAndFlush(flow1000Section);
+        }
+      }
+    }
+
     private List<Map<String, List<String>>> scanLocal1000AlbumDir(AlbumConfig albumConfig) {
       String pathName = baseDir + "/" + albumConfig.getSourcePath();
       File basePath = new File(pathName);
@@ -175,81 +269,7 @@ public class Local1000Controller {
         return getFileTimeStampe(file1) - getFileTimeStampe(file2) < 0 ? -1 : 1;
       }).collect(Collectors.toList());
       for (File section : sectionList) {
-        log.info(section.getName());
-        Map<String, List<String>> sectionItem = new HashMap<>();
-        sectionItem.put(section.getName(), new ArrayList<>());
-        resp.add(sectionItem);
-        Flow1000Section flow1000Section = new Flow1000Section();
-        flow1000Section.setAlbum(albumConfig.getName());
-        flow1000Section.setDirName(section.getName());
-        flow1000Section.setName(section.getName());
-        if (isTimeStampe(section.getName())) {
-          flow1000Section.setCreateTime(section.getName().substring(0, 14));
-        } else {
-          flow1000Section.setCreateTime(simpleDateFormat.format(section.lastModified()));
-        }
-        flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
-
-        File[] images = section.listFiles();
-        List<File> imagesList = Arrays.stream(images).filter((file) -> {
-          return !file.getName().endsWith(".html") 
-            && !file.getName().endsWith(".htm") 
-            && !file.getName().endsWith(".directory")
-            && !file.getName().endsWith(".pdf");
-        }).sorted((file1, file2) -> {
-          if (file1.getName().contains("-") && file2.getName().contains("-")) {
-            int num1 = Integer.parseInt(file1.getName().split("-")[0]);
-            int num2 = Integer.parseInt(file2.getName().split("-")[0]);
-            return num1 - num2;
-          } else {
-            try {
-              String fileName1 = file1.getName();
-              String fileName2 = file2.getName();
-              String[] fileSplite1 = fileName1.split("\\.");
-              String[] fileSplite2 = fileName2.split("\\.");
-              int num1 = Integer.parseInt(fileSplite1[0]);
-              int num2 = Integer.parseInt(fileSplite2[0]);
-              return num1 - num2;
-            } catch (Exception e) {
-              return (int)(file1.lastModified() - file2.lastModified());
-            }
-          }
-        }).collect(Collectors.toList());
-        for (File image : imagesList) {
-          log.info(image.getName());
-          sectionItem.get(section.getName()).add(image.getName());
-          Flow1000Img flow1000Img = new Flow1000Img();
-          try {
-            if (image.getAbsolutePath().endsWith(".webp")) {
-              InputStream fileInputStream = new FileInputStream(image.getAbsolutePath());
-              WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
-              fileInputStream.close();
-              flow1000Img.setHeight(webpImageSize.height);
-              flow1000Img.setWidth(webpImageSize.width);
-            } else {
-              BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(image.getAbsolutePath())));
-              int width = sourceImg.getWidth();
-              int height = sourceImg.getHeight();
-              flow1000Img.setHeight(height);
-              flow1000Img.setWidth(width);
-            }
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-          if (albumConfig.isEncrypted()) {
-            flow1000Img.setName(image.getName() + ".bin");
-          } else {
-            flow1000Img.setName(image.getName());
-          }
-          flow1000Img.setFlow1000Section(flow1000Section);
-          local1000ImgDao.saveAndFlush(flow1000Img);
-          if (imagesList.indexOf(image) == 0) {
-            flow1000Section.setCover(flow1000Img.getName());
-            flow1000Section.setCoverHeight(flow1000Img.getHeight());
-            flow1000Section.setCoverWidth(flow1000Img.getWidth());
-            local1000SectionDao.saveAndFlush(flow1000Section);
-          }
-        }
+        parseSection(section, albumConfig);
       }
       return resp;
 
