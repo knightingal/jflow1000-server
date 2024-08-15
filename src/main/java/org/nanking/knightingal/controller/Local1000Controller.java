@@ -28,6 +28,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -220,7 +221,9 @@ public class Local1000Controller {
           Flow1000Img flow1000Img = new Flow1000Img();
           try {
             if (image.getAbsolutePath().endsWith(".webp")) {
-              WebpImageSize webpImageSize = WebpUtil.parseWebpImage(new FileInputStream(image.getAbsolutePath()));
+              InputStream fileInputStream = new FileInputStream(image.getAbsolutePath());
+              WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
+              fileInputStream.close();
               flow1000Img.setHeight(webpImageSize.height);
               flow1000Img.setWidth(webpImageSize.width);
             } else {
