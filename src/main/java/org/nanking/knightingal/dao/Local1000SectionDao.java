@@ -26,6 +26,8 @@ public interface Local1000SectionDao {
      */
     List<Flow1000Section> searchFlow1000SectionByName(String name);
 
+    Optional<Flow1000Section> searchFlow1000SectionByNameAndAblum(String name, String ablum);
+
     // void insertFlow1000Section(Flow1000Section flow1000Section);
 
 
