@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -146,6 +147,21 @@ public class Local1000Controller {
       return ResponseEntity.ok().body(albumConfigs);
     }
 
+    @GetMapping("/refreshSectionById")
+    public ResponseEntity<Object> refreshSectionById(@Param(value = "id") long id) {
+      Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
+      Optional<AlbumConfig> albumConfigOpt = local1000AlbumConfigDao.searchAlbumConfigByName(flow1000Section.getAlbum());
+      if (!albumConfigOpt.isPresent()) {
+        return ResponseEntity.internalServerError().body("cannot find album:" + flow1000Section.getAlbum());
+      }
+      AlbumConfig albumConfig = albumConfigOpt.get();
+      String pathName = baseDir + "/" + albumConfig.getSourcePath();
+      File section = new File(pathName + "/" + flow1000Section.getDirName());
+      parseSection(section, albumConfig);
+
+      return ResponseEntity.ok().build();
+    }
+
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private static boolean isTimeStampe(String str) {
@@ -171,7 +187,7 @@ public class Local1000Controller {
       Map<String, List<String>> sectionItem = new HashMap<>();
       sectionItem.put(section.getName(), new ArrayList<>());
       Optional<Flow1000Section> flow1000SectionOption 
-          = local1000SectionDao.searchFlow1000SectionByNameAndAblum(section.getName(), albumConfig.getName());
+          = local1000SectionDao.searchFlow1000SectionByNameAndAlbum(section.getName(), albumConfig.getName());
       Flow1000Section flow1000Section;
       if (!flow1000SectionOption.isPresent()) {
         flow1000Section = new Flow1000Section();
