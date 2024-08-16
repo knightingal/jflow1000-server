@@ -32,6 +32,7 @@ public interface Local1000SectionRepo extends JpaRepository<Flow1000Section, Lon
     @Query("select s from Flow1000Section s where s.name like :name")
     List<Flow1000Section> searchFlow1000SectionByName(@Param("name") String name);
 
+    Optional<Flow1000Section> searchFlow1000SectionByNameAndAlbum(String name, String album);
     // void insertFlow1000Section(Flow1000Section flow1000Section);
 
 	// default List<Flow1000Section> saveEntitiesAllAndFlush(Iterable<Flow1000Section> entities) {
