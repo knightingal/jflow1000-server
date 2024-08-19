@@ -148,7 +148,7 @@ public class Local1000Controller {
     }
 
     @GetMapping("/refreshSectionById")
-    public ResponseEntity<Object> refreshSectionById(@Param(value = "id") long id) {
+    public ResponseEntity<Object> refreshSectionById(@RequestParam(value = "id") long id) {
       Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
       Optional<AlbumConfig> albumConfigOpt = local1000AlbumConfigDao.searchAlbumConfigByName(flow1000Section.getAlbum());
       if (!albumConfigOpt.isPresent()) {
