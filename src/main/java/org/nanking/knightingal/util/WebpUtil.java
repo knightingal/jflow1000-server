@@ -29,9 +29,13 @@ public class WebpUtil {
     if (readLen != 0x10) {
       throw new Exception("read file failed, read header len:" + readLen);
     }
+    int data6 = (int)data[6] & 0xff;
+    int data7 = (int)data[7] & 0xff;
+    int data8 = (int)data[8] & 0xff;
+    int data9 = (int)data[9] & 0xff;
     
-    int w = ((data[7] << 8) | data[6]) & 0x3fff;
-    int h = ((data[9] << 8) | data[8]) & 0x3fff;
+    int w = ((data7 << 8) | data6) & 0x3fff;
+    int h = ((data9 << 8) | data8) & 0x3fff;
 
     WebpImageSize size = new WebpImageSize();
     size.width = w;
