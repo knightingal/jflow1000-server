@@ -91,6 +91,9 @@ public class Local1000Controller {
     @Value("${local1000.base-dir}")
     private String baseDir;
 
+    @Value("${local1000.ahri-dir}")
+    private String ahriDir;
+
     @RequestMapping("/init")
     public Object init() {
         File baseDirFile = new File(baseDir + "/source");
@@ -128,6 +131,12 @@ public class Local1000Controller {
         return null;
     }
 
+    @GetMapping("/importAhri")
+    public ResponseEntity<Object> importAhri() {
+      scanAhriDir();
+
+      return ResponseEntity.ok().build();
+    }
     
     @RequestMapping("/initv2")
     public ResponseEntity<Object> initV2() {
@@ -285,6 +294,20 @@ public class Local1000Controller {
       }).collect(Collectors.toList());
       for (File section : sectionList) {
         parseSection(section, albumConfig);
+      }
+      return resp;
+
+    }
+
+    private List<Map<String, List<String>>> scanAhriDir() {
+      String pathName = ahriDir;
+      File basePath = new File(pathName);
+      File[] sections = basePath.listFiles();
+      List<Map<String, List<String>>> resp = new ArrayList<>(); 
+
+      List<File> sectionList = Arrays.stream(sections).filter(file->file.isDirectory()).collect(Collectors.toList());
+      for (File section : sectionList) {
+        // TODO: parse ahri dirs
       }
       return resp;
 
