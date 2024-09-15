@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Request.Builder;
 import okhttp3.Response;
 
 import org.springframework.web.bind.annotation.GetMapping;
