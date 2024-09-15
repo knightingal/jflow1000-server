@@ -3,9 +3,8 @@ package org.nanking.knightingal.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.criteria.Predicate;
+import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000AlbumConfigDao;
 import org.nanking.knightingal.dao.Local1000ImgDao;
@@ -58,9 +57,10 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @RequestMapping("/local1000")
 @RestController
+@Slf4j
 public class Local1000Controller {
 
-    private static final Log log = LogFactory.getLog(Local1000Controller.class);
+    // private static final Log log = LogFactory.getLog(Local1000Controller.class);
 
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -133,9 +133,8 @@ public class Local1000Controller {
 
     @GetMapping("/importAhri")
     public ResponseEntity<Object> importAhri() {
-      scanAhriDir();
 
-      return ResponseEntity.ok().build();
+      return ResponseEntity.ok().body(scanAhriDir());
     }
     
     @RequestMapping("/initv2")
@@ -299,18 +298,52 @@ public class Local1000Controller {
 
     }
 
-    private List<Map<String, List<String>>> scanAhriDir() {
+    private Map<String, Map<String, File>> scanAhriDir() {
       String pathName = ahriDir;
       File basePath = new File(pathName);
       File[] sections = basePath.listFiles();
       List<Map<String, List<String>>> resp = new ArrayList<>(); 
 
-      List<File> sectionList = Arrays.stream(sections).filter(file->file.isDirectory()).collect(Collectors.toList());
+      List<File> sectionList = Arrays.stream(sections)
+        .filter(file->file.isDirectory() && file.getName().endsWith("_files"))
+        .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
+        .collect(Collectors.toList());
+      Map<String, Map<String, File>> realNameMap = new HashMap<String, Map<String, File>>();
       for (File section : sectionList) {
         // TODO: parse ahri dirs
-      }
-      return resp;
+        log.info("section name:{}", section.getAbsolutePath());
+        String dirName = section.getName();
+        String realName = parseAhriRealName(dirName);
+        realNameMap.putIfAbsent(realName, new HashMap<String, File>());
+        realNameMap.get(realName).putAll(parseAhriImageList(section));
 
+        
+      }
+      return realNameMap;
+
+    }
+
+    private static String parseAhriRealName(String dirName) {
+      int lastIndex = dirName.lastIndexOf("-");
+      return dirName.substring(0, lastIndex);
+    }
+
+    private static Map<String, File> parseAhriImageList(File section) {
+      return Arrays.stream(section.listFiles()).filter(f -> 
+        f.isFile() && (f.getName().endsWith(".jpg") || f.getName().endsWith(".png") || f.getName().endsWith(".webp")))
+        .collect(Collectors.toMap(f->{ 
+          String originName = f.getName();
+          int lastIndex = originName.lastIndexOf(".");
+          String suffix = originName.substring(lastIndex);
+          String pureName = originName.substring(0, lastIndex);
+          try {
+            int imgIndex = Integer.parseInt(pureName);
+            String newPureName = String.format("%03d", imgIndex);
+            return newPureName + suffix;
+          } catch (NumberFormatException e) {
+            return f.getName();
+          }
+        }, f -> f));
     }
 
     @RequestMapping("/picDetailAjax")
