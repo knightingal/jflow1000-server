@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 
+import org.nanking.knightingal.ahri.AhriImage;
+import org.nanking.knightingal.ahri.AhriSection;
 import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000AlbumConfigDao;
 import org.nanking.knightingal.dao.Local1000ImgDao;
@@ -295,10 +297,9 @@ public class Local1000Controller {
         parseSection(section, albumConfig);
       }
       return resp;
-
     }
 
-    private Map<String, Map<String, File>> scanAhriDir() {
+    private Map<String, AhriSection> scanAhriDir() {
       String pathName = ahriDir;
       File basePath = new File(pathName);
       File[] sections = basePath.listFiles();
@@ -308,19 +309,16 @@ public class Local1000Controller {
         .filter(file->file.isDirectory() && file.getName().endsWith("_files"))
         .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
         .collect(Collectors.toList());
-      Map<String, Map<String, File>> realNameMap = new HashMap<String, Map<String, File>>();
+      Map<String, AhriSection> realNameMap = new HashMap<String, AhriSection>();
       for (File section : sectionList) {
         // TODO: parse ahri dirs
         log.info("section name:{}", section.getAbsolutePath());
         String dirName = section.getName();
         String realName = parseAhriRealName(dirName);
-        realNameMap.putIfAbsent(realName, new HashMap<String, File>());
-        realNameMap.get(realName).putAll(parseAhriImageList(section));
-
-        
+        realNameMap.putIfAbsent(realName, new AhriSection(realName));
+        realNameMap.get(realName).addAhriImages(parseAhriImageList(section));
       }
       return realNameMap;
-
     }
 
     private static String parseAhriRealName(String dirName) {
@@ -328,22 +326,26 @@ public class Local1000Controller {
       return dirName.substring(0, lastIndex);
     }
 
-    private static Map<String, File> parseAhriImageList(File section) {
+    private static List<AhriImage> parseAhriImageList(File section) {
       return Arrays.stream(section.listFiles()).filter(f -> 
         f.isFile() && (f.getName().endsWith(".jpg") || f.getName().endsWith(".png") || f.getName().endsWith(".webp")))
-        .collect(Collectors.toMap(f->{ 
+        .map(f -> {
           String originName = f.getName();
           int lastIndex = originName.lastIndexOf(".");
           String suffix = originName.substring(lastIndex);
           String pureName = originName.substring(0, lastIndex);
+          String newFileName;
           try {
             int imgIndex = Integer.parseInt(pureName);
             String newPureName = String.format("%03d", imgIndex);
-            return newPureName + suffix;
+            newFileName = newPureName + suffix;
           } catch (NumberFormatException e) {
-            return f.getName();
+            newFileName = f.getName();
           }
-        }, f -> f));
+          return AhriImage.builder().file(f).name(newFileName).build();
+        })
+        .sorted((i1, i2) -> i1.getName().compareTo(i2.getName()))
+        .collect(Collectors.toList());
     }
 
     @RequestMapping("/picDetailAjax")
