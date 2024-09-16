@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.image.BufferedImage;
@@ -135,8 +136,46 @@ public class Local1000Controller {
 
     @GetMapping("/importAhri")
     public ResponseEntity<Object> importAhri() {
+      Map<String,AhriSection> scanAhriDir = scanAhriDir();
+      
+      new Thread(new Runnable() {
+        @Override
+        public void run() {
+          scanAhriDir.values().forEach(ahriSection -> importAhriSection(ahriSection));
+        }
+        
+      }).start();
 
-      return ResponseEntity.ok().body(scanAhriDir());
+      return ResponseEntity.ok().body(scanAhriDir);
+    }
+
+    void importAhriSection(AhriSection ahriSection) {
+      String sectionPath = baseDir + "/1807/" + ahriSection.getSectionName();
+      File ahriSectionFile = new File(sectionPath);
+      try {
+
+        boolean ret = ahriSectionFile.mkdir();
+        if (!ret) {
+          log.error("create section path failed {}", sectionPath);
+          return;
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+
+      }
+      ahriSection.getImageList().forEach(image -> {
+        File destAhriImageFile = new File(baseDir + "/1807/" + ahriSection.getSectionName() + "/" + image.getName());
+        File srcAhriImageFile = image.getFile();
+        try {
+          destAhriImageFile.createNewFile();
+          FileCopyUtils.copy(srcAhriImageFile, destAhriImageFile);
+          log.info("file copy from {} to {} ", srcAhriImageFile.toString(), destAhriImageFile.toString());
+        } catch (Exception e) {
+          log.error("file copy from {} to {} failed", srcAhriImageFile.toString(), destAhriImageFile.toString(), e);
+        }
+
+      });
+
     }
     
     @RequestMapping("/initv2")
