@@ -152,6 +152,7 @@ public class Local1000Controller {
     void importAhriSection(AhriSection ahriSection) {
       String sectionPath = baseDir + "/1807/" + ahriSection.getSectionName();
       File ahriSectionFile = new File(sectionPath);
+      Flow1000Section flow1000Section = null;
       try {
 
         boolean ret = ahriSectionFile.mkdir();
@@ -159,11 +160,27 @@ public class Local1000Controller {
           log.error("create section path failed {}", sectionPath);
           return;
         }
+
+        Optional<Flow1000Section> flow1000SectionOption 
+            = local1000SectionDao.searchFlow1000SectionByNameAndAlbum(
+              ahriSection.getSectionName(), 
+              "1807");
+        if (!flow1000SectionOption.isPresent()) {
+          flow1000Section = new Flow1000Section();
+          flow1000Section.setAlbum("1807");
+          flow1000Section.setDirName(ahriSection.getSectionName());
+          flow1000Section.setName(ahriSection.getSectionName());
+          flow1000Section.setCreateTime(simpleDateFormat.format(new Date()));
+          flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
+        } else {
+          flow1000Section = flow1000SectionOption.get();
+        }
+
       } catch (Exception e) {
         e.printStackTrace();
 
       }
-      ahriSection.getImageList().forEach(image -> {
+      for (AhriImage image: ahriSection.getImageList()) {
         File destAhriImageFile = new File(baseDir + "/1807/" + ahriSection.getSectionName() + "/" + image.getName());
         File srcAhriImageFile = image.getFile();
         try {
@@ -174,8 +191,42 @@ public class Local1000Controller {
           log.error("file copy from {} to {} failed", srcAhriImageFile.toString(), destAhriImageFile.toString(), e);
         }
 
-      });
+        Flow1000Img flow1000Img;
+        Optional<Flow1000Img> flow1000Optional = local1000ImgDao.searchFlow1000ImgByNameAndFlow1000Section(
+          image.getName(), 
+          flow1000Section
+        );
+        if (!flow1000Optional.isPresent()) {
+          flow1000Img = new Flow1000Img();
+          flow1000Img.setName(image.getName());
+          flow1000Img.setFlow1000Section(flow1000Section);
+        } else {
+          flow1000Img = flow1000Optional.get();
+        }
+        try {
+          if (destAhriImageFile.getAbsolutePath().endsWith(".webp")) {
+            InputStream fileInputStream = new FileInputStream(destAhriImageFile);
+            WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
+            fileInputStream.close();
+            flow1000Img.setHeight(webpImageSize.height);
+            flow1000Img.setWidth(webpImageSize.width);
+          } else {
+            BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(destAhriImageFile.getAbsolutePath())));
+            int width = sourceImg.getWidth();
+            int height = sourceImg.getHeight();
+            flow1000Img.setHeight(height);
+            flow1000Img.setWidth(width);
+          }
+        } catch (Exception e) {}
 
+        local1000ImgDao.saveAndFlush(flow1000Img);
+        if (ahriSection.getImageList().indexOf(image) == 0) {
+          flow1000Section.setCover(flow1000Img.getName());
+          flow1000Section.setCoverHeight(flow1000Img.getHeight());
+          flow1000Section.setCoverWidth(flow1000Img.getWidth());
+          local1000SectionDao.saveAndFlush(flow1000Section);
+        }
+      }
     }
     
     @RequestMapping("/initv2")
