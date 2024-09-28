@@ -393,7 +393,6 @@ public class Local1000Controller {
       String pathName = ahriDir;
       File basePath = new File(pathName);
       File[] sections = basePath.listFiles();
-      List<Map<String, List<String>>> resp = new ArrayList<>(); 
 
       List<File> sectionList = Arrays.stream(sections)
         .filter(file->file.isDirectory() && file.getName().endsWith("_files"))
@@ -401,7 +400,6 @@ public class Local1000Controller {
         .collect(Collectors.toList());
       Map<String, AhriSection> realNameMap = new HashMap<String, AhriSection>();
       for (File section : sectionList) {
-        // TODO: parse ahri dirs
         log.info("section name:{}", section.getAbsolutePath());
         String dirName = section.getName();
         String realName = parseAhriRealName(dirName);
