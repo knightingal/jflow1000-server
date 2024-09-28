@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +22,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 public class InternalApiController {
-  private static final String ASSET_STORE_PATH = "/home/knightingal/Pictures/";
+
+  @Value("${internal-asset-store-path:/home/knightingal/Pictures/}")
+  private String assetStorePath;
 
   /**
    * call request to fetch asset from static.makerfac.com for scratch
@@ -31,7 +34,7 @@ public class InternalApiController {
    */
   @GetMapping("/internalapi/asset/{assetId}")
   public ResponseEntity<byte[]> index(@PathVariable("assetId") String packageId) throws IOException {
-    File assetFile = new File(ASSET_STORE_PATH + packageId);
+    File assetFile = new File(assetStorePath + packageId);
     if (assetFile.exists()) {
       InputStream inputStream = new FileInputStream(assetFile);
       byte[] allBytes = inputStream.readAllBytes();
