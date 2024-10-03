@@ -5,5 +5,5 @@ pluginManagement {
 		gradlePluginPortal()
 	}
 }
-rootProject.name = 'JFlow1000Server'
+rootProject.name = 'jflow1000-server'
 
