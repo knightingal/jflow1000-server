@@ -26,6 +26,8 @@ public class InternalApiController {
   @Value("${internal-asset-store-path:/home/knightingal/Pictures/}")
   private String assetStorePath;
 
+  final private static String REMOTE_ASSET_URL = "https://static.makerfac.com/static/internalapi/asset/";
+
   /**
    * call request to fetch asset from static.makerfac.com for scratch
    * @param packageId
@@ -41,12 +43,11 @@ public class InternalApiController {
       inputStream.close();
       String contentType = packageId.endsWith("svg") ? "image/svg+xml":"image/png";
       return ResponseEntity.ok()
-        .header("content-type", contentType)    
+        .header("content-type", contentType)
         .body(allBytes);
     }
 
-
-    String url = "https://static.makerfac.com/static/internalapi/asset/" + packageId;
+    String url = REMOTE_ASSET_URL + packageId;
 
     Request request = new Request.Builder().url(url).
             addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36").
