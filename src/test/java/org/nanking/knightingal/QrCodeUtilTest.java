@@ -55,7 +55,7 @@ public class QrCodeUtilTest {
       }
     }
 
-    @Test
+    // @Test
     public void parseRGB24() throws Exception {
       File rgbFile = new File("/home/knightingal/Videos/Screencasts/Screencast.bin");
       int width = 1920;
