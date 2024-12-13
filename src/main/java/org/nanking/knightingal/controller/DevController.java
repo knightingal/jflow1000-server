@@ -1,11 +1,18 @@
 package org.nanking.knightingal.controller;
 
 import org.nanking.knightingal.service.WsMsgService;
+import org.nanking.knightingal.util.ApplicationContextProvider;
+import org.nanking.knightingal.util.EncryptUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.servlet.ServletResponse;
+
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 /**
  * @author Knightingal
@@ -23,6 +30,12 @@ public class DevController {
     @RequestMapping("/passwd")
     public String getPasswd() {
         return passwd;
+    }
+
+    @GetMapping("/aes-test")
+    public void getMethodName(ServletResponse servletResponse) throws Exception {
+      EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
+      servletResponse.getOutputStream().write(encryptUtil.encrypt("hello".getBytes()));
     }
 
     @RequestMapping("/send-msg")
