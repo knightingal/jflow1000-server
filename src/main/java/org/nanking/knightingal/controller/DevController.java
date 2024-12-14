@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -33,8 +33,9 @@ public class DevController {
     }
 
     @GetMapping("/aes-test")
-    public void getMethodName(ServletResponse servletResponse) throws Exception {
+    public void getMethodName(HttpServletResponse servletResponse) throws Exception {
       EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
+      servletResponse.addHeader("access-control-allow-origin", "*");
       servletResponse.getOutputStream().write(encryptUtil.encrypt("hello".getBytes()));
     }
 
