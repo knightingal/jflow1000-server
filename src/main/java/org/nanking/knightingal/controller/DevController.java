@@ -33,7 +33,7 @@ public class DevController {
     }
 
     @GetMapping("/aes-test")
-    public void getMethodName(HttpServletResponse servletResponse) throws Exception {
+    public void aesTestHandle(HttpServletResponse servletResponse) throws Exception {
       EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
       servletResponse.addHeader("access-control-allow-origin", "*");
       servletResponse.getOutputStream().write(encryptUtil.encrypt("hello".getBytes()));
