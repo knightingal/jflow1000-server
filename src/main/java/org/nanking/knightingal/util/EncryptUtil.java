@@ -37,4 +37,25 @@ public class EncryptUtil {
             return null;
         }
     }
+
+    public byte[] encrypt64(byte[] dataBytes) {
+        byte[] iv = ivString.getBytes();
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CFB64/NoPadding");
+            int blockSize = cipher.getBlockSize();
+            int length = dataBytes.length;
+            if (length % blockSize != 0) {
+                length = length + (blockSize - length % blockSize);
+            }
+            byte[] plaintext = new byte[length];
+            System.arraycopy(dataBytes, 0, plaintext, 0, dataBytes.length);
+            SecretKeySpec keySpec
+                    = new SecretKeySpec(passwd.getBytes(), "AES");
+            IvParameterSpec ivSpec = new IvParameterSpec(iv);
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+            return cipher.doFinal(plaintext);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

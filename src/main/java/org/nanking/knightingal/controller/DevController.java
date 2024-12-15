@@ -39,7 +39,7 @@ public class DevController {
     public void aesTestHandle(HttpServletResponse servletResponse) throws Exception {
       EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
       servletResponse.addHeader("access-control-allow-origin", "*");
-      servletResponse.getOutputStream().write(encryptUtil.encrypt("hello".getBytes()));
+      servletResponse.getOutputStream().write(encryptUtil.encrypt64("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".getBytes()));
     }
 
     @GetMapping("/aes-image")
@@ -47,7 +47,7 @@ public class DevController {
       // EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
       servletResponse.addHeader("access-control-allow-origin", "*");
       ServletOutputStream outputStream = servletResponse.getOutputStream();
-      String filePath = "/mnt/linux1000/encrypted/20130615152036Elina/1.jpg.bin";
+      String filePath = "/mnt/linux1000/encrypted/20160318000005BB-36_USS_NEVADA/46-013759.jpg.bin";
       try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
         fileInputStream.transferTo(outputStream);
       }
@@ -58,7 +58,7 @@ public class DevController {
       // EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
       servletResponse.addHeader("access-control-allow-origin", "*");
       ServletOutputStream outputStream = servletResponse.getOutputStream();
-      String filePath = "/mnt/linux1000/source/20130615152036Elina/1.jpg";
+      String filePath = "/mnt/linux1000/source/20160318000005BB-36_USS_NEVADA/46-013759.jpg";
       try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
         fileInputStream.transferTo(outputStream);
       }
