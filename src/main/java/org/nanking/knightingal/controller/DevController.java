@@ -1,6 +1,9 @@
 package org.nanking.knightingal.controller;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
 
 import org.nanking.knightingal.service.WsMsgService;
 import org.nanking.knightingal.util.ApplicationContextProvider;
@@ -15,6 +18,9 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 /**
@@ -34,6 +40,20 @@ public class DevController {
     public String getPasswd() {
         return passwd;
     }
+
+    
+    @PostMapping("/image-upload")
+    public void imageUpload(@RequestBody byte[] entity, HttpServletResponse servletResponse) throws IOException {
+      System.out.println("image length" + entity.length);
+      
+      String filePath = "" + new Date().getTime() +  "46-013759.jpg";
+      try (FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
+        fileOutputStream.write(entity);
+      }
+
+      servletResponse.setStatus(200);;
+    }
+    
 
     @GetMapping("/aes-test")
     public void aesTestHandle(HttpServletResponse servletResponse) throws Exception {
