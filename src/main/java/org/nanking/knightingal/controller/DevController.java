@@ -51,7 +51,21 @@ public class DevController {
         fileOutputStream.write(entity);
       }
 
-      servletResponse.setStatus(200);;
+      servletResponse.setStatus(200);
+    }
+    @GetMapping("/gen-aes-image")
+    public void getAesImage() throws IOException {
+      String path = "/usr/share/wallpapers/deepin/sourav-ghosh-gTvhFsQMqnA-unsplash.jpg";
+      EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
+      FileInputStream fileInputStream = new FileInputStream(path);
+      byte[] content = fileInputStream.readAllBytes();
+      byte[] encrypted = encryptUtil.encrypt(content);
+      fileInputStream.close();
+
+      FileOutputStream outputStream = new FileOutputStream("./encrypted.bin");
+      outputStream.write(encrypted);
+      outputStream.close();
+
     }
     
 
