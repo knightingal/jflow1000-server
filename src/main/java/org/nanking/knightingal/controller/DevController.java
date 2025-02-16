@@ -59,7 +59,14 @@ public class DevController {
     public void aesTestHandle(HttpServletResponse servletResponse) throws Exception {
       EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
       servletResponse.addHeader("access-control-allow-origin", "*");
-      servletResponse.getOutputStream().write(encryptUtil.encrypt64("1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".getBytes()));
+      byte[] encrypt64 = encryptUtil.encrypt("1234567890abcdef1234567890abcdef1234567890abcdef".getBytes());
+      StringBuffer sb = new StringBuffer();
+      for (byte b: encrypt64) {
+        // System.out.println(String.format("%20x", b));
+        sb.append(String.format("%02x", b));
+      }
+      System.out.println(sb.toString());
+      servletResponse.getOutputStream().write(sb.toString().getBytes());
     }
 
     @GetMapping("/aes-image")
