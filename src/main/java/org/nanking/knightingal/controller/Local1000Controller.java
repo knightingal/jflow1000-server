@@ -53,11 +53,14 @@ import javax.imageio.ImageIO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 
 /**
  * @author Knightingal
  */
+@CrossOrigin("*")
 @RequestMapping("/local1000")
 @RestController
 @Slf4j
