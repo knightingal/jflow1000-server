@@ -10,11 +10,13 @@ import org.nanking.knightingal.util.ApplicationContextProvider;
 import org.nanking.knightingal.util.EncryptUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -110,5 +112,10 @@ public class DevController {
         wsMsgService.sendWsMsg(msg);
 
         return "";
+    }
+
+    @GetMapping("/socket-mock")
+    public void socketMock(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+      httpServletResponse.setStatus(HttpStatus.OK.value());
     }
 }
