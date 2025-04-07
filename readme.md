@@ -65,3 +65,12 @@ systemctl enable flow1000.service
 
 systemctl status flow1000.service
 ```
+
+## For fedora permanet wifi address
+
+1. Create a custom configuration file in `/etc/NetworkManager/conf.d/22-wifi-mac-addr.conf`, which can be empty or contain specific configurations. This will prevent the default file in /usr/lib from being loaded. 
+2. Create a higher priority .conf file like `/etc/NetworkManager/conf.d/90-wifi-mac-addr.conf` with: 
+```
+[connection-90-wifi-mac-addr-conf]
+wifi.cloned-mac-address=permanent
+```
