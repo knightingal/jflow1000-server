@@ -36,7 +36,7 @@ public class SocketTest {
         "Accept-Encoding: gzip, deflate, br, zstd\r\n" + //
         "Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6,zh-TW;q=0.5\r\n" + //
         "Connection: keep-alive\r\n" + //
-        "Content-Length: 19\r\n" + //
+        "Content-Length: 10000\r\n" + //
         "Content-Type: application/json\r\n" + //
         "Host: localhost:8080\r\n" + //
         "Origin: http://localhost:8080\r\n" + //
@@ -82,34 +82,55 @@ public class SocketTest {
   }
 
   @Test
-  public void socketPostTest() throws UnknownHostException, IOException {
+  public void socketPostTest() throws UnknownHostException, IOException, InterruptedException {
 
     log.info("start");
     try (Socket socket = new Socket("localhost", 8080)) {
-      socket.setSoTimeout(10 * 1000);
-      OutputStream outputStream = socket.getOutputStream();
-      outputStream.write(POST_REQUET_CONTENT.getBytes());
-      outputStream.write("{\"key22\":\"value22\"}".getBytes());
-      outputStream.flush();
+      socket.setSoTimeout(90 * 1000);
+      final Socket socketLocal = socket;
 
-      InputStream inputStream = socket.getInputStream();
-      byte[] buff = new byte[1024];
-      while (true) {
-        try {
-          int readLen = inputStream.read(buff);
-          if (readLen <= 0) {
-            log.info("disconnect");
-            break;
+      Thread thread = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+          InputStream inputStream;
+          try {
+            inputStream = socketLocal.getInputStream();
+            byte[] buff = new byte[1024];
+            while (true) {
+              try {
+                int readLen = inputStream.read(buff);
+                if (readLen <= 0) {
+                  log.info("disconnect");
+                  break;
+                }
+                log.info(new String(buff, 0, readLen));
+
+              } catch (IOException e) {
+                  log.info("timeout");
+                  break;
+
+              }
+              
+            }
+          } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
           }
-          System.out.print(new String(buff, 0, readLen));
-
-        } catch (IOException e) {
-            log.info("timeout");
-            break;
-
         }
         
-      }
+      });
+      thread.start();
+      OutputStream outputStream = socket.getOutputStream();
+      outputStream.write(POST_REQUET_CONTENT.getBytes());
+      for (int i = 0; i < 5; i++) {
+        Thread.sleep(2 * 1000);
+        outputStream.write("{\"key22\":\"value22\"}".getBytes());
+        outputStream.flush();
+      } 
+
+      thread.join();
+
     }
 
   }
