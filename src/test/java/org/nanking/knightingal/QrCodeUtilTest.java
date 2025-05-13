@@ -11,7 +11,6 @@ import org.nanking.knightingal.util.WebpUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.WriterException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
@@ -41,6 +40,7 @@ public class QrCodeUtilTest {
 
     }
     
+    @SuppressWarnings("unused")
     @Test
     public void testParseJpg() {
 
@@ -56,6 +56,7 @@ public class QrCodeUtilTest {
     }
 
     // @Test
+    @SuppressWarnings("unused")
     public void parseRGB24() throws Exception {
       File rgbFile = new File("/home/knightingal/Videos/Screencasts/Screencast.bin");
       int width = 1920;

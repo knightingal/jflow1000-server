@@ -9,7 +9,6 @@ import java.net.UnknownHostException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.jupiter.api.Test;
 
 public class SocketTest {
 
@@ -87,7 +86,6 @@ public class SocketTest {
     log.info("start");
     try (Socket socket = new Socket("localhost", 8080)) {
       socket.setSoTimeout(90 * 1000);
-      final Socket socketLocal = socket;
 
       Thread thread = new Thread(new Runnable() {
 
@@ -95,7 +93,7 @@ public class SocketTest {
         public void run() {
           InputStream inputStream;
           try {
-            inputStream = socketLocal.getInputStream();
+            inputStream = socket.getInputStream();
             byte[] buff = new byte[1024];
             while (true) {
               try {
