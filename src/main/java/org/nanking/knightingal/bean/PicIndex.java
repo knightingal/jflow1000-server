@@ -24,6 +24,8 @@ public class PicIndex {
 
     private String album;
 
+    private String title;
+
     private ClientStatus clientStatus;
     public static enum ClientStatus {
         NONE,

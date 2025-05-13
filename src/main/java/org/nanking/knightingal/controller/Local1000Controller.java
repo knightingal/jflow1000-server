@@ -60,7 +60,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 
 
-
 /**
  * @author Knightingal
  */
@@ -83,6 +82,8 @@ public class Local1000Controller {
         this.local1000ImgDao = local1000ImgDao;
         this.local1000SectionDao = local1000SectionDao;
         this.local1000AlbumConfigDao = local1000AlbumConfigDao;
+        this.timeUtil = timeUtil;
+        this.local1000SectionRepo = local1000SectionRepo;
     }
 
     private final Local1000SectionDao local1000SectionDao;
@@ -531,9 +532,11 @@ public class Local1000Controller {
                 .coverHeight(flow1000Section.getCoverHeight())
                 .coverWidth(flow1000Section.getCoverWidth())
                 .album(flow1000Section.getAlbum())
+                .title(flow1000Section.getName())
                 .clientStatus(PicIndex.ClientStatus.valueOf(flow1000Section.getClientStatus().name()))
                 .build()).collect(Collectors.toList());
     }
+
 
 
     @RequestMapping(value = "/urls1000", method = { RequestMethod.POST })
