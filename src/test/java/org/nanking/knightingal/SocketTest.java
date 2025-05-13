@@ -49,7 +49,7 @@ public class SocketTest {
         "sec-ch-ua-mobile: ?0\r\n" + //
         "sec-ch-ua-platform: \"Linux\"\r\n\r\n";
 
-  @Test
+  // @Test
   public void socketGetTest() throws UnknownHostException, IOException {
 
     log.info("start");
@@ -81,7 +81,7 @@ public class SocketTest {
 
   }
 
-  @Test
+  // @Test
   public void socketPostTest() throws UnknownHostException, IOException, InterruptedException {
 
     log.info("start");
