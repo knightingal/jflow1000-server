@@ -3,6 +3,7 @@ package org.nanking.knightingal.util;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -15,5 +16,9 @@ public class TimeUtil {
 
     public String timeStamp() {
         return fmt.format(new Date());
+    }
+
+    public Date parse(String source) throws ParseException {
+      return fmt.parse(source);
     }
 }

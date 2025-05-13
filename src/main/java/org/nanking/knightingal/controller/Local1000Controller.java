@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 
+import org.nanking.knightingal.AppConfiguration;
 import org.nanking.knightingal.ahri.AhriImage;
 import org.nanking.knightingal.ahri.AhriSection;
 import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000AlbumConfigDao;
 import org.nanking.knightingal.dao.Local1000ImgDao;
 import org.nanking.knightingal.dao.Local1000SectionDao;
+import org.nanking.knightingal.dao.jpa.Local1000SectionRepo;
 import org.nanking.knightingal.runnable.DownloadImgRunnable;
 import org.nanking.knightingal.service.WsMsgService;
 import org.nanking.knightingal.util.FileUtil;
@@ -23,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +37,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,11 +70,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Slf4j
 public class Local1000Controller {
 
+    private final Local1000SectionRepo local1000SectionRepo;
+
+    @Autowired
+    private final TimeUtil timeUtil;
+
     // private static final Log log = LogFactory.getLog(Local1000Controller.class);
 
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public Local1000Controller(Local1000SectionDao local1000SectionDao, Local1000ImgDao local1000ImgDao, Local1000AlbumConfigDao local1000AlbumConfigDao) {
+    public Local1000Controller(Local1000SectionDao local1000SectionDao, Local1000ImgDao local1000ImgDao, Local1000AlbumConfigDao local1000AlbumConfigDao, TimeUtil timeUtil, Local1000SectionRepo local1000SectionRepo) {
         this.local1000ImgDao = local1000ImgDao;
         this.local1000SectionDao = local1000SectionDao;
         this.local1000AlbumConfigDao = local1000AlbumConfigDao;
@@ -707,4 +716,27 @@ public class Local1000Controller {
     public List<AlbumConfig> albumConfigList() {
         return local1000AlbumConfigDao.findAll();
     }
+
+    @GetMapping("/updateTitle")
+    @Transactional
+    public void updateTitle() {
+      List<Flow1000Section> flow1000SectionList = local1000SectionDao.findAll((Specification<Flow1000Section>) (root, query, builder) -> {
+                    List<Predicate> predicates = new ArrayList<>();
+                    return builder.and(predicates.toArray(new Predicate[] {}));
+                });
+      for (Flow1000Section section: flow1000SectionList) {
+        String name = section.getName();
+        String prefix = name.substring(0, AppConfiguration.pattern.length());
+        try {
+          timeUtil.parse(prefix);
+          section.setName(name.substring(AppConfiguration.pattern.length()));
+        } catch (ParseException e) {
+          continue;
+        }
+
+      }
+      local1000SectionRepo.saveAllAndFlush(flow1000SectionList);
+      return;
+    }
+    
 }
