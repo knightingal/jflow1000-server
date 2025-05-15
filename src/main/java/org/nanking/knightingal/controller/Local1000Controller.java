@@ -461,7 +461,7 @@ public class Local1000Controller {
                 .collect(Collectors.toList());
 
         return new SectionDetail(flow1000Section.getId(), flow1000Section.getDirName(), flow1000Section.getId(), imgDetailList,
-                flow1000Section.getAlbum());
+                flow1000Section.getAlbum(), flow1000Section.getName(), flow1000Section.getCreateTime());
     }
 
     @RequestMapping("/picContentAjax")
