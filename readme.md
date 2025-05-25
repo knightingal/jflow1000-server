@@ -79,3 +79,9 @@ systemctl status flow1000.service
 [connection-90-wifi-mac-addr-conf]
 wifi.cloned-mac-address=permanent
 ```
+
+## For issue in openSUSE when IDEA start up
+
+```shell
+sudo zypper install libgthread-2_0-0
+```
