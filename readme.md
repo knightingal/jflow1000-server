@@ -42,7 +42,12 @@ docker run -d -p 3002:3002 -p 3001:3001 -p 3003:3003 --name nginx --network db-n
 * edit `/etc/fstab`
 ```
 vi /etc/fstab
-UUID=BEB27BE7B27BA317 /mnt ntfs defaults,nofail 0 2
+UUID=61163017-457c-4c46-88ef-36e437f02b53 /                       ext4    defaults        1 1
+UUID=2225-2C9C          /boot/efi               vfat    umask=0077,shortname=winnt 0 2
+UUID=e1c05eae-4066-44de-a396-3cebbdd0433d none                    swap    defaults        0 0
+UUID=E00A5E8C0A5E6018                     /mnt                    ntfs    defaults,nofail,user,rw 0 2
+UUID=007E-40C8                     /mnt/drive3                   exfat    defaults,nofail,user,rw 0 0
+UUID=AD97-0C20                     /mnt/drive2                   exfat    defaults,nofail,user,rw 0 0
 ```
 
 # Flow1000 service config
