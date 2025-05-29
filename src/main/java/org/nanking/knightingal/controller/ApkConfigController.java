@@ -27,128 +27,127 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ApkConfigController {
 
-    private static final Pattern packagePattern = Pattern.compile("package: name='(.*)' versionCode='(.*)' versionName='(.*)' platformBuildVersionName='(.*)'");
-    final private Local1000ApkConfigDao local1000ApkConfigDao;
+  private static final Pattern packagePattern = Pattern
+      .compile("package: name='(.*)' versionCode='(.*)' versionName='(.*)' platformBuildVersionName='(.*)'");
+  final private Local1000ApkConfigDao local1000ApkConfigDao;
 
-    @Value("${apk.filepath.base}")
-    private String apkFilePathBase;
+  @Value("${apk.filepath.base}")
+  private String apkFilePathBase;
 
-    @Value("${apk.filepath.aapt.path}")
-    private String aaptPath;
+  @Value("${apk.filepath.aapt.path}")
+  private String aaptPath;
 
-    @Value("${apk.download.url.prefix}")
-    private String apkDownloadUrlPrefix;
+  @Value("${apk.download.url.prefix}")
+  private String apkDownloadUrlPrefix;
 
-    public ApkConfigController(Local1000ApkConfigDao local1000ApkConfigDao) {
-        this.local1000ApkConfigDao = local1000ApkConfigDao;
+  public ApkConfigController(Local1000ApkConfigDao local1000ApkConfigDao) {
+    this.local1000ApkConfigDao = local1000ApkConfigDao;
+  }
+
+  @GetMapping("/list/packages")
+  public ResponseEntity<List<ApkConfigVO>> listPackages() {
+    List<ApkConfig> one = local1000ApkConfigDao.findAll((Specification<ApkConfig>) (root, query, builder) -> {
+      List<Predicate> predicates = new ArrayList<>();
+      Order versionCode = builder.desc(root.get("versionCode"));
+      return query
+          .orderBy(versionCode)
+          .where(predicates.toArray(new Predicate[] {}))
+          .getRestriction();
+    });
+
+    List<ApkConfigVO> apkConfigVo = one.stream().map(apkConfig -> ApkConfigVO.builder()
+        .apkName(apkConfig.getApkName())
+        .applicationId(apkConfig.getApplicationId())
+        .versionCode(apkConfig.getVersionCode())
+        .versionName(apkConfig.getVersionName())
+        .downloadUrl(apkDownloadUrlPrefix + toApkVersionedName(apkConfig))
+        .build()).toList();
+    return ResponseEntity.ok(apkConfigVo);
+  }
+
+  @GetMapping("/newest/package/{id}")
+  public ResponseEntity<ApkConfigVO> newestPackage(@PathVariable("id") String packageId) {
+    Page<ApkConfig> one = local1000ApkConfigDao.findAll((Specification<ApkConfig>) (root, query, builder) -> {
+      List<Predicate> predicates = new ArrayList<>();
+      Predicate packagePredicate = builder.equal(root.get("applicationId"), packageId);
+      predicates.add(packagePredicate);
+      Order versionCode = builder.desc(root.get("versionCode"));
+      return query
+          .orderBy(versionCode)
+          .where(predicates.toArray(new Predicate[] {}))
+          .getRestriction();
+    }, Pageable.ofSize(1));
+    if (one.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      ApkConfig apkConfig = one.getContent().get(0);
+      ApkConfigVO vo = ApkConfigVO.builder()
+          .apkName(apkConfig.getApkName())
+          .applicationId(apkConfig.getApplicationId())
+          .versionCode(apkConfig.getVersionCode())
+          .versionName(apkConfig.getVersionName())
+          .downloadUrl(apkDownloadUrlPrefix + toApkVersionedName(apkConfig))
+          .build();
+      return ResponseEntity.ok().body(vo);
     }
+  }
 
-    @GetMapping("/list/packages")
-    public ResponseEntity<List<ApkConfigVO>> listPackages() {
-        List<ApkConfig> one = local1000ApkConfigDao.findAll((Specification<ApkConfig>) (root, query, builder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            Order versionCode = builder.desc(root.get("versionCode"));
-            return query
-                    .orderBy(versionCode)
-                    .where(predicates.toArray(new Predicate[]{}))
-                    .getRestriction();
-        });
+  private String toApkVersionedName(ApkConfig apkConfig) {
+    return apkConfig.getApplicationId() + "_" + apkConfig.getVersionCode() + "_" + apkConfig.getVersionName() + ".apk";
+  }
 
-        List<ApkConfigVO> apkConfigVo = one.stream().map(apkConfig -> ApkConfigVO.builder()
-                .apkName(apkConfig.getApkName())
-                .applicationId(apkConfig.getApplicationId())
-                .versionCode(apkConfig.getVersionCode())
-                .versionName(apkConfig.getVersionName())
-                .downloadUrl(apkDownloadUrlPrefix + toApkVersionedName(apkConfig))
-                .build()).toList();
-        return ResponseEntity.ok(apkConfigVo);
-    }
+  @PostMapping("/upload")
+  public ResponseEntity<Object> uploadPackage(@RequestParam("file") MultipartFile file) {
+    String fileName = new File(Objects.requireNonNull(file.getOriginalFilename())).getName();
+    String filePath = apkFilePathBase + fileName;
+    File dest = new File(filePath);
+    try {
+      file.transferTo(dest);
 
-    @GetMapping("/newest/package/{id}")
-    public ResponseEntity<ApkConfigVO> newestPackage(@PathVariable("id") String packageId) {
-        Page<ApkConfig> one = local1000ApkConfigDao.findAll((Specification<ApkConfig>) (root, query, builder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            Predicate packagePredicate = builder.equal(root.get("applicationId"), packageId);
-            predicates.add(packagePredicate);
-            Order versionCode = builder.desc(root.get("versionCode"));
-            return query
-                    .orderBy(versionCode)
-                    .where(predicates.toArray(new Predicate[]{}))
-                    .getRestriction();
-        }, Pageable.ofSize(1));
-        if (one.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            ApkConfig apkConfig = one.getContent().get(0);
-            ApkConfigVO vo = ApkConfigVO.builder()
-                    .apkName(apkConfig.getApkName())
-                    .applicationId(apkConfig.getApplicationId())
-                    .versionCode(apkConfig.getVersionCode())
-                    .versionName(apkConfig.getVersionName())
-                    .downloadUrl(apkDownloadUrlPrefix + toApkVersionedName(apkConfig))
-                    .build();
-            return ResponseEntity.ok().body(vo);
+      Process exec = Runtime.getRuntime().exec(new String[] { aaptPath, "dump", "badging", dest.getAbsolutePath() });
+      InputStream is = exec.getInputStream();
+      InputStreamReader isr = new InputStreamReader(is);
+      BufferedReader br = new BufferedReader(isr);
+      List<String> dumpBadgingList = br.lines().filter(line -> line.startsWith("package:")).toList();
+      br.close();
+      isr.close();
+      is.close();
+
+      String packageId = "";
+      Long versionCode = null;
+      String versionName = "";
+
+      boolean parseSucc = false;
+
+      if (!dumpBadgingList.isEmpty()) {
+        String line = dumpBadgingList.get(0);
+        Matcher matcher = packagePattern.matcher(line);
+        if (matcher.matches()) {
+          packageId = matcher.group(1);
+          versionCode = Long.parseLong(matcher.group(2));
+          versionName = matcher.group(3);
+          log.info("packageId={}, versionCode={}, versionName={}", packageId, versionCode, versionName);
+          parseSucc = true;
         }
+      }
+      if (!parseSucc) {
+        throw new Exception("failed to parse apk file");
+      }
+      ApkConfig apkConfig = ApkConfig.builder()
+          .applicationId(packageId).versionName(versionName).versionCode(versionCode)
+          .uploadTime(new Date())
+          .build();
+      apkConfig.setApkName(toApkVersionedName(apkConfig));
+
+      String destApkName = apkFilePathBase + toApkVersionedName(apkConfig);
+      if (!dest.renameTo(new File(destApkName))) {
+        throw new Exception("failed to rename apk to " + destApkName);
+      }
+      local1000ApkConfigDao.saveAndFlush(apkConfig);
+
+      return ResponseEntity.ok().build();
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getMessage());
     }
-
-    private String toApkVersionedName(ApkConfig apkConfig) {
-        return apkConfig.getApplicationId() + "_" + apkConfig.getVersionCode() + "_" + apkConfig.getVersionName() + ".apk";
-    }
-
-    @PostMapping("/upload")
-    public ResponseEntity<Object> uploadPackage(@RequestParam("file") MultipartFile file) {
-        String fileName = new File(Objects.requireNonNull(file.getOriginalFilename())).getName();
-        String filePath = apkFilePathBase + fileName;
-        File dest = new File(filePath);
-        try {
-            file.transferTo(dest);
-
-            Process exec = Runtime.getRuntime().exec(new String[]{aaptPath, "dump", "badging", dest.getAbsolutePath()});
-            InputStream is = exec.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            List<String> dumpBadgingList = br.lines().filter(line -> line.startsWith("package:")).toList();
-            br.close();
-            isr.close();
-            is.close();
-            
-
-
-            String packageId = "";
-            Long versionCode = null;
-            String versionName = "";
-
-            boolean parseSucc = false;
-
-            if (!dumpBadgingList.isEmpty()) {
-                String line = dumpBadgingList.get(0);
-                Matcher matcher = packagePattern.matcher(line);
-                if (matcher.matches()) {
-                    packageId = matcher.group(1);
-                    versionCode = Long.parseLong(matcher.group(2));
-                    versionName = matcher.group(3);
-                    log.info("packageId={}, versionCode={}, versionName={}", packageId, versionCode, versionName);
-                    parseSucc = true;
-                }
-            }
-            if (!parseSucc) {
-                throw new Exception("failed to parse apk file");
-            }
-            ApkConfig apkConfig = ApkConfig.builder()
-                    .applicationId(packageId).versionName(versionName).versionCode(versionCode)
-                    .uploadTime(new Date())
-                    .build();
-            apkConfig.setApkName(toApkVersionedName(apkConfig));
-
-            String destApkName = apkFilePathBase + toApkVersionedName(apkConfig);
-            if (!dest.renameTo(new File(destApkName))) {
-                throw new Exception("failed to rename apk to " + destApkName);
-            }
-            local1000ApkConfigDao.saveAndFlush(apkConfig);
-
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
-        }
-    }
+  }
 }

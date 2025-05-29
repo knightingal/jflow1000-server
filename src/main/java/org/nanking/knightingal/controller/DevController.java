@@ -10,20 +10,15 @@ import org.nanking.knightingal.util.ApplicationContextProvider;
 import org.nanking.knightingal.util.EncryptUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-
 
 /**
  * @author Knightingal
@@ -32,90 +27,78 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/dev")
 public class DevController {
 
-    @Autowired
-    WsMsgService wsMsgService;
+  @Autowired
+  WsMsgService wsMsgService;
 
-    @Value("${encryptUtil.passwd}")
-    private String passwd;
+  @Value("${encryptUtil.passwd}")
+  private String passwd;
 
-    @RequestMapping("/passwd")
-    public String getPasswd() {
-        return passwd;
+  @RequestMapping("/passwd")
+  public String getPasswd() {
+    return passwd;
+  }
+
+  @PostMapping("/image-upload")
+  public void imageUpload(@RequestBody byte[] entity, HttpServletResponse servletResponse) throws IOException {
+    System.out.println("image length" + entity.length);
+
+    String filePath = "" + new Date().getTime() + "46-013759.jpg";
+    try (FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
+      fileOutputStream.write(entity);
     }
 
-    
-    @PostMapping("/image-upload")
-    public void imageUpload(@RequestBody byte[] entity, HttpServletResponse servletResponse) throws IOException {
-      System.out.println("image length" + entity.length);
-      
-      String filePath = "" + new Date().getTime() +  "46-013759.jpg";
-      try (FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
-        fileOutputStream.write(entity);
-      }
+    servletResponse.setStatus(200);
+  }
 
-      servletResponse.setStatus(200);
+  @GetMapping("/gen-aes-image")
+  public void getAesImage() throws IOException {
+    String path = "/usr/share/wallpapers/deepin/sourav-ghosh-gTvhFsQMqnA-unsplash.jpg";
+    EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
+    FileInputStream fileInputStream = new FileInputStream(path);
+    byte[] content = fileInputStream.readAllBytes();
+    byte[] encrypted = encryptUtil.encrypt(content);
+    fileInputStream.close();
+
+    FileOutputStream outputStream = new FileOutputStream("./encrypted.bin");
+    outputStream.write(encrypted);
+    outputStream.close();
+
+  }
+
+  @GetMapping("/aes-test")
+  public void aesTestHandle(HttpServletResponse servletResponse) throws Exception {
+    EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
+    servletResponse.addHeader("access-control-allow-origin", "*");
+    byte[] encrypt64 = encryptUtil.encrypt("1234567890abcdef1234567890abcdef1234567890abcdef".getBytes());
+    StringBuffer sb = new StringBuffer();
+    for (byte b : encrypt64) {
+      sb.append(String.format("%02x", b));
     }
-    @GetMapping("/gen-aes-image")
-    public void getAesImage() throws IOException {
-      String path = "/usr/share/wallpapers/deepin/sourav-ghosh-gTvhFsQMqnA-unsplash.jpg";
-      EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
-      FileInputStream fileInputStream = new FileInputStream(path);
-      byte[] content = fileInputStream.readAllBytes();
-      byte[] encrypted = encryptUtil.encrypt(content);
-      fileInputStream.close();
+    System.out.println(sb.toString());
+    servletResponse.getOutputStream().write(sb.toString().getBytes());
+  }
 
-      FileOutputStream outputStream = new FileOutputStream("./encrypted.bin");
-      outputStream.write(encrypted);
-      outputStream.close();
-
+  @GetMapping("/aes-image")
+  public void aseImageHandle(HttpServletResponse servletResponse) throws Exception {
+    // EncryptUtil encryptUtil = (EncryptUtil)
+    // ApplicationContextProvider.getBean("encryptUtil");
+    servletResponse.addHeader("access-control-allow-origin", "*");
+    ServletOutputStream outputStream = servletResponse.getOutputStream();
+    String filePath = "/mnt/linux1000/encrypted/20160318000005BB-36_USS_NEVADA/46-013759.jpg.bin";
+    try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
+      fileInputStream.transferTo(outputStream);
     }
-    
+  }
 
-    @GetMapping("/aes-test")
-    public void aesTestHandle(HttpServletResponse servletResponse) throws Exception {
-      EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
-      servletResponse.addHeader("access-control-allow-origin", "*");
-      byte[] encrypt64 = encryptUtil.encrypt("1234567890abcdef1234567890abcdef1234567890abcdef".getBytes());
-      StringBuffer sb = new StringBuffer();
-      for (byte b: encrypt64) {
-        // System.out.println(String.format("%20x", b));
-        sb.append(String.format("%02x", b));
-      }
-      System.out.println(sb.toString());
-      servletResponse.getOutputStream().write(sb.toString().getBytes());
+  @GetMapping("/image")
+  public void imageHandle(HttpServletResponse servletResponse) throws Exception {
+    // EncryptUtil encryptUtil = (EncryptUtil)
+    // ApplicationContextProvider.getBean("encryptUtil");
+    servletResponse.addHeader("access-control-allow-origin", "*");
+    ServletOutputStream outputStream = servletResponse.getOutputStream();
+    String filePath = "/mnt/linux1000/source/20160318000005BB-36_USS_NEVADA/46-013759.jpg";
+    try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
+      fileInputStream.transferTo(outputStream);
     }
-
-    @GetMapping("/aes-image")
-    public void aseImageHandle(HttpServletResponse servletResponse) throws Exception {
-      // EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
-      servletResponse.addHeader("access-control-allow-origin", "*");
-      ServletOutputStream outputStream = servletResponse.getOutputStream();
-      String filePath = "/mnt/linux1000/encrypted/20160318000005BB-36_USS_NEVADA/46-013759.jpg.bin";
-      try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
-        fileInputStream.transferTo(outputStream);
-      }
-    }
-
-    @GetMapping("/image")
-    public void imageHandle(HttpServletResponse servletResponse) throws Exception {
-      // EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
-      servletResponse.addHeader("access-control-allow-origin", "*");
-      ServletOutputStream outputStream = servletResponse.getOutputStream();
-      String filePath = "/mnt/linux1000/source/20160318000005BB-36_USS_NEVADA/46-013759.jpg";
-      try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
-        fileInputStream.transferTo(outputStream);
-      }
-    }
-
-    @RequestMapping("/send-msg")
-    public String sendMsg(@RequestParam(name = "msg", defaultValue = "") String msg) {
-        wsMsgService.sendWsMsg(msg);
-
-        return "";
-    }
-
-    @GetMapping("/socket-mock")
-    public void socketMock(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-      httpServletResponse.setStatus(HttpStatus.OK.value());
-    }
+  }
 }
