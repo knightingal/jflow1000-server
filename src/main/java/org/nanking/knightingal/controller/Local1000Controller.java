@@ -429,7 +429,7 @@ public class Local1000Controller {
 
     private static List<AhriImage> parseAhriImageList(File section) {
       return Arrays.stream(section.listFiles()).filter(f -> 
-        f.isFile() && (f.getName().endsWith(".jpg") || f.getName().endsWith(".png") || f.getName().endsWith(".webp")))
+        f.isFile() && (f.getName().endsWith(".jpg") || f.getName().endsWith(".png") || f.getName().endsWith(".webp") || f.getName().endsWith("avif")))
         .map(f -> {
           String originName = f.getName();
           int lastIndex = originName.lastIndexOf(".");
