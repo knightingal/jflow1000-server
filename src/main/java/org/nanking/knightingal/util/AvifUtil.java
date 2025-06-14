@@ -73,6 +73,16 @@ public class AvifUtil {
       header = readHeader(inputStream);
       if (header.type.equals("pasp")) {
         ignoreBySize(inputStream, header.size - 8);
+      } else if (header.type.equals("colr")) {
+        ignoreBySize(inputStream, header.size - 8);
+      } else if (header.type.equals("av1C")) {
+        ignoreBySize(inputStream, header.size - 8);
+      } else if (header.type.equals("pasp")) {
+        ignoreBySize(inputStream, header.size - 8);
+      } else if (header.type.equals("clap")) {
+        ignoreBySize(inputStream, header.size - 8);
+      } else if (header.type.equals("irot")) {
+        ignoreBySize(inputStream, header.size - 8);
       } else if (header.type.equals("ispe")) {
         ignoreBySize(inputStream, 4);
         int width = read4Int(inputStream);
