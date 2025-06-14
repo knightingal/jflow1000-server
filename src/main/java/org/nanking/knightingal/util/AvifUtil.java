@@ -18,17 +18,55 @@ public class AvifUtil {
     int size = read4Int(inputStream);
     int remain = size;
     remain -= 4;
-    String ftyp = readStringBySize(inputStream, 4);
-    if (!ftyp.equals("meta")) {
+    String type = readStringBySize(inputStream, 4);
+    if (!type.equals("meta")) {
       throw new IOException("not find meta");
     }
     remain -= 4;
 
+    int version = read4Int(inputStream);
+    remain -= 4;
+    if (version != 0) {
+      throw new IOException("invalid version");
+    }
+
+    while (true) {
+      Header header = readHeader(inputStream);
+      remain -= 8;
+
+      if (header.type.equals("hdlr")) {
+        ignoreBySize(inputStream, header.size - 8);
+        remain -= header.size - 8;
+      } else if (header.type.equals("iloc")) {
+        ignoreBySize(inputStream, header.size - 8);
+        remain -= header.size - 8;
+      } else if (header.type.equals("pitm")) {
+        ignoreBySize(inputStream, header.size - 8);
+        remain -= header.size - 8;
+      } else if (header.type.equals("idat")) {
+        ignoreBySize(inputStream, header.size - 8);
+        remain -= header.size - 8;
+      } else if (header.type.equals("iinf")) {
+        ignoreBySize(inputStream, header.size - 8);
+        remain -= header.size - 8;
+      } else if (header.type.equals("iprp")) {
+        ignoreBySize(inputStream, header.size - 8);
+        remain -= header.size - 8;
+        break;
+      }
+    }
 
     ignoreBySize(inputStream, remain);
 
 
     return size;
+  }
+
+  private static Header readHeader(InputStream inputStream) throws IOException {
+    int size = read4Int(inputStream);
+    String type = readStringBySize(inputStream, 4);
+    return new Header(size, type);
+
   }
 
   private static int parseHeader(InputStream inputStream) throws IOException{
@@ -72,5 +110,16 @@ public class AvifUtil {
 
   private static void ignoreBySize(InputStream inputStream, int size) throws IOException {
     inputStream.readNBytes(size);
+  }
+
+
+  private static class Header {
+    public Header(int size, String type) {
+      this.type = type;
+      this.size = size;
+    }
+    private final String type;
+    private final int size;
+
   }
 }
