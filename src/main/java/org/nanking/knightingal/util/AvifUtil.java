@@ -50,8 +50,9 @@ public class AvifUtil {
         ignoreBySize(inputStream, header.size - 8);
         remain -= header.size - 8;
       } else if (header.type.equals("iprp")) {
-        ignoreBySize(inputStream, header.size - 8);
-        remain -= header.size - 8;
+        // ignoreBySize(inputStream, header.size - 8);
+        // remain -= header.size - 8;
+        parseIprp(inputStream);
         break;
       }
     }
@@ -60,6 +61,31 @@ public class AvifUtil {
 
 
     return size;
+  }
+
+  private static void parseIprp(InputStream inputStream) throws IOException {
+    Header header = readHeader(inputStream);
+    if (!header.type.equals("ipco")) {
+      throw new IOException("not find ipco");
+    }
+
+    while (true) {
+      header = readHeader(inputStream);
+      if (header.type.equals("pasp")) {
+        ignoreBySize(inputStream, header.size - 8);
+      } else if (header.type.equals("ispe")) {
+        ignoreBySize(inputStream, 4);
+        int width = read4Int(inputStream);
+        int height = read4Int(inputStream);
+        width = width;
+        height = height;
+        break;
+
+      }
+
+      
+    }
+
   }
 
   private static Header readHeader(InputStream inputStream) throws IOException {
