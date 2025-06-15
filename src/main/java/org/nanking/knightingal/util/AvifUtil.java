@@ -6,64 +6,52 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class AvifUtil {
-  public static void parse(File avif) throws IOException {
-    InputStream inputStream = new FileInputStream(avif);
-    int size = parseHeader(inputStream);
-    parseMeta(inputStream);
-    
-
+  public static ImgSize parseImgSize(File avif) throws IOException {
+    try (InputStream inputStream = new FileInputStream(avif)) {
+      parseHeader(inputStream);
+      ImgSize imgSize = parseMeta(inputStream);
+      return imgSize;
+    } catch (Exception e) {
+      throw e;
+    }
   }
 
-  private static int parseMeta(InputStream inputStream) throws IOException{
+  private static ImgSize parseMeta(InputStream inputStream) throws IOException{
     int size = read4Int(inputStream);
-    int remain = size;
-    remain -= 4;
     String type = readStringBySize(inputStream, 4);
     if (!type.equals("meta")) {
       throw new IOException("not find meta");
     }
-    remain -= 4;
 
     int version = read4Int(inputStream);
-    remain -= 4;
     if (version != 0) {
       throw new IOException("invalid version");
     }
 
     while (true) {
       Header header = readHeader(inputStream);
-      remain -= 8;
 
       if (header.type.equals("hdlr")) {
         ignoreBySize(inputStream, header.size - 8);
-        remain -= header.size - 8;
       } else if (header.type.equals("iloc")) {
         ignoreBySize(inputStream, header.size - 8);
-        remain -= header.size - 8;
       } else if (header.type.equals("pitm")) {
         ignoreBySize(inputStream, header.size - 8);
-        remain -= header.size - 8;
       } else if (header.type.equals("idat")) {
         ignoreBySize(inputStream, header.size - 8);
-        remain -= header.size - 8;
       } else if (header.type.equals("iinf")) {
         ignoreBySize(inputStream, header.size - 8);
-        remain -= header.size - 8;
       } else if (header.type.equals("iprp")) {
         // ignoreBySize(inputStream, header.size - 8);
         // remain -= header.size - 8;
-        parseIprp(inputStream);
-        break;
+        return parseIprp(inputStream);
       }
     }
 
-    ignoreBySize(inputStream, remain);
 
-
-    return size;
   }
 
-  private static void parseIprp(InputStream inputStream) throws IOException {
+  private static ImgSize parseIprp(InputStream inputStream) throws IOException {
     Header header = readHeader(inputStream);
     if (!header.type.equals("ipco")) {
       throw new IOException("not find ipco");
@@ -87,9 +75,9 @@ public class AvifUtil {
         ignoreBySize(inputStream, 4);
         int width = read4Int(inputStream);
         int height = read4Int(inputStream);
-        width = width;
-        height = height;
-        break;
+        // width = width;
+        // height = height;
+        return new ImgSize(height, width);
 
       }
 
@@ -157,5 +145,24 @@ public class AvifUtil {
     private final String type;
     private final int size;
 
+  }
+
+  public static class ImgSize {
+
+    public ImgSize(int height, int width) {
+      this.height = height;
+      this.width = width;
+    }
+    private final int height;
+    private final int width;
+
+    public int getHeight() {
+      return height;
+    }
+    public int getWidth() {
+      return width;
+    }
+
+    
   }
 }
