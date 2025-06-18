@@ -30,7 +30,7 @@ public class DevController {
   @Autowired
   WsMsgService wsMsgService;
 
-  @Value("${encryptUtil.passwd}")
+  @Value("${encrypt-util.passwd}")
   private String passwd;
 
   @RequestMapping("/passwd")
