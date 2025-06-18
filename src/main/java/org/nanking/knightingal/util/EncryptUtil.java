@@ -11,10 +11,10 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class EncryptUtil {
 
-    @Value("${encryptUtil.iv}")
+    @Value("${encrypt-util.iv}")
     private String ivString;
 
-    @Value("${encryptUtil.passwd}")
+    @Value("${encrypt-util.passwd}")
     private String passwd;
 
     public byte[] encrypt(byte[] dataBytes) {

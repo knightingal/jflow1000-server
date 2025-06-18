@@ -1,0 +1,37 @@
+{"properties": [
+  {
+    "name": "encrypt-util.iv",
+    "type": "java.lang.String",
+    "description": "A description for 'encryptUtil.iv'"
+  },
+  {
+    "name": "encrypt-util.passwd",
+    "type": "java.lang.String",
+    "description": "A description for 'encryptUtil.passwd'"
+  },
+  {
+    "name": "apk.filepath.base",
+    "type": "java.lang.String",
+    "description": "A description for 'apk.filepath.base'"
+  },
+  {
+    "name": "local1000.ahri-dir",
+    "type": "java.lang.String",
+    "description": "A description for 'local1000.ahri-dir'"
+  },
+  {
+    "name": "local1000.base-dir",
+    "type": "java.lang.String",
+    "description": "A description for 'local1000.base-dir'"
+  },
+  {
+    "name": "apk.download.url.prefix",
+    "type": "java.lang.String",
+    "description": "A description for 'apk.download.url.prefix'"
+  },
+  {
+    "name": "apk.filepath.aapt.path",
+    "type": "java.lang.String",
+    "description": "A description for 'apk.filepath.aapt.path'"
+  }
+]}
