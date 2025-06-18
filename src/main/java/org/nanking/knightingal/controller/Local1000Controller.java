@@ -223,6 +223,7 @@ public class Local1000Controller {
             fileInputStream.close();
             flow1000Img.setHeight(webpImageSize.height);
             flow1000Img.setWidth(webpImageSize.width);
+          } else if (destAhriImageFile.getAbsolutePath().endsWith(".avif")) {
           } else {
             BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(destAhriImageFile.getAbsolutePath())));
             int width = sourceImg.getWidth();
@@ -367,6 +368,7 @@ public class Local1000Controller {
             fileInputStream.close();
             flow1000Img.setHeight(webpImageSize.height);
             flow1000Img.setWidth(webpImageSize.width);
+          } else if (image.getAbsolutePath().endsWith(".avif")) {
           } else {
             BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(image.getAbsolutePath())));
             int width = sourceImg.getWidth();
