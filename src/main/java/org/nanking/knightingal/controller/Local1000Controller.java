@@ -15,9 +15,11 @@ import org.nanking.knightingal.dao.Local1000SectionDao;
 import org.nanking.knightingal.dao.jpa.Local1000SectionRepo;
 import org.nanking.knightingal.runnable.DownloadImgRunnable;
 import org.nanking.knightingal.service.WsMsgService;
+import org.nanking.knightingal.util.AvifUtil;
 import org.nanking.knightingal.util.FileUtil;
 import org.nanking.knightingal.util.TimeUtil;
 import org.nanking.knightingal.util.WebpUtil;
+import org.nanking.knightingal.util.AvifUtil.ImgSize;
 import org.nanking.knightingal.util.WebpUtil.WebpImageSize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -224,6 +226,9 @@ public class Local1000Controller {
             flow1000Img.setHeight(webpImageSize.height);
             flow1000Img.setWidth(webpImageSize.width);
           } else if (destAhriImageFile.getAbsolutePath().endsWith(".avif")) {
+            ImgSize imgSize = AvifUtil.parseImgSize(destAhriImageFile);
+            flow1000Img.setHeight(imgSize.getHeight());
+            flow1000Img.setWidth(imgSize.getWidth());
           } else {
             BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(destAhriImageFile.getAbsolutePath())));
             int width = sourceImg.getWidth();
@@ -369,6 +374,9 @@ public class Local1000Controller {
             flow1000Img.setHeight(webpImageSize.height);
             flow1000Img.setWidth(webpImageSize.width);
           } else if (image.getAbsolutePath().endsWith(".avif")) {
+            ImgSize imgSize = AvifUtil.parseImgSize(image);
+            flow1000Img.setHeight(imgSize.getHeight());
+            flow1000Img.setWidth(imgSize.getWidth());
           } else {
             BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(image.getAbsolutePath())));
             int width = sourceImg.getWidth();
