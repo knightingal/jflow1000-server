@@ -86,3 +86,12 @@ wifi.cloned-mac-address=permanent
 ```shell
 sudo zypper install libgthread-2_0-0
 ```
+
+## Fix ntfs in arch linux
+
+```shell
+sudo pacman -S nfs-utils
+sudo pacman -S ntfs-3g
+sudo ntfsfix /dev/nvme0n1p3
+sudo mount -a
+```
