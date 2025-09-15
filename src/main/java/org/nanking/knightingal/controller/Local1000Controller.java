@@ -151,12 +151,12 @@ public class Local1000Controller {
 
     @GetMapping("/importAhri")
     public ResponseEntity<Object> importAhri() {
-      Map<String,AhriSection> scanAhriDir = scanAhriDir();
+      List<AhriSection> scanAhriDir = scanAhriDir();
       
       new Thread(new Runnable() {
         @Override
         public void run() {
-          scanAhriDir.values().forEach(ahriSection -> importAhriSection(ahriSection));
+          scanAhriDir.forEach(ahriSection -> importAhriSection(ahriSection));
         }
         
       }).start();
@@ -412,14 +412,13 @@ public class Local1000Controller {
       return resp;
     }
 
-    private Map<String, AhriSection> scanAhriDir() {
+    private List<AhriSection> scanAhriDir() {
       String pathName = ahriDir;
       File basePath = new File(pathName);
       File[] sections = basePath.listFiles();
 
       List<File> sectionList = Arrays.stream(sections)
         .filter(file->file.isDirectory())
-        .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
         .collect(Collectors.toList());
       Map<String, AhriSection> realNameMap = new HashMap<String, AhriSection>();
       for (File section : sectionList) {
@@ -429,7 +428,11 @@ public class Local1000Controller {
         realNameMap.putIfAbsent(realName, new AhriSection(realName));
         realNameMap.get(realName).addAhriImages(parseAhriImageList(section));
       }
-      return realNameMap;
+      return realNameMap.values()
+          .stream()
+          .sorted((f1, f2) -> f1.getSectionName().compareTo(f2.getSectionName()))
+          .collect(Collectors.toList());
+
     }
 
     private static String parseAhriRealName(String dirName) {
