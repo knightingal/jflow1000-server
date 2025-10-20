@@ -2,6 +2,8 @@ package org.nanking.knightingal.util;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
@@ -9,11 +11,11 @@ import java.net.URL;
  */
 public class FileUtil {
 
-    public String getFileNameByUrl(String urlString) {
+    public String getFileNameByUrl(String urlString)  {
         try {
-            URL url = new URL(urlString);
+            URL url = new URI(urlString).toURL();
             return new File(url.getFile()).getName();
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             return null;
         }
 

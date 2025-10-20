@@ -193,7 +193,7 @@ public class Local1000Controller {
 
       } catch (Exception e) {
         e.printStackTrace();
-
+        return;
       }
       for (AhriImage image: ahriSection.getImageList()) {
         File destAhriImageFile = new File(baseDir + "/1807/" + ahriSection.getSectionName() + "/" + image.getName());

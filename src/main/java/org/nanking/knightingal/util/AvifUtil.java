@@ -18,6 +18,9 @@ public class AvifUtil {
 
   private static ImgSize parseMeta(InputStream inputStream) throws IOException{
     int size = read4Int(inputStream);
+    if (size < 0) {
+      throw new IOException("invalid meta size");
+    }
     String type = readStringBySize(inputStream, 4);
     if (!type.equals("meta")) {
       throw new IOException("not find meta");
