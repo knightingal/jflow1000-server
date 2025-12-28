@@ -49,12 +49,11 @@ public class WebController {
     });
 
     List<ApkConfigVO> apkConfigVo = one.stream().map(apkConfig -> new ApkConfigVO(
-                    apkConfig.getApplicationId(),
-                    apkConfig.getVersionCode(),
-                    apkConfig.getVersionName(),
-                    apkConfig.getApkName(),
-                    apkDownloadUrlPrefix + toApkVersionedName(apkConfig)
-    )).toList();
+        apkConfig.getApplicationId(),
+        apkConfig.getVersionCode(),
+        apkConfig.getVersionName(),
+        apkConfig.getApkName(),
+        apkDownloadUrlPrefix + toApkVersionedName(apkConfig))).toList();
     model.addAttribute("apkConfigVoList", apkConfigVo);
 
     return "index";

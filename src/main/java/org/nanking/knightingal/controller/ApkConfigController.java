@@ -54,12 +54,11 @@ public class ApkConfigController {
     });
 
     List<ApkConfigVO> apkConfigVo = one.stream().map(apkConfig -> new ApkConfigVO(
-            apkConfig.getApplicationId(),
-            apkConfig.getVersionCode(),
-            apkConfig.getVersionName(),
-            apkConfig.getApkName(),
-            apkDownloadUrlPrefix + toApkVersionedName(apkConfig)
-    )).toList();
+        apkConfig.getApplicationId(),
+        apkConfig.getVersionCode(),
+        apkConfig.getVersionName(),
+        apkConfig.getApkName(),
+        apkDownloadUrlPrefix + toApkVersionedName(apkConfig))).toList();
     return ResponseEntity.ok(apkConfigVo);
   }
 
@@ -84,8 +83,7 @@ public class ApkConfigController {
           apkConfig.getVersionCode(),
           apkConfig.getVersionName(),
           apkConfig.getApkName(),
-          apkDownloadUrlPrefix + toApkVersionedName(apkConfig)
-      );
+          apkDownloadUrlPrefix + toApkVersionedName(apkConfig));
       return ResponseEntity.ok().body(vo);
     }
   }
@@ -124,7 +122,8 @@ public class ApkConfigController {
           packageId = matcher.group(1);
           versionCode = Long.parseLong(matcher.group(2));
           versionName = matcher.group(3);
-//          log.info("packageId={}, versionCode={}, versionName={}", packageId, versionCode, versionName);
+          // log.info("packageId={}, versionCode={}, versionName={}", packageId,
+          // versionCode, versionName);
           parseSucc = true;
         }
       }
@@ -132,11 +131,10 @@ public class ApkConfigController {
         throw new Exception("failed to parse apk file");
       }
       ApkConfig apkConfig = new ApkConfig(
-              packageId,
-              versionCode,
-              versionName,
-              new Date()
-      );
+          packageId,
+          versionCode,
+          versionName,
+          new Date());
       apkConfig.setApkName(toApkVersionedName(apkConfig));
 
       String destApkName = apkFilePathBase + toApkVersionedName(apkConfig);

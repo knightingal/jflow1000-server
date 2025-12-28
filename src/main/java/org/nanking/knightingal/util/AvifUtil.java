@@ -16,7 +16,7 @@ public class AvifUtil {
     }
   }
 
-  private static ImgSize parseMeta(InputStream inputStream) throws IOException{
+  private static ImgSize parseMeta(InputStream inputStream) throws IOException {
     int size = read4Int(inputStream);
     if (size < 0) {
       throw new IOException("invalid meta size");
@@ -51,7 +51,6 @@ public class AvifUtil {
       }
     }
 
-
   }
 
   private static ImgSize parseIprp(InputStream inputStream) throws IOException {
@@ -84,7 +83,6 @@ public class AvifUtil {
 
       }
 
-      
     }
 
   }
@@ -96,7 +94,7 @@ public class AvifUtil {
 
   }
 
-  private static int parseHeader(InputStream inputStream) throws IOException{
+  private static int parseHeader(InputStream inputStream) throws IOException {
     int size = read4Int(inputStream);
     int remain = size;
     remain -= 4;
@@ -114,7 +112,6 @@ public class AvifUtil {
 
     ignoreBySize(inputStream, remain);
 
-
     return size;
   }
 
@@ -126,10 +123,10 @@ public class AvifUtil {
   private static int read4Int(InputStream inputStream) throws IOException {
     byte[] data = inputStream.readNBytes(4);
 
-    int data0 = (int)data[0] & 0xff;
-    int data1 = (int)data[1] & 0xff;
-    int data2 = (int)data[2] & 0xff;
-    int data3 = (int)data[3] & 0xff;
+    int data0 = (int) data[0] & 0xff;
+    int data1 = (int) data[1] & 0xff;
+    int data2 = (int) data[2] & 0xff;
+    int data3 = (int) data[3] & 0xff;
 
     int value = (data0 << 24) | (data1 << 16) | (data2 << 8) | data3;
     return value;
@@ -139,12 +136,12 @@ public class AvifUtil {
     inputStream.readNBytes(size);
   }
 
-
   private static class Header {
     public Header(int size, String type) {
       this.type = type;
       this.size = size;
     }
+
     private final String type;
     private final int size;
 
@@ -156,16 +153,17 @@ public class AvifUtil {
       this.height = height;
       this.width = width;
     }
+
     private final int height;
     private final int width;
 
     public int getHeight() {
       return height;
     }
+
     public int getWidth() {
       return width;
     }
 
-    
   }
 }

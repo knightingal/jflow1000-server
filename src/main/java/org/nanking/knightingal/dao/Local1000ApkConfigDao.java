@@ -13,9 +13,11 @@ import java.util.Optional;
 @Repo("local1000ApkConfigRepo")
 public interface Local1000ApkConfigDao {
 
-    Optional<ApkConfig> findOne(@Nullable Specification<ApkConfig> spec);
-    List<ApkConfig> findAll(@Nullable Specification<ApkConfig> spec);
-    Page<ApkConfig> findAll(Specification<ApkConfig> spec, Pageable pageable);
+  Optional<ApkConfig> findOne(@Nullable Specification<ApkConfig> spec);
 
-    ApkConfig saveAndFlush(ApkConfig entity);
+  List<ApkConfig> findAll(@Nullable Specification<ApkConfig> spec);
+
+  Page<ApkConfig> findAll(Specification<ApkConfig> spec, Pageable pageable);
+
+  ApkConfig saveAndFlush(ApkConfig entity);
 }

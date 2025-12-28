@@ -7,7 +7,7 @@ import org.springframework.web.socket.WebSocketSession;
  */
 public interface WsMsgService {
 
-    void sendWsMsg(String msg);
+  void sendWsMsg(String msg);
 
-    void setSession(WebSocketSession session);
+  void setSession(WebSocketSession session);
 }

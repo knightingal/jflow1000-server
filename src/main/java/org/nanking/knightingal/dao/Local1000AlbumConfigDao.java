@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repo("local1000AlbumConfigRepo")
 public interface Local1000AlbumConfigDao {
-    Optional<AlbumConfig> searchAlbumConfigByName(String name);
+  Optional<AlbumConfig> searchAlbumConfigByName(String name);
 
-    List<AlbumConfig> findAll();
+  List<AlbumConfig> findAll();
 }

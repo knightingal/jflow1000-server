@@ -16,15 +16,15 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 public class QrCodeUtil {
-    public static void generateQrCode(String content, OutputStream outputStream) throws WriterException, IOException {
-        BitMatrix bitMatrix = setBitMatrix(content, 200, 200);
-        BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
-        ImageIO.write(bufferedImage, "png", outputStream);
-    }
+  public static void generateQrCode(String content, OutputStream outputStream) throws WriterException, IOException {
+    BitMatrix bitMatrix = setBitMatrix(content, 200, 200);
+    BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
+    ImageIO.write(bufferedImage, "png", outputStream);
+  }
 
-    private static BitMatrix setBitMatrix(String content, int width, int height) throws WriterException {
-        Map<EncodeHintType, Object> param = new HashMap<>();
-        return new MultiFormatWriter().encode(
-                content, BarcodeFormat.QR_CODE, width, height, param);
-    }
+  private static BitMatrix setBitMatrix(String content, int width, int height) throws WriterException {
+    Map<EncodeHintType, Object> param = new HashMap<>();
+    return new MultiFormatWriter().encode(
+        content, BarcodeFormat.QR_CODE, width, height, param);
+  }
 }

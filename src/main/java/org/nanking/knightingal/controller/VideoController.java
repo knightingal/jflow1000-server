@@ -16,7 +16,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 
-
 @RestController
 public class VideoController {
 
@@ -26,7 +25,6 @@ public class VideoController {
   @GetMapping("/video.mp4")
   public void getMethodName(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-    
     File file = new File(environment.getProperty("DEMO_VIDEO"));
     String ifRangeHeader = request.getHeader("If-Range");
     String rangeHeader = request.getHeader("Range");
@@ -51,7 +49,7 @@ public class VideoController {
     }
     response.setHeader("Content-Lenght", String.format("%d", fileSize - start));
     response.setHeader("Content-Type", "video/mp4");
-    
+
     response.setHeader("etag", etag);
     FileInputStream is = new FileInputStream(file);
     OutputStream os = response.getOutputStream();

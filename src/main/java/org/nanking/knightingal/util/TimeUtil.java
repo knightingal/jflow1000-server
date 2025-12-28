@@ -11,14 +11,14 @@ import java.util.Date;
  */
 public class TimeUtil {
 
-    @Autowired
-    private DateFormat fmt;
+  @Autowired
+  private DateFormat fmt;
 
-    public String timeStamp() {
-        return fmt.format(new Date());
-    }
+  public String timeStamp() {
+    return fmt.format(new Date());
+  }
 
-    public Date parse(String source) throws ParseException {
-      return fmt.parse(source);
-    }
+  public Date parse(String source) throws ParseException {
+    return fmt.parse(source);
+  }
 }

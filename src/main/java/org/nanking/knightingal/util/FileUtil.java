@@ -11,13 +11,13 @@ import java.net.URL;
  */
 public class FileUtil {
 
-    public String getFileNameByUrl(String urlString)  {
-        try {
-            URL url = new URI(urlString).toURL();
-            return new File(url.getFile()).getName();
-        } catch (MalformedURLException | URISyntaxException e) {
-            return null;
-        }
-
+  public String getFileNameByUrl(String urlString) {
+    try {
+      URL url = new URI(urlString).toURL();
+      return new File(url.getFile()).getName();
+    } catch (MalformedURLException | URISyntaxException e) {
+      return null;
     }
+
+  }
 }

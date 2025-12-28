@@ -13,22 +13,22 @@ import java.io.IOException;
 @Service
 public class WsMsgServiceImpl implements WsMsgService {
 
-    WebSocketSession session;
+  WebSocketSession session;
 
-    @Override
-    public void sendWsMsg(String msg) {
-        TextMessage textMessage = new TextMessage(msg);
-        if (session != null) {
-            try {
-                session.sendMessage(textMessage);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+  @Override
+  public void sendWsMsg(String msg) {
+    TextMessage textMessage = new TextMessage(msg);
+    if (session != null) {
+      try {
+        session.sendMessage(textMessage);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
+  }
 
-    @Override
-    public void setSession(WebSocketSession session) {
-        this.session = session;
-    }
+  @Override
+  public void setSession(WebSocketSession session) {
+    this.session = session;
+  }
 }

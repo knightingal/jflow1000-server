@@ -19,7 +19,6 @@ import okhttp3.Response;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-
 @RestController
 public class InternalApiController {
 
@@ -30,6 +29,7 @@ public class InternalApiController {
 
   /**
    * call request to fetch asset from static.makerfac.com for scratch
+   * 
    * @param packageId
    * @return
    * @throws IOException
@@ -41,27 +41,23 @@ public class InternalApiController {
       InputStream inputStream = new FileInputStream(assetFile);
       byte[] allBytes = inputStream.readAllBytes();
       inputStream.close();
-      String contentType = packageId.endsWith("svg") ? "image/svg+xml":"image/png";
+      String contentType = packageId.endsWith("svg") ? "image/svg+xml" : "image/png";
       return ResponseEntity.ok()
-        .header("content-type", contentType)
-        .body(allBytes);
+          .header("content-type", contentType)
+          .body(allBytes);
     }
 
     String url = REMOTE_ASSET_URL + packageId;
 
-    Request request = new Request.Builder().url(url).
-            addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36").
-            addHeader("Connection", "keep-alive").
-            addHeader("Accept", "image/webp,image/*,*/*;q=0.8").
-            addHeader("Accept-Encoding", "gzip,deflate,sdch").
-            addHeader("Accept-Language", "zh-CN,zh;q=0.8").
-            addHeader("Pragma","no-cache").
-            addHeader("referer", "https://community.makerfac.com/").
-            addHeader("Cache-Control","no-cache").
-            build();
+    Request request = new Request.Builder().url(url).addHeader("User-Agent",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
+        .addHeader("Connection", "keep-alive").addHeader("Accept", "image/webp,image/*,*/*;q=0.8")
+        .addHeader("Accept-Encoding", "gzip,deflate,sdch").addHeader("Accept-Language", "zh-CN,zh;q=0.8")
+        .addHeader("Pragma", "no-cache").addHeader("referer", "https://community.makerfac.com/")
+        .addHeader("Cache-Control", "no-cache").build();
     OkHttpClient okHttpClient = new OkHttpClient.Builder()
-          .connectTimeout(60, TimeUnit.SECONDS)
-          .readTimeout(60, TimeUnit.SECONDS).build();
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS).build();
 
     Response response = okHttpClient.newCall(request).execute();
     byte[] bytes = response.body().bytes();
@@ -72,7 +68,7 @@ public class InternalApiController {
     outputStream.flush();
     outputStream.close();
     return ResponseEntity.ok()
-      .header("content-type", response.headers().get("content-type"))    
-      .body(bytes);
+        .header("content-type", response.headers().get("content-type"))
+        .body(bytes);
   }
 }
