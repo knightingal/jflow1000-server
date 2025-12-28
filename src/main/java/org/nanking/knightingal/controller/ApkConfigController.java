@@ -2,7 +2,6 @@ package org.nanking.knightingal.controller;
 
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
-import lombok.extern.slf4j.Slf4j;
 import org.nanking.knightingal.bean.ApkConfig;
 import org.nanking.knightingal.dao.Local1000ApkConfigDao;
 import org.nanking.knightingal.vo.ApkConfigVO;
@@ -24,7 +23,6 @@ import java.util.regex.Pattern;
 
 @RequestMapping("/apkConfig")
 @RestController
-@Slf4j
 public class ApkConfigController {
 
   private static final Pattern packagePattern = Pattern
@@ -55,13 +53,13 @@ public class ApkConfigController {
           .getRestriction();
     });
 
-    List<ApkConfigVO> apkConfigVo = one.stream().map(apkConfig -> ApkConfigVO.builder()
-        .apkName(apkConfig.getApkName())
-        .applicationId(apkConfig.getApplicationId())
-        .versionCode(apkConfig.getVersionCode())
-        .versionName(apkConfig.getVersionName())
-        .downloadUrl(apkDownloadUrlPrefix + toApkVersionedName(apkConfig))
-        .build()).toList();
+    List<ApkConfigVO> apkConfigVo = one.stream().map(apkConfig -> new ApkConfigVO(
+            apkConfig.getApplicationId(),
+            apkConfig.getVersionCode(),
+            apkConfig.getVersionName(),
+            apkConfig.getApkName(),
+            apkDownloadUrlPrefix + toApkVersionedName(apkConfig)
+    )).toList();
     return ResponseEntity.ok(apkConfigVo);
   }
 
@@ -81,13 +79,13 @@ public class ApkConfigController {
       return ResponseEntity.notFound().build();
     } else {
       ApkConfig apkConfig = one.getContent().get(0);
-      ApkConfigVO vo = ApkConfigVO.builder()
-          .apkName(apkConfig.getApkName())
-          .applicationId(apkConfig.getApplicationId())
-          .versionCode(apkConfig.getVersionCode())
-          .versionName(apkConfig.getVersionName())
-          .downloadUrl(apkDownloadUrlPrefix + toApkVersionedName(apkConfig))
-          .build();
+      ApkConfigVO vo = new ApkConfigVO(
+          apkConfig.getApplicationId(),
+          apkConfig.getVersionCode(),
+          apkConfig.getVersionName(),
+          apkConfig.getApkName(),
+          apkDownloadUrlPrefix + toApkVersionedName(apkConfig)
+      );
       return ResponseEntity.ok().body(vo);
     }
   }
@@ -126,17 +124,19 @@ public class ApkConfigController {
           packageId = matcher.group(1);
           versionCode = Long.parseLong(matcher.group(2));
           versionName = matcher.group(3);
-          log.info("packageId={}, versionCode={}, versionName={}", packageId, versionCode, versionName);
+//          log.info("packageId={}, versionCode={}, versionName={}", packageId, versionCode, versionName);
           parseSucc = true;
         }
       }
       if (!parseSucc) {
         throw new Exception("failed to parse apk file");
       }
-      ApkConfig apkConfig = ApkConfig.builder()
-          .applicationId(packageId).versionName(versionName).versionCode(versionCode)
-          .uploadTime(new Date())
-          .build();
+      ApkConfig apkConfig = new ApkConfig(
+              packageId,
+              versionCode,
+              versionName,
+              new Date()
+      );
       apkConfig.setApkName(toApkVersionedName(apkConfig));
 
       String destApkName = apkFilePathBase + toApkVersionedName(apkConfig);

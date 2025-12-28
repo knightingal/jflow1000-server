@@ -1,6 +1,5 @@
 package org.nanking.knightingal;
 
-import lombok.extern.slf4j.Slf4j;
 import org.nanking.knightingal.annotation.Repo;
 import org.nanking.knightingal.util.ApplicationContextProvider;
 import org.springframework.data.domain.Pageable;
@@ -8,7 +7,6 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.lang.reflect.Proxy;
 
-@Slf4j
 public class DaoInjector {
 
     @SuppressWarnings("unchecked")
@@ -67,7 +65,7 @@ public class DaoInjector {
             try {
                 method = target.getClass().getMethod(method.getName(), argClazzs);
             } catch (NoSuchMethodException e) {
-                log.error("method not found", e);
+//                log.error("method not found", e);
                 throw new RuntimeException("method not found");
             }
 

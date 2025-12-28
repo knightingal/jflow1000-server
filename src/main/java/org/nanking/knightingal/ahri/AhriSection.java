@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import lombok.Getter;
 
 public class AhriSection {
 
@@ -13,12 +12,10 @@ public class AhriSection {
     this.sectionName = sectionName;
   }
 
-  @Getter
   private List<AhriImage> imageList = new ArrayList<>();
 
   private Set<String> existImageName = new HashSet<>();
 
-  @Getter
   private String sectionName;
 
   public boolean checkImageNameExist(String imageName) {
@@ -38,4 +35,27 @@ public class AhriSection {
     ahriImages.forEach(image -> addAhriImage(image));
   }
 
+  public List<AhriImage> getImageList() {
+    return imageList;
+  }
+
+  public void setImageList(List<AhriImage> imageList) {
+    this.imageList = imageList;
+  }
+
+  public Set<String> getExistImageName() {
+    return existImageName;
+  }
+
+  public void setExistImageName(Set<String> existImageName) {
+    this.existImageName = existImageName;
+  }
+
+  public String getSectionName() {
+    return sectionName;
+  }
+
+  public void setSectionName(String sectionName) {
+    this.sectionName = sectionName;
+  }
 }
