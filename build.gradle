@@ -43,6 +43,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
   implementation("com.squareup.okhttp3:okhttp:4.10.0")
 	implementation('com.google.code.findbugs:annotations:3.0.1u2')
+  implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 
   // https://mvnrepository.com/artifact/org.sejda.imageio/webp-imageio
   // implementation group: 'org.sejda.imageio', name: 'webp-imageio', version: '0.1.6'
