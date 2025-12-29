@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.persistence.criteria.Predicate;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nanking.knightingal.AppConfiguration;
 import org.nanking.knightingal.ahri.AhriImage;
 import org.nanking.knightingal.ahri.AhriSection;
@@ -51,12 +53,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -67,23 +67,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequestMapping("/local1000")
 @RestController
 public class Local1000Controller {
+  private static final Logger LOG = LogManager.getLogger(Local1000Controller.class);
 
   private final Local1000SectionRepo local1000SectionRepo;
 
-  @Autowired
   private final TimeUtil timeUtil;
 
-  // private static final Log log = LogFactory.getLog(Local1000Controller.class);
 
   private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-  public Local1000Controller(Local1000SectionDao local1000SectionDao, Local1000ImgDao local1000ImgDao,
-      Local1000AlbumConfigDao local1000AlbumConfigDao, TimeUtil timeUtil, Local1000SectionRepo local1000SectionRepo) {
+  public Local1000Controller(ApplicationContext applicationContext,
+    Local1000SectionDao local1000SectionDao, Local1000ImgDao local1000ImgDao,
+      Local1000AlbumConfigDao local1000AlbumConfigDao, TimeUtil timeUtil, Local1000SectionRepo local1000SectionRepo,
+      WsMsgService wsMsgService
+    ) {
+    this.applicationContext = applicationContext;
     this.local1000ImgDao = local1000ImgDao;
     this.local1000SectionDao = local1000SectionDao;
     this.local1000AlbumConfigDao = local1000AlbumConfigDao;
     this.timeUtil = timeUtil;
     this.local1000SectionRepo = local1000SectionRepo;
+    this.wsMsgService = wsMsgService;
   }
 
   private final Local1000SectionDao local1000SectionDao;
@@ -92,8 +96,9 @@ public class Local1000Controller {
 
   private final Local1000AlbumConfigDao local1000AlbumConfigDao;
 
-  @Autowired
-  private ApplicationContext applicationContext;
+  private final ApplicationContext applicationContext;
+
+  private final WsMsgService wsMsgService;
 
   @Autowired
   private Executor downloadImgThreadPoolExecutor;
@@ -101,8 +106,6 @@ public class Local1000Controller {
   @Autowired
   private Executor downloadSectionThreadPoolExecutor;
 
-  @Autowired
-  private WsMsgService wsMsgService;
 
   @Value("${local1000.base-dir}")
   private String baseDir;
@@ -132,13 +135,13 @@ public class Local1000Controller {
         List<Flow1000Img> imgList = Stream.of(imgNameArray)
             .sorted(Local1000Controller::compareImgName)
             .map(imgNameItem -> generate1000Img(imgNameItem, flow1000Section))
-            .collect(Collectors.toList());
+            .toList();
         flow1000Section.setImages(imgList);
         flow1000Section.setCover(imgList.get(0).getName());
         flow1000Section.setCoverHeight(imgList.get(0).getHeight());
         flow1000Section.setCoverWidth(imgList.get(0).getWidth());
         return flow1000Section;
-      }).collect(Collectors.toList());
+      }).toList();
 
       local1000SectionDao.saveAllAndFlush(sectionList);
 
@@ -154,7 +157,7 @@ public class Local1000Controller {
     new Thread(new Runnable() {
       @Override
       public void run() {
-        scanAhriDir.forEach(ahriSection -> importAhriSection(ahriSection));
+        scanAhriDir.forEach(Local1000Controller.this::importAhriSection);
       }
 
     }).start();
@@ -272,8 +275,7 @@ public class Local1000Controller {
       return ResponseEntity.internalServerError().body("cannot find album:" + flow1000Section.getAlbum());
     }
     AlbumConfig albumConfig = albumConfigOpt.get();
-    String pathName = baseDir + "/" + albumConfig.getSourcePath();
-    File section = new File(pathName + "/" + flow1000Section.getDirName());
+    File section = Paths.get(baseDir, albumConfig.getSourcePath(), flow1000Section.getDirName()).toFile();
     parseSection(section, albumConfig);
 
     return ResponseEntity.ok().build();
@@ -345,7 +347,7 @@ public class Local1000Controller {
           return (int) (file1.lastModified() - file2.lastModified());
         }
       }
-    }).collect(Collectors.toList());
+    }).toList();
     for (File image : imagesList) {
       // log.info(image.getName());
       sectionItem.get(section.getName()).add(image.getName());
@@ -396,14 +398,13 @@ public class Local1000Controller {
   }
 
   private List<Map<String, List<String>>> scanLocal1000AlbumDir(AlbumConfig albumConfig) {
-    String pathName = baseDir + "/" + albumConfig.getSourcePath();
-    File basePath = new File(pathName);
+    File basePath = Paths.get(baseDir, albumConfig.getSourcePath()).toFile();
     File[] sections = basePath.listFiles();
     List<Map<String, List<String>>> resp = new ArrayList<>();
 
     List<File> sectionList = Arrays.stream(sections).sorted((file1, file2) -> {
       return getFileTimeStampe(file1) - getFileTimeStampe(file2) < 0 ? -1 : 1;
-    }).collect(Collectors.toList());
+    }).toList();
     for (File section : sectionList) {
       parseSection(section, albumConfig);
     }
@@ -416,8 +417,8 @@ public class Local1000Controller {
     File[] sections = basePath.listFiles();
 
     List<File> sectionList = Arrays.stream(sections)
-        .filter(file -> file.isDirectory())
-        .collect(Collectors.toList());
+        .filter(File::isDirectory)
+        .toList();
     Map<String, AhriSection> realNameMap = new HashMap<String, AhriSection>();
     for (File section : sectionList) {
       // log.info("section name:{}", section.getAbsolutePath());
@@ -429,7 +430,7 @@ public class Local1000Controller {
     return realNameMap.values()
         .stream()
         .sorted((f1, f2) -> f1.getSectionName().compareTo(f2.getSectionName()))
-        .collect(Collectors.toList());
+        .toList();
 
   }
 
@@ -461,19 +462,19 @@ public class Local1000Controller {
           return new AhriImage(newFileName, f);
         })
         .sorted((i1, i2) -> i1.getName().compareTo(i2.getName()))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @RequestMapping("/picDetailAjax")
   public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") Long id) {
-    // log.info("handle /picDetailAjax, id=" + id);
+    LOG.info("handle /picDetailAjax, id={}", id);
     Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
     if (flow1000Section == null) {
       return new SectionDetail();
     }
     List<ImgDetail> imgDetailList = flow1000Section.getImages().stream()
         .map(image -> new ImgDetail(image.getId(), image.getName(), image.getWidth(), image.getHeight()))
-        .collect(Collectors.toList());
+        .toList();
 
     return new SectionDetail(flow1000Section.getId(), flow1000Section.getDirName(), flow1000Section.getId(),
         imgDetailList,
@@ -483,20 +484,19 @@ public class Local1000Controller {
 
   @RequestMapping("/picContentAjax")
   public SectionContent picContentAjax(@RequestParam(value = "id", defaultValue = "1") Long id) {
-    // log.info("handle /picDetailAjax, id=" + id);
+    LOG.info("handle /picContentAjax, id={}", id);
     Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
 
-    List<String> imgList = flow1000Section.getImages().stream().map(image -> image.getName())
-        .collect(Collectors.toList());
-
+    List<String> imgList = flow1000Section.getImages().stream().map(Flow1000Img::getName)
+        .toList();
     return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId().intValue(), imgList);
   }
 
   @RequestMapping("/searchSection")
   public List<Flow1000Section> searchSection(@RequestParam(value = "name", defaultValue = "") String name) {
-    // log.debug("searchSection request, name=" + name);
+    LOG.info("searchSection request, name={}", name);
     if ("".equals(name)) {
-      return new ArrayList<Flow1000Section>();
+      return new ArrayList<>();
     }
     name = "%" + name + "%";
 
@@ -509,12 +509,13 @@ public class Local1000Controller {
       @RequestParam(value = "searchKey", required = false) String searchKey,
       @RequestParam(value = "client_status", required = false) String clientStatus,
       @RequestParam(value = "album", required = false) String album) {
-    // log.info("handle /picIndexAjax, timeStamp=" + timeStamp);
+    LOG.info("handle /picIndexAjax, timeStamp={}", timeStamp);
     Flow1000Section.ClientStatus clientStatusCondition = null;
     if (clientStatus != null && !clientStatus.isEmpty()) {
       try {
         clientStatusCondition = Flow1000Section.ClientStatus.valueOf(clientStatus);
       } catch (IllegalArgumentException ignored) {
+        // empty
       }
     }
 
@@ -550,12 +551,12 @@ public class Local1000Controller {
         flow1000Section.getCoverHeight(),
         flow1000Section.getAlbum(),
         flow1000Section.getName(),
-        PicIndex.ClientStatus.valueOf(flow1000Section.getClientStatus().name()))).collect(Collectors.toList());
+        PicIndex.ClientStatus.valueOf(flow1000Section.getClientStatus().name()))).toList();
   }
 
-  @RequestMapping(value = "/urls1000", method = { RequestMethod.POST })
+  @PostMapping(value = "/urls1000")
   public void urls1000(@RequestBody Urls1000Body urls1000Body) {
-    // log.info("handle /urls1000, body=" + urls1000Body.toString());
+    LOG.info("handle /urls1000, body={}", urls1000Body);
     String timeStamp = ((TimeUtil) applicationContext.getBean("timeUtil")).timeStamp();
     FileUtil fileUtil = (FileUtil) applicationContext.getBean("fileUtil");
     String dirName = timeStamp + urls1000Body.getTitle();
@@ -592,9 +593,10 @@ public class Local1000Controller {
       }
       try {
         countDownLatch.await();
-      } catch (InterruptedException ignored) {
+      } catch (InterruptedException e) {
+        LOG.error("Interrupted while waiting for downloads to complete", e);
       }
-      // log.info(flow1000Section.getDirName() + " download complete");
+      LOG.info("{} download complete", flow1000Section.getDirName());
       // local1000SectionDao.insertFlow1000Section(flow1000Section);
       flow1000ImgList.forEach(flow1000Img -> {
       });
@@ -619,9 +621,9 @@ public class Local1000Controller {
     });
   }
 
-  @RequestMapping(value = "/deleteSection", method = { RequestMethod.POST })
+  @PostMapping(value = "/deleteSection")
   public void deleteSection(@RequestBody SectionDetail sectionDetail) {
-    // log.info("handle /deleteSection, sectionDetail=" + sectionDetail.toString());
+    LOG.info("handle /deleteSection, sectionDetail={}", sectionDetail);
     if (sectionDetail.getId() == null || sectionDetail.getId() <= 0) {
       return;
     }
@@ -662,7 +664,8 @@ public class Local1000Controller {
       flow1000Img.setWidth(width);
       flow1000Img.setFlow1000Section(flow1000Section);
       return flow1000Img;
-    } catch (IOException ignored) {
+    } catch (IOException e) {
+      LOG.error("Error reading image file: {}", imgName, e);
     }
     return null;
   }
@@ -753,12 +756,11 @@ public class Local1000Controller {
         timeUtil.parse(prefix);
         section.setName(name.substring(AppConfiguration.pattern.length()));
       } catch (ParseException e) {
-        continue;
+        // empty
       }
 
     }
     local1000SectionRepo.saveAllAndFlush(flow1000SectionList);
-    return;
   }
 
 }
