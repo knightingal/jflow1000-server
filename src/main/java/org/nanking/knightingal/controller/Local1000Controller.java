@@ -73,14 +73,12 @@ public class Local1000Controller {
 
   private final TimeUtil timeUtil;
 
-
   private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
   public Local1000Controller(ApplicationContext applicationContext,
-    Local1000SectionDao local1000SectionDao, Local1000ImgDao local1000ImgDao,
+      Local1000SectionDao local1000SectionDao, Local1000ImgDao local1000ImgDao,
       Local1000AlbumConfigDao local1000AlbumConfigDao, TimeUtil timeUtil, Local1000SectionRepo local1000SectionRepo,
-      WsMsgService wsMsgService
-    ) {
+      WsMsgService wsMsgService) {
     this.applicationContext = applicationContext;
     this.local1000ImgDao = local1000ImgDao;
     this.local1000SectionDao = local1000SectionDao;
@@ -105,7 +103,6 @@ public class Local1000Controller {
 
   @Autowired
   private Executor downloadSectionThreadPoolExecutor;
-
 
   @Value("${local1000.base-dir}")
   private String baseDir;
@@ -153,9 +150,7 @@ public class Local1000Controller {
   public ResponseEntity<Object> importAhri() {
     List<AhriSection> scanAhriDir = scanAhriDir();
 
-    new Thread(() -> 
-      scanAhriDir.forEach(Local1000Controller.this::importAhriSection)
-    ).start();
+    new Thread(() -> scanAhriDir.forEach(Local1000Controller.this::importAhriSection)).start();
 
     return ResponseEntity.ok().body(scanAhriDir);
   }
@@ -591,12 +586,13 @@ public class Local1000Controller {
       }
       LOG.info("{} download complete", flow1000Section.getDirName());
       /*
-        we used called 'local1000SectionDao.insertFlow1000Section(flow1000Section);' here
+       * we used called 'local1000SectionDao.insertFlow1000Section(flow1000Section);'
+       * here
        */
       flow1000ImgList.forEach(flow1000Img -> {
       });
       /*
-        we used called 'local1000SectionDao.insertFlow1000Img(flow1000ImgList);' here
+       * we used called 'local1000SectionDao.insertFlow1000Img(flow1000ImgList);' here
        */
 
       PicIndex picIndex = new PicIndex(
