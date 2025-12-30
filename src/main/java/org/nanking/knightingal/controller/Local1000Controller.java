@@ -116,13 +116,12 @@ public class Local1000Controller {
   @RequestMapping("/init")
   public Object init() {
     File baseDirFile = new File(baseDir + "/source");
-    // final String[] dirList = Arrays.copyOfRange(list, 0, 10);
     final String[] dirList = baseDirFile.list();
 
     executorService.submit(() -> {
       List<Flow1000Section> sectionList = Stream.of(dirList).map(dirName -> {
-        // log.error("process " + dirName);
-        // log.error("===========================");
+        LOG.error("process {}", dirName);
+        LOG.error("===========================");
         String timeStamp = dirName.substring(0, 14);
         String name = dirName.substring(14);
         Flow1000Section flow1000Section = new Flow1000Section();
@@ -154,13 +153,9 @@ public class Local1000Controller {
   public ResponseEntity<Object> importAhri() {
     List<AhriSection> scanAhriDir = scanAhriDir();
 
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        scanAhriDir.forEach(Local1000Controller.this::importAhriSection);
-      }
-
-    }).start();
+    new Thread(() -> 
+      scanAhriDir.forEach(Local1000Controller.this::importAhriSection)
+    ).start();
 
     return ResponseEntity.ok().body(scanAhriDir);
   }
@@ -173,7 +168,7 @@ public class Local1000Controller {
 
       boolean ret = ahriSectionFile.mkdir();
       if (!ret) {
-        // log.error("create section path failed {}", sectionPath);
+        LOG.error("create section path failed {}", sectionPath);
         return;
       }
 
@@ -185,7 +180,7 @@ public class Local1000Controller {
         flow1000Section.setAlbum("1807");
         flow1000Section.setDirName(ahriSection.getSectionName());
         flow1000Section.setName(ahriSection.getSectionName());
-        flow1000Section.setCreateTime(simpleDateFormat.format(new Date()));
+        flow1000Section.setCreateTime(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
         flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
       } else {
         flow1000Section = flow1000SectionOption.get();
@@ -199,13 +194,14 @@ public class Local1000Controller {
       File destAhriImageFile = new File(baseDir + "/1807/" + ahriSection.getSectionName() + "/" + image.getName());
       File srcAhriImageFile = image.getFile();
       try {
-        destAhriImageFile.createNewFile();
-        FileCopyUtils.copy(srcAhriImageFile, destAhriImageFile);
-        // log.info("file copy from {} to {} ", srcAhriImageFile.toString(),
-        // destAhriImageFile.toString());
+        if (destAhriImageFile.createNewFile()) {
+          FileCopyUtils.copy(srcAhriImageFile, destAhriImageFile);
+          LOG.info("file copy from {} to {} ", srcAhriImageFile, destAhriImageFile);
+        } else {
+          LOG.info("file {} already exists", destAhriImageFile);
+        }
       } catch (Exception e) {
-        // log.error("file copy from {} to {} failed", srcAhriImageFile.toString(),
-        // destAhriImageFile.toString(), e);
+        LOG.error("file copy from {} to {} failed", srcAhriImageFile, destAhriImageFile, e);
       }
 
       Flow1000Img flow1000Img;
@@ -238,6 +234,7 @@ public class Local1000Controller {
           flow1000Img.setWidth(width);
         }
       } catch (Exception e) {
+        // empty
       }
 
       local1000ImgDao.saveAndFlush(flow1000Img);
@@ -253,15 +250,13 @@ public class Local1000Controller {
   @RequestMapping("/initv2")
   public ResponseEntity<Object> initV2() {
     final List<AlbumConfig> albumConfigs = local1000AlbumConfigDao.findAll();
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        Map<String, List<Map<String, List<String>>>> albumConfigRest = new HashMap<>();
-        albumConfigs.forEach(albumConfig -> {
-          List<Map<String, List<String>>> resp = scanLocal1000AlbumDir(albumConfig);
-          albumConfigRest.put(albumConfig.getName(), resp);
-        });
-      }
+
+    new Thread(() -> {
+      Map<String, List<Map<String, List<String>>>> albumConfigRest = new HashMap<>();
+      albumConfigs.forEach(albumConfig -> {
+        List<Map<String, List<String>>> resp = scanLocal1000AlbumDir(albumConfig);
+        albumConfigRest.put(albumConfig.getName(), resp);
+      });
     }).start();
 
     return ResponseEntity.ok().body(albumConfigs);
@@ -281,11 +276,9 @@ public class Local1000Controller {
     return ResponseEntity.ok().build();
   }
 
-  private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-
   private static boolean isTimeStampe(String str) {
     try {
-      simpleDateFormat.parse(str);
+      new SimpleDateFormat("yyyyMMddHHmmss").parse(str);
       return true;
     } catch (Exception e) {
       return false;
@@ -294,7 +287,7 @@ public class Local1000Controller {
 
   private static long getFileTimeStampe(File file) {
     try {
-      Date date = simpleDateFormat.parse(file.getName().substring(0, 14));
+      Date date = new SimpleDateFormat("yyyyMMddHHmmss").parse(file.getName().substring(0, 14));
       return date.getTime();
     } catch (Exception e) {
       return file.lastModified();
@@ -302,7 +295,7 @@ public class Local1000Controller {
   }
 
   private void parseSection(File section, AlbumConfig albumConfig) {
-    // log.info(section.getName());
+    LOG.info(section.getName());
     Map<String, List<String>> sectionItem = new HashMap<>();
     sectionItem.put(section.getName(), new ArrayList<>());
     Optional<Flow1000Section> flow1000SectionOption = local1000SectionDao
@@ -316,7 +309,7 @@ public class Local1000Controller {
       if (isTimeStampe(section.getName())) {
         flow1000Section.setCreateTime(section.getName().substring(0, 14));
       } else {
-        flow1000Section.setCreateTime(simpleDateFormat.format(section.lastModified()));
+        flow1000Section.setCreateTime(new SimpleDateFormat("yyyyMMddHHmmss").format(section.lastModified()));
       }
       flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
     } else {
@@ -349,7 +342,7 @@ public class Local1000Controller {
       }
     }).toList();
     for (File image : imagesList) {
-      // log.info(image.getName());
+      LOG.info(image.getName());
       sectionItem.get(section.getName()).add(image.getName());
       Flow1000Img flow1000Img;
       Optional<Flow1000Img> flow1000Optional = local1000ImgDao.searchFlow1000ImgByNameAndFlow1000Section(
@@ -419,9 +412,9 @@ public class Local1000Controller {
     List<File> sectionList = Arrays.stream(sections)
         .filter(File::isDirectory)
         .toList();
-    Map<String, AhriSection> realNameMap = new HashMap<String, AhriSection>();
+    Map<String, AhriSection> realNameMap = new HashMap<>();
     for (File section : sectionList) {
-      // log.info("section name:{}", section.getAbsolutePath());
+      LOG.info("section name:{}", section.getAbsolutePath());
       String dirName = section.getName();
       String realName = parseAhriRealName(dirName);
       realNameMap.putIfAbsent(realName, new AhriSection(realName));
@@ -560,7 +553,7 @@ public class Local1000Controller {
     String timeStamp = ((TimeUtil) applicationContext.getBean("timeUtil")).timeStamp();
     FileUtil fileUtil = (FileUtil) applicationContext.getBean("fileUtil");
     String dirName = timeStamp + urls1000Body.getTitle();
-    String absPath = "/home/knightingal/download/linux1000/source/" + dirName + "/";
+    String absPath = "/home/knightingal/download/linux1000/source/" + dirName;
     File dirFile = new File(absPath);
     if (!dirFile.mkdirs()) {
       return;
@@ -597,10 +590,14 @@ public class Local1000Controller {
         LOG.error("Interrupted while waiting for downloads to complete", e);
       }
       LOG.info("{} download complete", flow1000Section.getDirName());
-      // local1000SectionDao.insertFlow1000Section(flow1000Section);
+      /*
+        we used called 'local1000SectionDao.insertFlow1000Section(flow1000Section);' here
+       */
       flow1000ImgList.forEach(flow1000Img -> {
       });
-      // local1000ImgDao.insertFlow1000Img(flow1000ImgList);
+      /*
+        we used called 'local1000SectionDao.insertFlow1000Img(flow1000ImgList);' here
+       */
 
       PicIndex picIndex = new PicIndex(
           flow1000Section.getId(),
@@ -617,6 +614,7 @@ public class Local1000Controller {
       try {
         wsMsgService.sendWsMsg(mapper.writeValueAsString(picIndex));
       } catch (Exception ignored) {
+        // empty
       }
     });
   }
@@ -632,7 +630,7 @@ public class Local1000Controller {
   }
 
   private String[] listImages(String dirName) {
-    File dirFile = new File(baseDir + "/source" + "/" + dirName);
+    File dirFile = Paths.get(baseDir, "source", dirName).toFile();
     return dirFile.list((dir, fileName) -> fileName != null && (fileName.endsWith(".jpg")
         || fileName.endsWith(".JPG")
         || fileName.endsWith(".jpeg")
