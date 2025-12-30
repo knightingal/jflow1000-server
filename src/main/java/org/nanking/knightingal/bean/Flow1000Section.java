@@ -19,9 +19,6 @@ import jakarta.persistence.OneToMany;
 @Entity
 public class Flow1000Section implements Serializable {
 
-  public Flow1000Section() {
-  }
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

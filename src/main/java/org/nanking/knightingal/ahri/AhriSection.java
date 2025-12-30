@@ -32,7 +32,7 @@ public class AhriSection {
   }
 
   public void addAhriImages(List<AhriImage> ahriImages) {
-    ahriImages.forEach(image -> addAhriImage(image));
+    ahriImages.forEach(this::addAhriImage);
   }
 
   public List<AhriImage> getImageList() {

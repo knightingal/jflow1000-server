@@ -2,6 +2,9 @@ package org.nanking.knightingal.controller;
 
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nanking.knightingal.bean.ApkConfig;
 import org.nanking.knightingal.dao.Local1000ApkConfigDao;
 import org.nanking.knightingal.vo.ApkConfigVO;
@@ -25,9 +28,11 @@ import java.util.regex.Pattern;
 @RestController
 public class ApkConfigController {
 
+  private static final Logger LOG = LogManager.getLogger(ApkConfigController.class);
+
   private static final Pattern packagePattern = Pattern
       .compile("package: name='(.*)' versionCode='(.*)' versionName='(.*)' platformBuildVersionName='(.*)'");
-  final private Local1000ApkConfigDao local1000ApkConfigDao;
+  private final Local1000ApkConfigDao local1000ApkConfigDao;
 
   @Value("${apk.filepath.base}")
   private String apkFilePathBase;
@@ -122,8 +127,7 @@ public class ApkConfigController {
           packageId = matcher.group(1);
           versionCode = Long.parseLong(matcher.group(2));
           versionName = matcher.group(3);
-          // log.info("packageId={}, versionCode={}, versionName={}", packageId,
-          // versionCode, versionName);
+          LOG.info("packageId={}, versionCode={}, versionName={}", packageId, versionCode, versionName);
           parseSucc = true;
         }
       }

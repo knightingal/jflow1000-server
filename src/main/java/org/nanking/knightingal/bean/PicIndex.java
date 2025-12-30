@@ -23,11 +23,6 @@ public class PicIndex {
 
   private ClientStatus clientStatus;
 
-  public static enum ClientStatus {
-    NONE,
-    PENDING,
-    LOCAL
-  }
 
   public long getIndex() {
     return index;
@@ -112,5 +107,11 @@ public class PicIndex {
     this.album = album;
     this.title = title;
     this.clientStatus = clientStatus;
+  }
+
+  public enum ClientStatus {
+    NONE,
+    PENDING,
+    LOCAL
   }
 }

@@ -25,7 +25,7 @@ public class InternalApiController {
   @Value("${internal-asset-store-path:/home/knightingal/Pictures/}")
   private String assetStorePath;
 
-  final private static String REMOTE_ASSET_URL = "https://static.makerfac.com/static/internalapi/asset/";
+  private static final String REMOTE_ASSET_URL = "https://static.makerfac.com/static/internalapi/asset/";
 
   /**
    * call request to fetch asset from static.makerfac.com for scratch

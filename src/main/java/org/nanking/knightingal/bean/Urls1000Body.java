@@ -7,9 +7,6 @@ import java.util.List;
  */
 public class Urls1000Body {
 
-  public Urls1000Body() {
-  }
-
   private String title;
 
   private List<ImgSrcBean> imgSrcArray;

@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class AvifUtil {
+
+  private AvifUtil() {
+  }
+
   public static ImgSize parseImgSize(File avif) throws IOException {
     try (InputStream inputStream = new FileInputStream(avif)) {
       parseHeader(inputStream);
@@ -45,8 +49,6 @@ public class AvifUtil {
       } else if (header.type.equals("iinf")) {
         ignoreBySize(inputStream, header.size - 8);
       } else if (header.type.equals("iprp")) {
-        // ignoreBySize(inputStream, header.size - 8);
-        // remain -= header.size - 8;
         return parseIprp(inputStream);
       }
     }
@@ -67,8 +69,6 @@ public class AvifUtil {
         ignoreBySize(inputStream, header.size - 8);
       } else if (header.type.equals("av1C")) {
         ignoreBySize(inputStream, header.size - 8);
-      } else if (header.type.equals("pasp")) {
-        ignoreBySize(inputStream, header.size - 8);
       } else if (header.type.equals("clap")) {
         ignoreBySize(inputStream, header.size - 8);
       } else if (header.type.equals("irot")) {
@@ -77,10 +77,7 @@ public class AvifUtil {
         ignoreBySize(inputStream, 4);
         int width = read4Int(inputStream);
         int height = read4Int(inputStream);
-        // width = width;
-        // height = height;
         return new ImgSize(height, width);
-
       }
 
     }
@@ -123,13 +120,12 @@ public class AvifUtil {
   private static int read4Int(InputStream inputStream) throws IOException {
     byte[] data = inputStream.readNBytes(4);
 
-    int data0 = (int) data[0] & 0xff;
-    int data1 = (int) data[1] & 0xff;
-    int data2 = (int) data[2] & 0xff;
-    int data3 = (int) data[3] & 0xff;
+    int data0 = data[0] & 0xff;
+    int data1 = data[1] & 0xff;
+    int data2 = data[2] & 0xff;
+    int data3 = data[3] & 0xff;
 
-    int value = (data0 << 24) | (data1 << 16) | (data2 << 8) | data3;
-    return value;
+    return (data0 << 24) | (data1 << 16) | (data2 << 8) | data3;
   }
 
   private static void ignoreBySize(InputStream inputStream, int size) throws IOException {
