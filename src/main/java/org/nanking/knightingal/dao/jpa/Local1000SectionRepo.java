@@ -20,9 +20,6 @@ public interface Local1000SectionRepo
   @Query("select s from Flow1000Section s where s.createTime > :timeStamp")
   List<Flow1000Section> queryFlow1000SectionByCreateTime(@Param("timeStamp") String timeStamp);
 
-  // @Query("select s from Flow1000Section s where s.creatTime > :timeStamp")
-  // List<Flow1000Section> queryFlow1000Section(Flow1000Section flow1000Section);
-
   /**
    * 根据sectoinName模糊查询
    * 
@@ -34,12 +31,6 @@ public interface Local1000SectionRepo
   List<Flow1000Section> searchFlow1000SectionByName(@Param("name") String name);
 
   Optional<Flow1000Section> searchFlow1000SectionByNameAndAlbum(String name, String album);
-  // void insertFlow1000Section(Flow1000Section flow1000Section);
-
-  // default List<Flow1000Section>
-  // saveEntitiesAllAndFlush(Iterable<Flow1000Section> entities) {
-  // return saveAllAndFlush(entities);
-  // }
 
   /**
    * 根据id删除section记录

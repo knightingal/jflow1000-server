@@ -1,5 +1,7 @@
 package org.nanking.knightingal;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nanking.knightingal.annotation.Repo;
 import org.nanking.knightingal.util.ApplicationContextProvider;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +10,11 @@ import org.springframework.data.jpa.domain.Specification;
 import java.lang.reflect.Proxy;
 
 public class DaoInjector {
+
+  private static final Logger LOG = LogManager.getLogger(DaoInjector.class);
+
+  private DaoInjector() {
+  }
 
   @SuppressWarnings("unchecked")
   public static <T> T injectDaoToRepo(Class<T> dao) {
@@ -56,6 +63,8 @@ public class DaoInjector {
             // 注意这里会有泛型擦除，不能直接那入参的类型去反射方法
             argClazzs[0] = Object.class;
             break;
+          default:
+            break;
         }
 
       }
@@ -65,7 +74,7 @@ public class DaoInjector {
       try {
         method = target.getClass().getMethod(method.getName(), argClazzs);
       } catch (NoSuchMethodException e) {
-        // log.error("method not found", e);
+        LOG.error("method not found", e);
         throw new RuntimeException("method not found");
       }
 

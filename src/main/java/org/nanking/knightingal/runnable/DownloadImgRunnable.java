@@ -23,9 +23,9 @@ public class DownloadImgRunnable implements Runnable {
 
   private static final Log log = LogFactory.getLog(DownloadImgRunnable.class);
 
-  private final static EncryptUtil ENCRYPT_UTIL = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
+  private static final EncryptUtil ENCRYPT_UTIL = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
 
-  private final static OkHttpClient CLIENT = (OkHttpClient) ApplicationContextProvider.getBean("client");
+  private static final OkHttpClient CLIENT = (OkHttpClient) ApplicationContextProvider.getBean("client");
 
   private final String dirName;
 
@@ -35,7 +35,7 @@ public class DownloadImgRunnable implements Runnable {
 
   private final String baseDir;
 
-  private final static int TRY_LOOP_COUNT = 64;
+  private static final int TRY_LOOP_COUNT = 64;
 
   public DownloadImgRunnable(Flow1000Img flow1000Img, String dirName, CountDownLatch countDownLatch, String baseDir) {
     this.dirName = dirName;
