@@ -417,6 +417,13 @@ public class Local1000Controller {
     }
     return realNameMap.values()
         .stream()
+        .map(section -> {
+          section.setImageList(
+            section.getImageList().stream().sorted(
+              (f1, f2) -> f1.getName().compareTo(f2.getName())).toList()
+          );
+          return section;
+        })
         .sorted((f1, f2) -> f1.getSectionName().compareTo(f2.getSectionName()))
         .toList();
 
