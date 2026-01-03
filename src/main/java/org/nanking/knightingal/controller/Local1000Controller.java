@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nanking.knightingal.AppConfiguration;
 import org.nanking.knightingal.ahri.AhriImage;
+import org.nanking.knightingal.ahri.AhriParser;
 import org.nanking.knightingal.ahri.AhriSection;
 import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000AlbumConfigDao;
@@ -271,14 +272,6 @@ public class Local1000Controller {
     return ResponseEntity.ok().build();
   }
 
-  private static boolean isTimeStampe(String str) {
-    try {
-      new SimpleDateFormat("yyyyMMddHHmmss").parse(str);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
-  }
 
   private static long getFileTimeStampe(File file) {
     try {
@@ -289,71 +282,29 @@ public class Local1000Controller {
     }
   }
 
+
   private void parseSection(File section, AlbumConfig albumConfig) {
     LOG.info(section.getName());
     Map<String, List<String>> sectionItem = new HashMap<>();
     sectionItem.put(section.getName(), new ArrayList<>());
-    Optional<Flow1000Section> flow1000SectionOption = local1000SectionDao
-        .searchFlow1000SectionByNameAndAlbum(section.getName(), albumConfig.getName());
-    Flow1000Section flow1000Section;
+    Optional<Flow1000Section> flow1000SectionOption 
+        = local1000SectionDao.searchFlow1000SectionByNameAndAlbum(section.getName(), albumConfig.getName());
+    Flow1000Section flow1000Section = AhriParser.buildFlow1000Section(flow1000SectionOption, albumConfig, section);
     if (!flow1000SectionOption.isPresent()) {
-      flow1000Section = new Flow1000Section();
-      flow1000Section.setAlbum(albumConfig.getName());
-      flow1000Section.setDirName(section.getName());
-      flow1000Section.setName(section.getName());
-      if (isTimeStampe(section.getName())) {
-        flow1000Section.setCreateTime(section.getName().substring(0, 14));
-      } else {
-        flow1000Section.setCreateTime(new SimpleDateFormat("yyyyMMddHHmmss").format(section.lastModified()));
-      }
       flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
-    } else {
-      flow1000Section = flow1000SectionOption.get();
     }
 
     File[] images = section.listFiles();
-    List<File> imagesList = Arrays.stream(images).filter((file) -> {
-      return !file.getName().endsWith(".html")
-          && !file.getName().endsWith(".htm")
-          && !file.getName().endsWith(".directory")
-          && !file.getName().endsWith(".pdf");
-    }).sorted((file1, file2) -> {
-      if (file1.getName().contains("-") && file2.getName().contains("-")) {
-        int num1 = Integer.parseInt(file1.getName().split("-")[0]);
-        int num2 = Integer.parseInt(file2.getName().split("-")[0]);
-        return num1 - num2;
-      } else {
-        try {
-          String fileName1 = file1.getName();
-          String fileName2 = file2.getName();
-          String[] fileSplite1 = fileName1.split("\\.");
-          String[] fileSplite2 = fileName2.split("\\.");
-          int num1 = Integer.parseInt(fileSplite1[0]);
-          int num2 = Integer.parseInt(fileSplite2[0]);
-          return num1 - num2;
-        } catch (Exception e) {
-          return (int) (file1.lastModified() - file2.lastModified());
-        }
-      }
-    }).toList();
+    List<File> imagesList = Arrays.stream(images)
+      .filter(AhriParser::isImageFile)
+      .sorted(AhriParser::fileNameComparator).toList();
     for (File image : imagesList) {
       LOG.info(image.getName());
       sectionItem.get(section.getName()).add(image.getName());
-      Flow1000Img flow1000Img;
       Optional<Flow1000Img> flow1000Optional = local1000ImgDao.searchFlow1000ImgByNameAndFlow1000Section(
           albumConfig.isEncrypted() ? image.getName() + ".bin" : image.getName(),
           flow1000Section);
-      if (!flow1000Optional.isPresent()) {
-        flow1000Img = new Flow1000Img();
-        if (albumConfig.isEncrypted()) {
-          flow1000Img.setName(image.getName() + ".bin");
-        } else {
-          flow1000Img.setName(image.getName());
-        }
-        flow1000Img.setFlow1000Section(flow1000Section);
-      } else {
-        flow1000Img = flow1000Optional.get();
-      }
+      Flow1000Img flow1000Img = AhriParser.buildFlow1000Img(flow1000Optional, flow1000Section, albumConfig, image);
       try {
         if (image.getAbsolutePath().endsWith(".webp")) {
           InputStream fileInputStream = new FileInputStream(image.getAbsolutePath());
@@ -390,9 +341,9 @@ public class Local1000Controller {
     File[] sections = basePath.listFiles();
     List<Map<String, List<String>>> resp = new ArrayList<>();
 
-    List<File> sectionList = Arrays.stream(sections).sorted((file1, file2) -> {
-      return getFileTimeStampe(file1) - getFileTimeStampe(file2) < 0 ? -1 : 1;
-    }).toList();
+    List<File> sectionList = Arrays.stream(sections).sorted((file1, file2) -> 
+      getFileTimeStampe(file1) - getFileTimeStampe(file2) < 0 ? -1 : 1
+    ).toList();
     for (File section : sectionList) {
       parseSection(section, albumConfig);
     }
@@ -426,7 +377,6 @@ public class Local1000Controller {
         })
         .sorted((f1, f2) -> f1.getSectionName().compareTo(f2.getSectionName()))
         .toList();
-
   }
 
   private static String parseAhriRealName(String dirName) {
