@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nanking.knightingal.bean.ApkConfig;
 import org.nanking.knightingal.dao.Local1000ApkConfigDao;
+import org.nanking.knightingal.exception.CommonException;
 import org.nanking.knightingal.vo.ApkConfigVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -132,7 +133,7 @@ public class ApkConfigController {
         }
       }
       if (!parseSucc) {
-        throw new Exception("failed to parse apk file");
+        throw new CommonException("failed to parse apk file");
       }
       ApkConfig apkConfig = new ApkConfig(
           packageId,
@@ -143,7 +144,7 @@ public class ApkConfigController {
 
       String destApkName = apkFilePathBase + toApkVersionedName(apkConfig);
       if (!dest.renameTo(new File(destApkName))) {
-        throw new Exception("failed to rename apk to " + destApkName);
+        throw new CommonException("failed to rename apk to " + destApkName);
       }
       local1000ApkConfigDao.saveAndFlush(apkConfig);
 
