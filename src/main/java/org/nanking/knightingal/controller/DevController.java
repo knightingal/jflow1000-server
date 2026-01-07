@@ -76,7 +76,7 @@ public class DevController {
     EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
     servletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
     byte[] encrypt64 = encryptUtil.encrypt("1234567890abcdef1234567890abcdef1234567890abcdef".getBytes());
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (byte b : encrypt64) {
       sb.append(String.format("%02x", b));
     }
