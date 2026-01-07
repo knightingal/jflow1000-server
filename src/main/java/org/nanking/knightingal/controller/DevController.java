@@ -27,9 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/dev")
 public class DevController {
 
-  @Autowired
-  WsMsgService wsMsgService;
-
   @Value("${encrypt-util.passwd}")
   private String passwd;
 
