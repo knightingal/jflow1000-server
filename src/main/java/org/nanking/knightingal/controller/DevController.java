@@ -9,8 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nanking.knightingal.util.ApplicationContextProvider;
 import org.nanking.knightingal.util.EncryptUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -72,9 +72,9 @@ public class DevController {
   }
 
   @GetMapping("/aes-test")
-  public void aesTestHandle(HttpServletResponse servletResponse) throws Exception {
+  public void aesTestHandle(HttpServletResponse servletResponse) throws IOException {
     EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
-    servletResponse.addHeader("access-control-allow-origin", "*");
+    servletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
     byte[] encrypt64 = encryptUtil.encrypt("1234567890abcdef1234567890abcdef1234567890abcdef".getBytes());
     StringBuffer sb = new StringBuffer();
     for (byte b : encrypt64) {
@@ -85,8 +85,8 @@ public class DevController {
   }
 
   @GetMapping("/aes-image")
-  public void aseImageHandle(HttpServletResponse servletResponse) throws Exception {
-    servletResponse.addHeader("access-control-allow-origin", "*");
+  public void aseImageHandle(HttpServletResponse servletResponse) throws IOException {
+    servletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
     ServletOutputStream outputStream = servletResponse.getOutputStream();
     String filePath = sampleEncryptedPicPath;
     try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
@@ -95,8 +95,8 @@ public class DevController {
   }
 
   @GetMapping("/image")
-  public void imageHandle(HttpServletResponse servletResponse) throws Exception {
-    servletResponse.addHeader("access-control-allow-origin", "*");
+  public void imageHandle(HttpServletResponse servletResponse) throws IOException {
+    servletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
     ServletOutputStream outputStream = servletResponse.getOutputStream();
     String filePath = samplePicPath;
     try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
