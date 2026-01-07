@@ -38,6 +38,12 @@ public class DevController {
     return passwd;
   }
 
+  @Value("${encrypt-util.sample-encrypted-pic-path:/mnt/linux1000/encrypted/20160318000005BB-36_USS_NEVADA/46-013759.jpg.bin}")
+  private String sampleEncryptedPicPath;
+
+  @Value("${encrypt-util.sample-pic-path:/mnt/linux1000/source/20160318000005BB-36_USS_NEVADA/46-013759.jpg}")
+  private String samplePicPath;
+
   @PostMapping("/image-upload")
   public void imageUpload(@RequestBody byte[] entity, HttpServletResponse servletResponse) throws IOException {
     System.out.println("image length" + entity.length);
@@ -52,7 +58,7 @@ public class DevController {
 
   @GetMapping("/gen-aes-image")
   public void getAesImage() throws IOException {
-    String path = "/usr/share/wallpapers/deepin/sourav-ghosh-gTvhFsQMqnA-unsplash.jpg";
+    String path = samplePicPath;
     EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
     FileInputStream fileInputStream = new FileInputStream(path);
     byte[] content = fileInputStream.readAllBytes();
@@ -80,11 +86,9 @@ public class DevController {
 
   @GetMapping("/aes-image")
   public void aseImageHandle(HttpServletResponse servletResponse) throws Exception {
-    // EncryptUtil encryptUtil = (EncryptUtil)
-    // ApplicationContextProvider.getBean("encryptUtil");
     servletResponse.addHeader("access-control-allow-origin", "*");
     ServletOutputStream outputStream = servletResponse.getOutputStream();
-    String filePath = "/mnt/linux1000/encrypted/20160318000005BB-36_USS_NEVADA/46-013759.jpg.bin";
+    String filePath = sampleEncryptedPicPath;
     try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
       fileInputStream.transferTo(outputStream);
     }
@@ -92,11 +96,9 @@ public class DevController {
 
   @GetMapping("/image")
   public void imageHandle(HttpServletResponse servletResponse) throws Exception {
-    // EncryptUtil encryptUtil = (EncryptUtil)
-    // ApplicationContextProvider.getBean("encryptUtil");
     servletResponse.addHeader("access-control-allow-origin", "*");
     ServletOutputStream outputStream = servletResponse.getOutputStream();
-    String filePath = "/mnt/linux1000/source/20160318000005BB-36_USS_NEVADA/46-013759.jpg";
+    String filePath = samplePicPath;
     try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
       fileInputStream.transferTo(outputStream);
     }
