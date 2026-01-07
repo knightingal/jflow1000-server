@@ -60,15 +60,15 @@ public class DevController {
   public void getAesImage() throws IOException {
     String path = samplePicPath;
     EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
-    FileInputStream fileInputStream = new FileInputStream(path);
-    byte[] content = fileInputStream.readAllBytes();
+    byte[] content;
+    try (FileInputStream fileInputStream = new FileInputStream(path)) {
+      content = fileInputStream.readAllBytes();
+    }
     byte[] encrypted = encryptUtil.encrypt(content);
-    fileInputStream.close();
 
-    FileOutputStream outputStream = new FileOutputStream("./encrypted.bin");
-    outputStream.write(encrypted);
-    outputStream.close();
-
+    try (FileOutputStream outputStream = new FileOutputStream("./encrypted.bin")) {
+      outputStream.write(encrypted);
+    }
   }
 
   @GetMapping("/aes-test")
