@@ -5,7 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
-import org.nanking.knightingal.service.WsMsgService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nanking.knightingal.util.ApplicationContextProvider;
 import org.nanking.knightingal.util.EncryptUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/dev")
 public class DevController {
 
+  private static final Logger LOG = LogManager.getLogger(DevController.class);
+
   @Value("${encrypt-util.passwd}")
   private String passwd;
 
@@ -43,7 +46,7 @@ public class DevController {
 
   @PostMapping("/image-upload")
   public void imageUpload(@RequestBody byte[] entity, HttpServletResponse servletResponse) throws IOException {
-    System.out.println("image length" + entity.length);
+    LOG.debug("image length: {}", entity.length);
 
     String filePath = "" + new Date().getTime() + "46-013759.jpg";
     try (FileOutputStream fileOutputStream = new FileOutputStream(filePath)) {
@@ -77,7 +80,7 @@ public class DevController {
     for (byte b : encrypt64) {
       sb.append(String.format("%02x", b));
     }
-    System.out.println(sb.toString());
+    LOG.debug(sb);
     servletResponse.getOutputStream().write(sb.toString().getBytes());
   }
 
