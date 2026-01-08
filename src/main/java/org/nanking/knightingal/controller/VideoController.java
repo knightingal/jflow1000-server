@@ -12,12 +12,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 public class VideoController {
+
+  private static final Logger LOG = LogManager.getLogger(VideoController.class);
 
   @Resource
   private Environment environment;
@@ -51,19 +55,20 @@ public class VideoController {
     response.setHeader("Content-Type", "video/mp4");
 
     response.setHeader("etag", etag);
-    FileInputStream is = new FileInputStream(file);
-    OutputStream os = response.getOutputStream();
-    byte[] buffer = new byte[1024];
-    is.skip(start);
-    while (true) {
-      int readLen = is.read(buffer);
-      if (readLen > 0) {
-        os.write(buffer, 0, readLen);
-        os.flush();
-      } else {
-        break;
+    try (FileInputStream is = new FileInputStream(file)) {
+      OutputStream os = response.getOutputStream();
+      byte[] buffer = new byte[1024];
+      long skipped = is.skip(start);
+      LOG.debug("skipped: {}", skipped);
+      while (true) {
+        int readLen = is.read(buffer);
+        if (readLen > 0) {
+          os.write(buffer, 0, readLen);
+          os.flush();
+        } else {
+          break;
+        }
       }
     }
-    is.close();
   }
 }
