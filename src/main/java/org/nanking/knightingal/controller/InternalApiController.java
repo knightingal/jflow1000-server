@@ -9,9 +9,11 @@ import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -35,25 +37,30 @@ public class InternalApiController {
    * @throws IOException
    */
   @GetMapping("/internalapi/asset/{assetId}")
-  public ResponseEntity<byte[]> index(@PathVariable("assetId") String packageId) throws IOException {
+  public void index(@PathVariable("assetId") String packageId, HttpServletResponse servletResponse) throws IOException {
     File assetFile = new File(assetStorePath + packageId);
+    String contentType = packageId.endsWith("svg") ? "image/svg+xml" : "image/png";
+    servletResponse.addHeader(HttpHeaders.CONTENT_TYPE, contentType);
     if (assetFile.exists()) {
-      InputStream inputStream = new FileInputStream(assetFile);
-      byte[] allBytes = inputStream.readAllBytes();
-      inputStream.close();
-      String contentType = packageId.endsWith("svg") ? "image/svg+xml" : "image/png";
-      return ResponseEntity.ok()
-          .header("content-type", contentType)
-          .body(allBytes);
+      servletResponse.setStatus(HttpStatus.OK.value());
+      try (InputStream inputStream = new FileInputStream(assetFile)) {
+        inputStream.transferTo(servletResponse.getOutputStream());
+      }
+      return;
     }
 
     String url = REMOTE_ASSET_URL + packageId;
 
-    Request request = new Request.Builder().url(url).addHeader("User-Agent",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
-        .addHeader("Connection", "keep-alive").addHeader("Accept", "image/webp,image/*,*/*;q=0.8")
-        .addHeader("Accept-Encoding", "gzip,deflate,sdch").addHeader("Accept-Language", "zh-CN,zh;q=0.8")
-        .addHeader("Pragma", "no-cache").addHeader("referer", "https://community.makerfac.com/")
+    Request request = new Request.Builder().url(url)
+        .addHeader("User-Agent", 
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+          "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
+        .addHeader("Connection", "keep-alive")
+        .addHeader("Accept", "image/webp,image/*,*/*;q=0.8")
+        .addHeader("Accept-Encoding", "gzip,deflate,sdch")
+        .addHeader("Accept-Language", "zh-CN,zh;q=0.8")
+        .addHeader("Pragma", "no-cache")
+        .addHeader("referer", "https://community.makerfac.com/")
         .addHeader("Cache-Control", "no-cache").build();
     OkHttpClient okHttpClient = new OkHttpClient.Builder()
         .connectTimeout(60, TimeUnit.SECONDS)
@@ -62,13 +69,15 @@ public class InternalApiController {
     Response response = okHttpClient.newCall(request).execute();
     byte[] bytes = response.body().bytes();
     response.body().close();
-    assetFile.createNewFile();
-    OutputStream outputStream = new FileOutputStream(assetFile);
-    outputStream.write(bytes);
-    outputStream.flush();
-    outputStream.close();
-    return ResponseEntity.ok()
-        .header("content-type", response.headers().get("content-type"))
-        .body(bytes);
+    if (assetFile.createNewFile()) {
+      servletResponse.setStatus(HttpStatus.NOT_FOUND.value());
+      return;
+    }
+    try (OutputStream outputStream = new FileOutputStream(assetFile)) {
+      outputStream.write(bytes);
+      outputStream.flush();
+    }
+    servletResponse.setStatus(HttpStatus.OK.value());
+    servletResponse.getOutputStream().write(bytes);
   }
 }
