@@ -23,9 +23,8 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class AppConfiguration {
 
-  public static final String pattern = "yyyyMMddHHmmss";
+  public static final String PATTERN = "yyyyMMddHHmmss";
 
-  // private static final Log log = LogFactory.getLog(AppConfiguration.class);
   @Bean
   public TimeUtil timeUtil() {
     return new TimeUtil();
@@ -33,7 +32,7 @@ public class AppConfiguration {
 
   @Bean
   public DateFormat fmt() {
-    return new SimpleDateFormat(pattern);
+    return new SimpleDateFormat(PATTERN);
   }
 
   @Bean

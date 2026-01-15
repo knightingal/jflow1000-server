@@ -702,10 +702,10 @@ public class Local1000Controller {
         });
     for (Flow1000Section section : flow1000SectionList) {
       String name = section.getName();
-      String prefix = name.substring(0, AppConfiguration.pattern.length());
+      String prefix = name.substring(0, AppConfiguration.PATTERN.length());
       try {
         timeUtil.parse(prefix);
-        section.setName(name.substring(AppConfiguration.pattern.length()));
+        section.setName(name.substring(AppConfiguration.PATTERN.length()));
       } catch (ParseException e) {
         // empty
       }

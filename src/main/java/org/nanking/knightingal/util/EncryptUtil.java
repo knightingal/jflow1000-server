@@ -33,7 +33,7 @@ public class EncryptUtil {
       cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
       return cipher.doFinal(plaintext);
     } catch (Exception e) {
-      return null;
+      return new byte[0];
     }
   }
 
@@ -53,7 +53,7 @@ public class EncryptUtil {
       cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
       return cipher.doFinal(plaintext);
     } catch (Exception e) {
-      return null;
+      return new byte[0];
     }
   }
 }
