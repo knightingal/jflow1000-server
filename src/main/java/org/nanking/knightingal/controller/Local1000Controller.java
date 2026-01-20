@@ -421,10 +421,15 @@ public class Local1000Controller {
         .map(image -> new ImgDetail(image.getId(), image.getName(), image.getWidth(), image.getHeight()))
         .toList();
 
-    return new SectionDetail(flow1000Section.getId(), flow1000Section.getDirName(), flow1000Section.getId(),
-        imgDetailList,
-        flow1000Section.getAlbum(), flow1000Section.getName(), flow1000Section.getCreateTime(),
-        flow1000Section.getClientStatus().name());
+    return SectionDetail.SectionDetailBuilder.instance()
+            .id(flow1000Section.getId())
+            .dirName(flow1000Section.getDirName())
+            .picPage(flow1000Section.getId())
+            .pics(imgDetailList)
+            .album(flow1000Section.getAlbum())
+            .title(flow1000Section.getName())
+            .mtime(flow1000Section.getCreateTime())
+            .clientStatus(flow1000Section.getClientStatus().name()).build();
   }
 
   @RequestMapping("/picContentAjax")
