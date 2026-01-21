@@ -68,6 +68,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequestMapping("/local1000")
 @RestController
 public class Local1000Controller {
+
+  private static final String WEBP_SURFIX = ".webp";
+
   private static final Logger LOG = LogManager.getLogger(Local1000Controller.class);
 
   private final Local1000SectionRepo local1000SectionRepo;
@@ -156,90 +159,95 @@ public class Local1000Controller {
     return ResponseEntity.ok().body(scanAhriDir);
   }
 
-  void importAhriSection(AhriSection ahriSection) {
-    String sectionPath = baseDir + "/1807/" + ahriSection.getSectionName();
-    File ahriSectionFile = new File(sectionPath);
-    Flow1000Section flow1000Section = null;
-    try {
-
-      boolean ret = ahriSectionFile.mkdir();
-      if (!ret) {
-        LOG.error("create section path failed {}", sectionPath);
-        return;
-      }
-
-      Optional<Flow1000Section> flow1000SectionOption = local1000SectionDao.searchFlow1000SectionByNameAndAlbum(
+  private Flow1000Section storeFlow1000Section(AhriSection ahriSection) {
+    Optional<Flow1000Section> flow1000SectionOption = local1000SectionDao.searchFlow1000SectionByNameAndAlbum(
           ahriSection.getSectionName(),
           "1807");
-      if (!flow1000SectionOption.isPresent()) {
-        flow1000Section = new Flow1000Section();
-        flow1000Section.setAlbum("1807");
-        flow1000Section.setDirName(ahriSection.getSectionName());
-        flow1000Section.setName(ahriSection.getSectionName());
-        flow1000Section.setCreateTime(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
-        flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
-      } else {
-        flow1000Section = flow1000SectionOption.get();
-      }
+    if (!flow1000SectionOption.isPresent()) {
+      Flow1000Section flow1000Section = new Flow1000Section();
+      flow1000Section.setAlbum("1807");
+      flow1000Section.setDirName(ahriSection.getSectionName());
+      flow1000Section.setName(ahriSection.getSectionName());
+      flow1000Section.setCreateTime(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+      return local1000SectionDao.saveAndFlush(flow1000Section);
+    } else {
+      return flow1000SectionOption.get();
+    }
+  }
 
+  private File copyAhriImageFile(AhriImage image, AhriSection ahriSection) {
+    File destAhriImageFile = new File(baseDir + "/1807/" + ahriSection.getSectionName() + "/" + image.getName());
+    File srcAhriImageFile = image.getFile();
+    try {
+      if (destAhriImageFile.createNewFile()) {
+        FileCopyUtils.copy(srcAhriImageFile, destAhriImageFile);
+        LOG.info("file copy from {} to {} ", srcAhriImageFile, destAhriImageFile);
+      } else {
+        LOG.info("file {} already exists", destAhriImageFile);
+      }
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("file copy from {} to {} failed", srcAhriImageFile, destAhriImageFile, e);
+    }
+    return destAhriImageFile;
+  }
+
+  private void storeAhriImage(AhriImage image, AhriSection ahriSection, Flow1000Section flow1000Section) {
+    File destAhriImageFile = copyAhriImageFile(image, ahriSection);
+
+    Flow1000Img flow1000Img;
+    Optional<Flow1000Img> flow1000Optional = local1000ImgDao.searchFlow1000ImgByNameAndFlow1000Section(
+        image.getName(),
+        flow1000Section);
+    if (!flow1000Optional.isPresent()) {
+      flow1000Img = new Flow1000Img();
+      flow1000Img.setName(image.getName());
+      flow1000Img.setFlow1000Section(flow1000Section);
+    } else {
+      flow1000Img = flow1000Optional.get();
+    }
+    try {
+      if (destAhriImageFile.getAbsolutePath().endsWith(WEBP_SURFIX)) {
+        InputStream fileInputStream = new FileInputStream(destAhriImageFile);
+        WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
+        fileInputStream.close();
+        flow1000Img.setHeight(webpImageSize.height);
+        flow1000Img.setWidth(webpImageSize.width);
+      } else if (destAhriImageFile.getAbsolutePath().endsWith(".avif")) {
+        ImgSize imgSize = AvifUtil.parseImgSize(destAhriImageFile);
+        flow1000Img.setHeight(imgSize.getHeight());
+        flow1000Img.setWidth(imgSize.getWidth());
+      } else {
+        BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(destAhriImageFile.getAbsolutePath())));
+        int width = sourceImg.getWidth();
+        int height = sourceImg.getHeight();
+        flow1000Img.setHeight(height);
+        flow1000Img.setWidth(width);
+      }
+    } catch (Exception e) {
+      // empty
+    }
+
+    local1000ImgDao.saveAndFlush(flow1000Img);
+    if (ahriSection.getImageList().indexOf(image) == 0) {
+      flow1000Section.setCover(flow1000Img.getName());
+      flow1000Section.setCoverHeight(flow1000Img.getHeight());
+      flow1000Section.setCoverWidth(flow1000Img.getWidth());
+      local1000SectionDao.saveAndFlush(flow1000Section);
+    }
+  }
+
+  private void importAhriSection(AhriSection ahriSection) {
+    String sectionPath = baseDir + "/1807/" + ahriSection.getSectionName();
+    File ahriSectionFile = new File(sectionPath);
+
+    boolean ret = ahriSectionFile.mkdir();
+    if (!ret) {
+      LOG.error("create section path failed {}", sectionPath);
       return;
     }
+    Flow1000Section flow1000Section = storeFlow1000Section(ahriSection);
     for (AhriImage image : ahriSection.getImageList()) {
-      File destAhriImageFile = new File(baseDir + "/1807/" + ahriSection.getSectionName() + "/" + image.getName());
-      File srcAhriImageFile = image.getFile();
-      try {
-        if (destAhriImageFile.createNewFile()) {
-          FileCopyUtils.copy(srcAhriImageFile, destAhriImageFile);
-          LOG.info("file copy from {} to {} ", srcAhriImageFile, destAhriImageFile);
-        } else {
-          LOG.info("file {} already exists", destAhriImageFile);
-        }
-      } catch (Exception e) {
-        LOG.error("file copy from {} to {} failed", srcAhriImageFile, destAhriImageFile, e);
-      }
-
-      Flow1000Img flow1000Img;
-      Optional<Flow1000Img> flow1000Optional = local1000ImgDao.searchFlow1000ImgByNameAndFlow1000Section(
-          image.getName(),
-          flow1000Section);
-      if (!flow1000Optional.isPresent()) {
-        flow1000Img = new Flow1000Img();
-        flow1000Img.setName(image.getName());
-        flow1000Img.setFlow1000Section(flow1000Section);
-      } else {
-        flow1000Img = flow1000Optional.get();
-      }
-      try {
-        if (destAhriImageFile.getAbsolutePath().endsWith(".webp")) {
-          InputStream fileInputStream = new FileInputStream(destAhriImageFile);
-          WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
-          fileInputStream.close();
-          flow1000Img.setHeight(webpImageSize.height);
-          flow1000Img.setWidth(webpImageSize.width);
-        } else if (destAhriImageFile.getAbsolutePath().endsWith(".avif")) {
-          ImgSize imgSize = AvifUtil.parseImgSize(destAhriImageFile);
-          flow1000Img.setHeight(imgSize.getHeight());
-          flow1000Img.setWidth(imgSize.getWidth());
-        } else {
-          BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(destAhriImageFile.getAbsolutePath())));
-          int width = sourceImg.getWidth();
-          int height = sourceImg.getHeight();
-          flow1000Img.setHeight(height);
-          flow1000Img.setWidth(width);
-        }
-      } catch (Exception e) {
-        // empty
-      }
-
-      local1000ImgDao.saveAndFlush(flow1000Img);
-      if (ahriSection.getImageList().indexOf(image) == 0) {
-        flow1000Section.setCover(flow1000Img.getName());
-        flow1000Section.setCoverHeight(flow1000Img.getHeight());
-        flow1000Section.setCoverWidth(flow1000Img.getWidth());
-        local1000SectionDao.saveAndFlush(flow1000Section);
-      }
+      storeAhriImage(image, ahriSection, flow1000Section);
     }
   }
 
@@ -306,7 +314,7 @@ public class Local1000Controller {
           flow1000Section);
       Flow1000Img flow1000Img = AhriParser.buildFlow1000Img(flow1000Optional, flow1000Section, albumConfig, image);
       try {
-        if (image.getAbsolutePath().endsWith(".webp")) {
+        if (image.getAbsolutePath().endsWith(WEBP_SURFIX)) {
           InputStream fileInputStream = new FileInputStream(image.getAbsolutePath());
           WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
           fileInputStream.close();
@@ -390,7 +398,7 @@ public class Local1000Controller {
   private static List<AhriImage> parseAhriImageList(File section) {
     return Arrays.stream(section.listFiles())
         .filter(f -> f.isFile() && (f.getName().endsWith(".jpg") || f.getName().endsWith(".png")
-            || f.getName().endsWith(".webp") || f.getName().endsWith("avif")))
+            || f.getName().endsWith(WEBP_SURFIX) || f.getName().endsWith("avif")))
         .map(f -> {
           String originName = f.getName();
           int lastIndex = originName.lastIndexOf(".");
