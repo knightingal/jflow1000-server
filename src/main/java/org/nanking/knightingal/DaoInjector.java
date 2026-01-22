@@ -7,6 +7,8 @@ import org.nanking.knightingal.util.ApplicationContextProvider;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 public class DaoInjector {
@@ -16,19 +18,24 @@ public class DaoInjector {
   private DaoInjector() {
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T> T injectDaoToRepo(Class<T> dao) {
-    Repo annotation = dao.getAnnotation(Repo.class);
+  private static class DaoInjectorException extends RuntimeException {
+    public DaoInjectorException(String message) {
+      super(message);
+    }
+  }
 
-    String[] value = annotation.value();
+  private static class DaoHandler implements InvocationHandler {
 
-    if (value.length == 0) {
-      throw new RuntimeException("not provide annotation value");
+    private final String repoBeanName;
+
+
+    public static DaoHandler buildFromRepoBeanName(String repoBeanName) {
+      return new DaoHandler(repoBeanName);
     }
 
-    String repoBeanName = value[0];
 
-    return (T) Proxy.newProxyInstance(dao.getClassLoader(), new Class[] { dao }, (proxy, method, args) -> {
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
       if (method.getName().equals("hashCode")) {
         return (repoBeanName + "-dao").hashCode();
@@ -37,36 +44,10 @@ public class DaoInjector {
       Class<?>[] argClazzs = null;
       if (args != null) {
         argClazzs = new Class[args.length];
-
         for (int i = 0; i < args.length; i++) {
           argClazzs[i] = args[i].getClass();
         }
-
-        switch (method.getName()) {
-          case "findAll", "findOne":
-            // 处理各种重载版本的findAll，
-            // 这里的入参经常是各种lambda的匿名类，直接getMethod会找不到
-            if (args[0] instanceof Specification) {
-              argClazzs[0] = Specification.class;
-            }
-            // wtf, 参数是继承类型也不能反射出来，垃了
-            if (args.length >= 2 && args[1] instanceof Pageable) {
-              argClazzs[1] = Pageable.class;
-            }
-            break;
-          case "saveAllAndFlush":
-            if (args[0] instanceof Iterable) {
-              argClazzs[0] = Iterable.class;
-            }
-            break;
-          case "saveAndFlush":
-            // 注意这里会有泛型擦除，不能直接那入参的类型去反射方法
-            argClazzs[0] = Object.class;
-            break;
-          default:
-            break;
-        }
-
+        consturctArgClazzsByMethodName(method, args, argClazzs);
       }
 
       Object target = ApplicationContextProvider.getBean(repoBeanName);
@@ -75,11 +56,59 @@ public class DaoInjector {
         method = target.getClass().getMethod(method.getName(), argClazzs);
       } catch (NoSuchMethodException e) {
         LOG.error("method not found", e);
-        throw new RuntimeException("method not found");
+        throw new DaoInjectorException("method not found");
       }
 
       return method.invoke(target, args);
-    });
+    }
+
+    private DaoHandler(String repoBeanName) {
+      this.repoBeanName = repoBeanName;
+    }
+
+    private void consturctArgClazzsByMethodName(Method method, Object[] args, Class<?>[] argClazzs) {
+      switch (method.getName()) {
+        case "findAll", "findOne":
+          // 处理各种重载版本的findAll，
+          // 这里的入参经常是各种lambda的匿名类，直接getMethod会找不到
+          if (args[0] instanceof Specification) {
+            argClazzs[0] = Specification.class;
+          }
+          // wtf, 参数是继承类型也不能反射出来，垃了
+          if (args.length >= 2 && args[1] instanceof Pageable) {
+            argClazzs[1] = Pageable.class;
+          }
+          break;
+        case "saveAllAndFlush":
+          if (args[0] instanceof Iterable) {
+            argClazzs[0] = Iterable.class;
+          }
+          break;
+        case "saveAndFlush":
+          // 注意这里会有泛型擦除，不能直接那入参的类型去反射方法
+          argClazzs[0] = Object.class;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T> T injectDaoToRepo(Class<T> dao) {
+    Repo annotation = dao.getAnnotation(Repo.class);
+
+    String[] value = annotation.value();
+
+    if (value.length == 0) {
+      throw new DaoInjectorException("not provide annotation value");
+    }
+
+    String repoBeanName = value[0];
+
+    DaoHandler handler = DaoHandler.buildFromRepoBeanName(repoBeanName);
+
+    return (T) Proxy.newProxyInstance(dao.getClassLoader(), new Class[] { dao }, handler);
 
   }
 }
