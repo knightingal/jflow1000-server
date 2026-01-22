@@ -57,9 +57,6 @@ import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * @author Knightingal
@@ -176,7 +173,8 @@ public class Local1000Controller {
   }
 
   private File copyAhriImageFile(AhriImage image, AhriSection ahriSection) {
-    File destAhriImageFile = new File(baseDir + "/1807/" + ahriSection.getSectionName() + "/" + image.getName());
+
+    File destAhriImageFile = Paths.get(baseDir, "1807", ahriSection.getSectionName(), image.getName()).toFile();
     File srcAhriImageFile = image.getFile();
     try {
       if (destAhriImageFile.createNewFile()) {
@@ -553,6 +551,7 @@ public class Local1000Controller {
         countDownLatch.await();
       } catch (InterruptedException e) {
         LOG.error("Interrupted while waiting for downloads to complete", e);
+        Thread.currentThread().interrupt();
       }
       LOG.info("{} download complete", flow1000Section.getDirName());
       /*

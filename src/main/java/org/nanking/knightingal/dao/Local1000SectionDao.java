@@ -28,8 +28,6 @@ public interface Local1000SectionDao {
 
   Optional<Flow1000Section> searchFlow1000SectionByNameAndAlbum(String name, String ablum);
 
-  // void insertFlow1000Section(Flow1000Section flow1000Section);
-
   /**
    * 根据id删除section记录
    * 
