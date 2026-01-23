@@ -23,7 +23,6 @@ import org.nanking.knightingal.util.TimeUtil;
 import org.nanking.knightingal.util.WebpUtil;
 import org.nanking.knightingal.util.AvifUtil.ImgSize;
 import org.nanking.knightingal.util.WebpUtil.WebpImageSize;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
@@ -99,11 +98,9 @@ public class Local1000Controller {
 
   private final WsMsgService wsMsgService;
 
-  @Autowired
-  private Executor downloadImgThreadPoolExecutor;
+  private Executor downloadImgThreadPoolExecutor = null;
 
-  @Autowired
-  private Executor downloadSectionThreadPoolExecutor;
+  private Executor downloadSectionThreadPoolExecutor = null;
 
   @Value("${local1000.base-dir}")
   private String baseDir;
