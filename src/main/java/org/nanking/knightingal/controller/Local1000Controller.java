@@ -235,12 +235,11 @@ public class Local1000Controller {
   }
 
   private void importAhriSection(AhriSection ahriSection) {
-    String sectionPath = baseDir + "/1807/" + ahriSection.getSectionName();
-    File ahriSectionFile = new File(sectionPath);
+    File ahriSectionFile = Paths.get(baseDir, "1807", ahriSection.getSectionName()).toFile();
 
     boolean ret = ahriSectionFile.mkdir();
     if (!ret) {
-      LOG.error("create section path failed {}", sectionPath);
+      LOG.error("create section path failed {}", ahriSectionFile.getAbsolutePath());
       return;
     }
     Flow1000Section flow1000Section = storeFlow1000Section(ahriSection);
@@ -265,7 +264,7 @@ public class Local1000Controller {
   }
 
   @GetMapping("/refreshSectionById")
-  public ResponseEntity<Object> refreshSectionById(@RequestParam(value = "id") long id) {
+  public ResponseEntity<Object> refreshSectionById(@RequestParam long id) {
     Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
     Optional<AlbumConfig> albumConfigOpt = local1000AlbumConfigDao.searchAlbumConfigByName(flow1000Section.getAlbum());
     if (!albumConfigOpt.isPresent()) {
