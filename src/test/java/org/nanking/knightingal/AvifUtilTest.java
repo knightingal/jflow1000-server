@@ -18,4 +18,18 @@ public class AvifUtilTest {
     assertEquals(imgSize.getWidth(), 3078);
 
   }
+
+  @Test
+  public void testPng() throws IOException {
+    ImgSize imgSize = AvifUtil.parsePngSize(new File("/home/knightingal/Pictures/Screenshots/ScreenshotFrom2026-01-2421-51-29.png"));
+    assertEquals(imgSize.getHeight(), 635);
+    assertEquals(imgSize.getWidth(), 770);
+  }
+
+  @Test
+  public void testJpg() throws IOException {
+    ImgSize imgSize = AvifUtil.parseJpgSize(new File("/home/knightingal/Pictures/llqdfm.jpg"));
+    assertEquals(imgSize.getHeight(), 1920);
+    assertEquals(imgSize.getWidth(), 1278);
+  }
 }
