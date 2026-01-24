@@ -10,6 +10,85 @@ public class AvifUtil {
   private AvifUtil() {
   }
 
+  public static ImgSize parsePngSize(File png) throws IOException {
+    try (InputStream inputStream = new FileInputStream(png)) {
+      ignoreBySize(inputStream, 8);
+
+      int chunkLength = read4Int(inputStream);
+      String chunkType = readStringBySize(inputStream, 4);
+      if (!chunkType.equals("IHDR")) {
+        throw new IOException("not find IHDR");
+      }
+
+      int width = read4Int(inputStream);
+      int height = read4Int(inputStream);
+      return new ImgSize(height, width);
+    }  
+  }
+
+  public static ImgSize parseJpgSize(File jpg) throws IOException {
+    try (InputStream inputStream = new FileInputStream(jpg)) {
+      int b1 = inputStream.read();
+      int b2 = inputStream.read();
+      if (b1 != 0xff || b2 != 0xd8) {
+        throw new IOException("not find jpg header");
+      }
+
+      while (true) {
+        int ff = inputStream.read();
+        if (ff != 0xff) {
+          throw new IOException("expected 0xff marker");
+        }
+        int markerType = inputStream.read();
+        if (markerType == -1) {
+          throw new IOException("unexpected end of file");
+        }
+
+        while (markerType == 0xff) {
+          markerType = inputStream.read();
+        }
+
+        boolean isSof = (markerType >= 0xc0 && markerType <= 0xcf) 
+            && markerType != 0xc4 
+            && markerType != 0xc8 
+            && markerType != 0xcc;
+
+        if (isSof) {
+          int lengthHigh = inputStream.read();
+          int lengthLow = inputStream.read();
+
+          inputStream.read();
+
+          int heightHigh = inputStream.read();
+          int heightLow = inputStream.read();
+          int height = (heightHigh << 8) | heightLow;
+
+          int widthHigh = inputStream.read();
+          int widthLow = inputStream.read();
+          int width = (widthHigh << 8) | widthLow;
+          return new ImgSize(height, width);
+        } else if (markerType == 0xd9) {
+          throw new IOException("Reached end of image without finding size");
+        } else if (markerType == 0xd8) {
+          continue;
+
+        } else if (markerType >= 0xD0 && markerType <= 0xD7) {
+          continue;
+        } else if (markerType == 0x01 || markerType == 0x00) {
+          continue;
+
+        } else {
+          int lengthHigh = inputStream.read();
+          int lengthLow = inputStream.read();
+          int length = (lengthHigh << 8) | lengthLow;
+          ignoreBySize(inputStream, length - 2);
+        }
+
+      }
+    }
+  }
+
+
   public static ImgSize parseImgSize(File avif) throws IOException {
     try (InputStream inputStream = new FileInputStream(avif)) {
       parseHeader(inputStream);
