@@ -5,34 +5,60 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.nanking.knightingal.ship.Ship;
+import org.nanking.knightingal.ship.ShipImgDetail;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class NaviPageParse {
-    public static void parsePage(String naviPagePath) throws IOException {
+    public static Ship parsePage(String naviPagePath) throws IOException {
+        Ship.ShipBuilder shipBuilder = new Ship.ShipBuilder();
+
         Document doc = Jsoup.parse(new File(naviPagePath));
-        Elements elements = doc.selectXpath("//th[text()='Image Description'][1]/../..//img/../../..");
+        shipBuilder
+                .shipType(0)
+                .shipImgDetails(new ArrayList<>())
+                .pageHtmlContent(doc.html());
+        Elements shipNames = doc.selectXpath("//h1");
+        if (shipNames.size() >= 2) {
+            String shipName = shipNames.get(1).text();
+            System.out.println(shipName);
+            shipBuilder.shipName(shipName);
+        }
+        Ship ship = shipBuilder.build();
 
 
-        for (int i = 0; i < elements.size(); i++) {
-            System.out.println(elements.get(i).tag());
-            Element element = elements.get(i);
+
+        Elements imgTrs = doc.selectXpath("//th[text()='Image Description'][1]/../..//img/../../..");
+        for (int i = 0; i < imgTrs.size(); i++) {
+            ShipImgDetail.ShipImgDetailBuilder shipImgDetailBuilder = new ShipImgDetail.ShipImgDetailBuilder();
+            shipImgDetailBuilder.ship(ship);
+
+            System.out.println(imgTrs.get(i).tag());
+            Element element = imgTrs.get(i);
             Elements aElements = element.selectXpath(".//img/..");
             if (aElements.size() == 1) {
                 String hrefValue = aElements.get(0).attribute("href").getValue();
                 System.out.println(hrefValue);
+                shipImgDetailBuilder.imgUrl(hrefValue);
             }
 
             Elements td3 = element.selectXpath("./td[3]");
             if (td3.size() == 1) {
                 System.out.println(td3.html());
+                shipImgDetailBuilder.imgDescription(td3.html());
             }
             Elements td4 = element.selectXpath("./td[4]");
             if (td4.size() == 1) {
                 System.out.println(td4.html());
+                shipImgDetailBuilder.source(td4.html());
             }
+            ship.getShipImgDetails().add(shipImgDetailBuilder.build());
         }
 
+        return ship;
     }
+
 }
