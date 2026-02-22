@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
  */
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "org.nanking.knightingal.dao.jpa")
-@EntityScan("org.nanking.knightingal.bean")
+@EntityScan({"org.nanking.knightingal.bean", "org.nanking.knightingal.ship"})
 public class Application {
 
   public static void main(String[] args) {
