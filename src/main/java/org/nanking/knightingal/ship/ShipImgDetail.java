@@ -5,6 +5,20 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 
+/*
+-- auto-generated definition
+create table ship_img_detail
+(
+    id              integer not null
+        constraint ship_img_detail_pk
+            primary key autoincrement,
+    img_url         TEXT    not null,
+    img_description TEXT    not null,
+    source          TEXT,
+    ship_id         integer not null
+);
+
+ */
 @Entity
 public class ShipImgDetail implements Serializable {
 

@@ -5,6 +5,27 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
+/*
+-- auto-generated definition
+create table ship
+(
+    id                    integer not null
+        constraint battle_ship_pk
+            primary key autoincrement,
+    ship_name             TEXT    not null,
+    ship_type             INTEGER not null,
+    origin_html_file_name TEXT
+);
+
+create index ship_id_index
+    on ship (id);
+
+create index ship_ship_name_index
+    on ship (ship_name);
+
+create index ship_ship_type_index
+    on ship (ship_type);
+ */
 @Entity
 public class Ship implements Serializable {
 
