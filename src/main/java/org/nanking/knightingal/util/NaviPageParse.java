@@ -38,8 +38,17 @@ public class NaviPageParse {
 
             System.out.println(imgTrs.get(i).tag());
             Element element = imgTrs.get(i);
+
+            Elements tdElements = element.selectXpath("./td");
+            if (tdElements.size() < 4) {
+                continue;
+            }
+
             Elements aElements = element.selectXpath(".//img/..");
             if (aElements.size() == 1) {
+                if (!aElements.get(0).hasAttr("href")) {
+                    continue;
+                }
                 String hrefValue = aElements.get(0).attribute("href").getValue();
                 System.out.println(hrefValue);
                 shipImgDetailBuilder.imgUrl(hrefValue);

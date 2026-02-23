@@ -9,7 +9,7 @@ public class NaviPageParseTest {
     @Test
     public void testParsePage() {
         try {
-            Ship ship = NaviPageParse.parsePage("/home/knightingal/Documents/Battleship Photo Index BB-7 USS ILLINOIS.htm");
+            Ship ship = NaviPageParse.parsePage("/home/knightingal/Documents/Battleship Photo Index BB-47 WASHINGTON.htm");
             ship.toString();
         }catch (Exception e) {
             e.printStackTrace();
