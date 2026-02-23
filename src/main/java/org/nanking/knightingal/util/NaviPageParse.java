@@ -15,12 +15,13 @@ import java.util.ArrayList;
 public class NaviPageParse {
     public static Ship parsePage(String naviPagePath) throws IOException {
         Ship.ShipBuilder shipBuilder = new Ship.ShipBuilder();
+        File pageFile = new File(naviPagePath);
 
-        Document doc = Jsoup.parse(new File(naviPagePath));
+        Document doc = Jsoup.parse(pageFile);
         shipBuilder
                 .shipType(0)
                 .shipImgDetails(new ArrayList<>())
-                .pageHtmlContent(doc.html());
+                .originHtmlFileName(pageFile.getName());
         Elements shipNames = doc.selectXpath("//h1");
         if (shipNames.size() >= 2) {
             String shipName = shipNames.get(1).text();
