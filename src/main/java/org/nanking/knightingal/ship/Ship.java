@@ -37,15 +37,15 @@ public class Ship implements Serializable {
 
     private int shipType;
 
-    public String getPageHtmlContent() {
-        return pageHtmlContent;
+    public String getOriginHtmlFileName() {
+        return originHtmlFileName;
     }
 
-    public void setPageHtmlContent(String pageHtmlContent) {
-        this.pageHtmlContent = pageHtmlContent;
+    public void setOriginHtmlFileName(String originHtmlFileName) {
+        this.originHtmlFileName = originHtmlFileName;
     }
 
-    private String pageHtmlContent;
+    private String originHtmlFileName;
 
     public Long getId() {
         return id;
@@ -87,7 +87,7 @@ public class Ship implements Serializable {
         private Long id;
         private String shipName;
         private int shipType;
-        private String pageHtmlContent;
+        private String originHtmlFileName;
         private List<ShipImgDetail> shipImgDetails;
 
         public ShipBuilder() {
@@ -113,8 +113,8 @@ public class Ship implements Serializable {
             return this;
         }
 
-        public ShipBuilder pageHtmlContent(String pageHtmlContent) {
-            this.pageHtmlContent = pageHtmlContent;
+        public ShipBuilder originHtmlFileName(String pageHtmlContent) {
+            this.originHtmlFileName = pageHtmlContent;
             return this;
         }
 
@@ -124,7 +124,7 @@ public class Ship implements Serializable {
             ship.setShipName(shipName);
             ship.setShipType(shipType);
             ship.setShipImgDetails(shipImgDetails);
-            ship.setPageHtmlContent(pageHtmlContent);
+            ship.setOriginHtmlFileName(originHtmlFileName);
             return ship;
         }
     }
