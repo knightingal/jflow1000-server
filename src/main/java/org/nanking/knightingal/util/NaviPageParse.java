@@ -33,19 +33,18 @@ public class NaviPageParse {
 
 
         Elements imgTrs = doc.selectXpath("//th[text()='Image Description'][1]/../..//img/../../..");
-        for (int i = 0; i < imgTrs.size(); i++) {
+        for (Element imgTr : imgTrs) {
             ShipImgDetail.ShipImgDetailBuilder shipImgDetailBuilder = new ShipImgDetail.ShipImgDetailBuilder();
             shipImgDetailBuilder.ship(ship);
 
-            System.out.println(imgTrs.get(i).tag());
-            Element element = imgTrs.get(i);
+            System.out.println(imgTr.tag());
 
-            Elements tdElements = element.selectXpath("./td");
+            Elements tdElements = imgTr.selectXpath("./td");
             if (tdElements.size() < 4) {
                 continue;
             }
 
-            Elements aElements = element.selectXpath(".//img/..");
+            Elements aElements = imgTr.selectXpath(".//img/..");
             if (aElements.size() == 1) {
                 if (!aElements.get(0).hasAttr("href")) {
                     continue;
@@ -55,12 +54,12 @@ public class NaviPageParse {
                 shipImgDetailBuilder.imgUrl(hrefValue);
             }
 
-            Elements td3 = element.selectXpath("./td[3]");
+            Elements td3 = imgTr.selectXpath("./td[3]");
             if (td3.size() == 1) {
                 System.out.println(td3.html());
                 shipImgDetailBuilder.imgDescription(td3.html());
             }
-            Elements td4 = element.selectXpath("./td[4]");
+            Elements td4 = imgTr.selectXpath("./td[4]");
             if (td4.size() == 1) {
                 System.out.println(td4.html());
                 shipImgDetailBuilder.source(td4.html());

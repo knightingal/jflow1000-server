@@ -46,7 +46,6 @@ public class ShipController {
                 }
             }
 
-
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
