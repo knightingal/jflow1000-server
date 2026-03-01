@@ -32,6 +32,9 @@ public class ShipImgDetail implements Serializable {
 
     private String source;
 
+    // 0: not downloaded, 1: downloaded
+    private int fileStatus;
+
     @ManyToOne
     @JoinColumn(name = "shipId", referencedColumnName = "id")
     @JsonIgnore
@@ -77,6 +80,13 @@ public class ShipImgDetail implements Serializable {
         this.ship = ship;
     }
 
+    public int getFileStatus() {
+        return fileStatus;
+    }
+
+    public void setFileStatus(int fileStatus) {
+        this.fileStatus = fileStatus;
+    }
 
     public static final class ShipImgDetailBuilder {
         private Long id;
@@ -84,6 +94,7 @@ public class ShipImgDetail implements Serializable {
         private String imgDescription;
         private String source;
         private Ship ship;
+        private int fileStatus = 0;
 
         public ShipImgDetailBuilder() {
         }
@@ -113,6 +124,11 @@ public class ShipImgDetail implements Serializable {
             return this;
         }
 
+        public ShipImgDetailBuilder fileStatus(int fileStatus) {
+            this.fileStatus = fileStatus;
+            return this;
+        }
+
         public ShipImgDetail build() {
             ShipImgDetail shipImgDetail = new ShipImgDetail();
             shipImgDetail.setId(id);
@@ -120,6 +136,8 @@ public class ShipImgDetail implements Serializable {
             shipImgDetail.setImgDescription(imgDescription);
             shipImgDetail.setSource(source);
             shipImgDetail.setShip(ship);
+            shipImgDetail.setFileStatus(fileStatus);
+
             return shipImgDetail;
         }
     }
