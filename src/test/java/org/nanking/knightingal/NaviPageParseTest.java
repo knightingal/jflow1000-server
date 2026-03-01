@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.nanking.knightingal.ship.Ship;
 import org.nanking.knightingal.util.NaviPageParse;
 
+import java.net.MalformedURLException;
+
 public class NaviPageParseTest {
 
     @Test
@@ -14,5 +16,11 @@ public class NaviPageParseTest {
         }catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testParseImgUrl() throws MalformedURLException {
+        String[] strings = NaviPageParse.parseImgUrl("http://navsource.net/archives/01/010/011060.jpg");
+        strings.toString();
     }
 }

@@ -10,9 +10,24 @@ import org.nanking.knightingal.ship.ShipImgDetail;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class NaviPageParse {
+
+    public static String[] parseImgUrl(String url) throws MalformedURLException {
+        URL url1 = new URL(url);
+        String host = url1.getHost();
+        String path = url1.getPath();
+        File file = new File(path);
+        String absolutePath = file.getParent();
+        String fileName = file.getName();
+
+        return new String[] { host + absolutePath, fileName };
+    }
+
+
     public static Ship parsePage(String naviPagePath) throws IOException {
         Ship.ShipBuilder shipBuilder = new Ship.ShipBuilder();
         File pageFile = new File(naviPagePath);
