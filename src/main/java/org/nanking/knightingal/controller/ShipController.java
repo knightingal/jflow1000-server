@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nanking.knightingal.dao.ShipDao;
 import org.nanking.knightingal.dao.ShipImgDetailDao;
+import org.nanking.knightingal.runnable.ShipDownloadRunnable;
 import org.nanking.knightingal.ship.Ship;
 import org.nanking.knightingal.ship.ShipImgDetail;
 import org.nanking.knightingal.util.NaviPageParse;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -46,6 +48,11 @@ public class ShipController {
                         throw new Exception("failed to create path:" + targetPath.getPath());
                     }
                 }
+                Path targetFilePath = Paths.get(shipBasePath, imgPaths[0], imgPaths[1]);
+                if (!targetFilePath.toFile().exists()) {
+                    new Thread(new ShipDownloadRunnable(shipImgDetailDao, shipImgDetail, targetFilePath.toString())).start();
+                }
+                break;
             } catch (Exception e) {
                 LOG.error(e);
             }
