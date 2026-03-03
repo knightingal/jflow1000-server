@@ -41,7 +41,7 @@ public class ShipController {
             try {
                 String[] imgPaths = NaviPageParse.parseImgUrl(shipImgDetail.getImgUrl());
                 File targetPath = Paths.get(shipBasePath, imgPaths[0]).toFile();
-                if (targetPath.exists()) {
+                if (!targetPath.exists()) {
                     if (!targetPath.mkdirs()) {
                         throw new Exception("failed to create path:" + targetPath.getPath());
                     }
