@@ -5,6 +5,8 @@ import okio.Buffer;
 import okio.BufferedSource;
 import okio.ForwardingSource;
 import okio.RealBufferedSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.nanking.knightingal.dao.ShipImgDetailDao;
@@ -15,8 +17,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ShipDownloadRunnable implements Runnable {
+    private static final Object lock = new Object();
+    private static final Logger LOG = LogManager.getLogger(ShipDownloadRunnable.class);
 
     private ShipImgDetailDao shipImgDetailDao;
     private ShipImgDetail shipImgDetail;
@@ -39,11 +44,18 @@ public class ShipDownloadRunnable implements Runnable {
             ResponseBody body = response.body();
             byte[] contentBytes = body.bytes();
             File targetFile = new File(targetFilePath);
-            if (!targetFile.createNewFile()) {
-                throw new Exception("failed to create target file:" + targetFilePath);
-            }
-            try (FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
-                fileOutputStream.write(contentBytes);
+            synchronized(lock) {
+                if (targetFile.exists()) {
+                    return;
+                }
+                if (!targetFile.createNewFile()) {
+                    throw new Exception("failed to create target file:" + targetFilePath);
+                }
+                try (FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
+                    fileOutputStream.write(contentBytes);
+                    LOG.info("download {} finished", this.shipImgDetail.getImgUrl());
+                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,6 +87,10 @@ public class ShipDownloadRunnable implements Runnable {
     }
 
     static class ResponseBodyListener extends ResponseBody {
+        private AtomicLong sum = new AtomicLong(0);
+
+        private int nextStep = 0;
+
         public ResponseBodyListener(ResponseBody origin, DownloadCounterListener downloadCounterListener) {
             this.origin = origin;
             this.downloadCounterListener = downloadCounterListener;
@@ -111,7 +127,11 @@ public class ShipDownloadRunnable implements Runnable {
                 @Override
                 public long read(@NotNull Buffer sink, long byteCount) throws IOException {
                     long read = super.read(sink, byteCount);
-                    System.out.println("bytesRead:" + read);
+                    long readed = sum.addAndGet(read);
+                    if (readed * 100 / contentLength() > nextStep) {
+                        nextStep += 4;
+                        LOG.info("bytesRead: {}/{}", readed, contentLength());
+                    }
                     if (read >= 0) {
                         downloadCounterListener.update(read, 0);
                     }

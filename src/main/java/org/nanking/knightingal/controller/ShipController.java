@@ -19,6 +19,9 @@ import java.io.FilenameFilter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @RequestMapping("/ship")
 @RestController
@@ -33,6 +36,13 @@ public class ShipController {
         this.shipImgDetailDao = shipImgDetailDao;
     }
 
+    private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+            4,
+            4,
+            20, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>()
+    );
+
     private ShipDao shipDao;
     private ShipImgDetailDao shipImgDetailDao;
 
@@ -42,6 +52,11 @@ public class ShipController {
         for (ShipImgDetail shipImgDetail: allShipImgDetail) {
             try {
                 String[] imgPaths = NaviPageParse.parseImgUrl(shipImgDetail.getImgUrl());
+                LOG.info("process url:{}", shipImgDetail.getImgUrl());
+                if (imgPaths[1].endsWith(".pdf")) {
+                    LOG.info("skip pdf file");
+                    continue;
+                }
                 File targetPath = Paths.get(shipBasePath, imgPaths[0]).toFile();
                 if (!targetPath.exists()) {
                     if (!targetPath.mkdirs()) {
@@ -50,9 +65,10 @@ public class ShipController {
                 }
                 Path targetFilePath = Paths.get(shipBasePath, imgPaths[0], imgPaths[1]);
                 if (!targetFilePath.toFile().exists()) {
-                    new Thread(new ShipDownloadRunnable(shipImgDetailDao, shipImgDetail, targetFilePath.toString())).start();
+                    threadPoolExecutor.submit(new ShipDownloadRunnable(shipImgDetailDao, shipImgDetail, targetFilePath.toString()));
+                } else {
+                    LOG.info("file {} exist", targetFilePath.toString());
                 }
-                break;
             } catch (Exception e) {
                 LOG.error(e);
             }
