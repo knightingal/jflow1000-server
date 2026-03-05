@@ -54,6 +54,8 @@ public class ShipDownloadRunnable implements Runnable {
                 try (FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
                     fileOutputStream.write(contentBytes);
                     LOG.info("download {} finished", this.shipImgDetail.getImgUrl());
+                    shipImgDetail.setFileStatus(1);
+                    shipImgDetailDao.saveAndFlush(shipImgDetail);
                 }
 
             }

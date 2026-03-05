@@ -68,12 +68,12 @@ public class ShipController {
                     threadPoolExecutor.submit(new ShipDownloadRunnable(shipImgDetailDao, shipImgDetail, targetFilePath.toString()));
                 } else {
                     LOG.info("file {} exist", targetFilePath.toString());
+                    shipImgDetail.setFileStatus(1);
+                    shipImgDetailDao.saveAndFlush(shipImgDetail);
                 }
             } catch (Exception e) {
                 LOG.error(e);
             }
-//            shipImgDetail.setFileStatus(1);
-//            shipImgDetailDao.saveAndFlush(shipImgDetail);
         }
 
         return ResponseEntity.ok().build();
