@@ -11,4 +11,6 @@ public interface ShipImgDetailDao {
     ShipImgDetail saveAndFlush(ShipImgDetail shipImgDetail);
 
     List<ShipImgDetail> findAll();
+
+    List<ShipImgDetail> searchShipImgDetailByFileStatus(int fileStatus);
 }

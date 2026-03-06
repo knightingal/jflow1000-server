@@ -4,10 +4,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nanking.knightingal.dao.ShipDao;
 import org.nanking.knightingal.dao.ShipImgDetailDao;
+import org.nanking.knightingal.dao.jpa.ShipImgDetailRepo;
 import org.nanking.knightingal.runnable.ShipDownloadRunnable;
 import org.nanking.knightingal.ship.Ship;
 import org.nanking.knightingal.ship.ShipImgDetail;
 import org.nanking.knightingal.util.NaviPageParse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,16 +47,20 @@ public class ShipController {
 
     private ShipDao shipDao;
     private ShipImgDetailDao shipImgDetailDao;
+    @Autowired
+    private ShipImgDetailRepo shipImgDetailRepo;
 
     @GetMapping("/batchDownloadImg")
     public ResponseEntity<?> batchDownloadImg() {
-        List<ShipImgDetail> allShipImgDetail = shipImgDetailDao.findAll();
+        List<ShipImgDetail> allShipImgDetail = shipImgDetailRepo.searchShipImgDetailByFileStatus(0);
         for (ShipImgDetail shipImgDetail: allShipImgDetail) {
             try {
                 String[] imgPaths = NaviPageParse.parseImgUrl(shipImgDetail.getImgUrl());
                 LOG.info("process url:{}", shipImgDetail.getImgUrl());
                 if (imgPaths[1].endsWith(".pdf")) {
                     LOG.info("skip pdf file");
+                    shipImgDetail.setFileStatus(2);
+                    shipImgDetailDao.saveAndFlush(shipImgDetail);
                     continue;
                 }
                 File targetPath = Paths.get(shipBasePath, imgPaths[0]).toFile();

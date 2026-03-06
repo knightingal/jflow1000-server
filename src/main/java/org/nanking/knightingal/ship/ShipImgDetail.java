@@ -32,7 +32,7 @@ public class ShipImgDetail implements Serializable {
 
     private String source;
 
-    // 0: not downloaded, 1: downloaded
+    // 0: not downloaded, 1: downloaded, 2: no but skip
     private int fileStatus;
 
     @ManyToOne
