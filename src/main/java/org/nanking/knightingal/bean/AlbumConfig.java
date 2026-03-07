@@ -1,9 +1,6 @@
 package org.nanking.knightingal.bean;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class AlbumConfig {
@@ -19,6 +16,11 @@ public class AlbumConfig {
   private String sourcePath;
 
   private String baseUrl;
+
+  @OneToOne
+  @JoinColumn(name = "cover_section_id")
+  private Flow1000Section coverSection;
+
 
   public Long getId() {
     return id;
@@ -66,5 +68,13 @@ public class AlbumConfig {
 
   public void setBaseUrl(String baseUrl) {
     this.baseUrl = baseUrl;
+  }
+
+  public Flow1000Section getCoverSection() {
+    return coverSection;
+  }
+
+  public void setCoverSection(Flow1000Section coverSection) {
+    this.coverSection = coverSection;
   }
 }
