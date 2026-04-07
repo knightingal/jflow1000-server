@@ -157,7 +157,7 @@ public class Local1000Controller {
     Optional<Flow1000Section> flow1000SectionOption = local1000SectionDao.searchFlow1000SectionByNameAndAlbum(
           ahriSection.getSectionName(),
           "1808");
-    if (!flow1000SectionOption.isPresent()) {
+    if (flow1000SectionOption.isEmpty()) {
       Flow1000Section flow1000Section = new Flow1000Section();
       flow1000Section.setAlbum("1808");
       flow1000Section.setDirName(ahriSection.getSectionName());
