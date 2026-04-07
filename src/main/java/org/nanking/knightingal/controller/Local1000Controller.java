@@ -156,10 +156,10 @@ public class Local1000Controller {
   private Flow1000Section storeFlow1000Section(AhriSection ahriSection) {
     Optional<Flow1000Section> flow1000SectionOption = local1000SectionDao.searchFlow1000SectionByNameAndAlbum(
           ahriSection.getSectionName(),
-          "1807");
+          "1808");
     if (!flow1000SectionOption.isPresent()) {
       Flow1000Section flow1000Section = new Flow1000Section();
-      flow1000Section.setAlbum("1807");
+      flow1000Section.setAlbum("1808");
       flow1000Section.setDirName(ahriSection.getSectionName());
       flow1000Section.setName(ahriSection.getSectionName());
       flow1000Section.setCreateTime(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
@@ -171,7 +171,7 @@ public class Local1000Controller {
 
   private File copyAhriImageFile(AhriImage image, AhriSection ahriSection) {
 
-    File destAhriImageFile = Paths.get(baseDir, "1807", ahriSection.getSectionName(), image.getName()).toFile();
+    File destAhriImageFile = Paths.get(baseDir, "1808", ahriSection.getSectionName(), image.getName()).toFile();
     File srcAhriImageFile = image.getFile();
     try {
       if (destAhriImageFile.createNewFile()) {
@@ -232,7 +232,7 @@ public class Local1000Controller {
   }
 
   private void importAhriSection(AhriSection ahriSection) {
-    File ahriSectionFile = Paths.get(baseDir, "1807", ahriSection.getSectionName()).toFile();
+    File ahriSectionFile = Paths.get(baseDir, "1808", ahriSection.getSectionName()).toFile();
 
     boolean ret = ahriSectionFile.mkdir();
     if (!ret) {
