@@ -673,8 +673,8 @@ public class Local1000Controller {
     return ResponseEntity.ok(picIndex);
   }
 
-  @PostMapping("/unSubscribeSection/{id}")
-  public ResponseEntity<PicIndex> unSubscribeSection(@PathVariable("id") Long id) {
+  @PostMapping("/unsubscribeSection/{id}")
+  public ResponseEntity<PicIndex> unsubscribeSection(@PathVariable("id") Long id) {
     Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
     if (flow1000Section == null) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
