@@ -580,15 +580,6 @@ public class Local1000Controller {
     });
   }
 
-  @PostMapping(value = "/deleteSection")
-  public void deleteSection(@RequestBody SectionDetail sectionDetail) {
-    LOG.info("handle /deleteSection, sectionDetail={}", sectionDetail);
-    if (sectionDetail.getId() == null || sectionDetail.getId() <= 0) {
-      return;
-    }
-    local1000ImgDao.deleteById(sectionDetail.getId());
-    local1000SectionDao.deleteById(sectionDetail.getId());
-  }
 
   private String[] listImages(String dirName) {
     File dirFile = Paths.get(baseDir, "source", dirName).toFile();
@@ -693,6 +684,27 @@ public class Local1000Controller {
         flow1000Section.getName(),
         PicIndex.ClientStatus.valueOf(flow1000Section.getClientStatus().name()));
     return ResponseEntity.ok(picIndex);
+  }
+
+
+  @DeleteMapping(value = "/section/{id}")
+  public ResponseEntity<Void> deleteSection(@PathVariable("id") Long id) {
+    LOG.info("handle /deleteSection, sectionid={}", id);
+    Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
+
+    if (flow1000Section == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    File ahriSectionFile = Paths.get(baseDir, "1808", flow1000Section.getDirName()).toFile();
+    if (ahriSectionFile.delete()) {
+      local1000ImgDao.deleteById(id);
+      local1000SectionDao.deleteById(id);
+      return ResponseEntity.ok(null);
+    } else {
+      LOG.error("delete {} failed", ahriSectionFile.getAbsolutePath());
+      return ResponseEntity.internalServerError().build();
+    }
   }
 
   @GetMapping("/albumConfig/list")
