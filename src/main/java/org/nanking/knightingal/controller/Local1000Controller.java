@@ -7,9 +7,9 @@ import jakarta.persistence.criteria.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.nanking.knightingal.AppConfiguration;
-import org.nanking.knightingal.ahri.AhriImage;
-import org.nanking.knightingal.ahri.AhriParser;
-import org.nanking.knightingal.ahri.AhriSection;
+import org.nanking.knightingal.warlock.WarlockImage;
+import org.nanking.knightingal.warlock.WarlockParser;
+import org.nanking.knightingal.warlock.WarlockSection;
 import org.nanking.knightingal.bean.*;
 import org.nanking.knightingal.dao.Local1000AlbumConfigDao;
 import org.nanking.knightingal.dao.Local1000ImgDao;
@@ -144,24 +144,24 @@ public class Local1000Controller {
     return null;
   }
 
-  @GetMapping("/importAhri")
-  public ResponseEntity<Object> importAhri() {
-    List<AhriSection> scanAhriDir = scanAhriDir();
+  @GetMapping("/importWarlock")
+  public ResponseEntity<Object> importWarlock() {
+    List<WarlockSection> scanWarlockDir = scanAhriDir();
 
-    new Thread(() -> scanAhriDir.forEach(Local1000Controller.this::importAhriSection)).start();
+    new Thread(() -> scanWarlockDir.forEach(Local1000Controller.this::importAhriSection)).start();
 
-    return ResponseEntity.ok().body(scanAhriDir);
+    return ResponseEntity.ok().body(scanWarlockDir);
   }
 
-  private Flow1000Section storeFlow1000Section(AhriSection ahriSection) {
+  private Flow1000Section storeFlow1000Section(WarlockSection warlockSection) {
     Optional<Flow1000Section> flow1000SectionOption = local1000SectionDao.searchFlow1000SectionByNameAndAlbum(
-          ahriSection.getSectionName(),
+          warlockSection.getSectionName(),
           "1808");
     if (flow1000SectionOption.isEmpty()) {
       Flow1000Section flow1000Section = new Flow1000Section();
       flow1000Section.setAlbum("1808");
-      flow1000Section.setDirName(ahriSection.getSectionName());
-      flow1000Section.setName(ahriSection.getSectionName());
+      flow1000Section.setDirName(warlockSection.getSectionName());
+      flow1000Section.setName(warlockSection.getSectionName());
       flow1000Section.setCreateTime(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
       return local1000SectionDao.saveAndFlush(flow1000Section);
     } else {
@@ -169,7 +169,7 @@ public class Local1000Controller {
     }
   }
 
-  private File copyAhriImageFile(AhriImage image, AhriSection ahriSection) {
+  private File copyAhriImageFile(WarlockImage image, WarlockSection ahriSection) {
 
     File destAhriImageFile = Paths.get(baseDir, "1808", ahriSection.getSectionName(), image.getName()).toFile();
     File srcAhriImageFile = image.getFile();
@@ -186,7 +186,7 @@ public class Local1000Controller {
     return destAhriImageFile;
   }
 
-  private void storeAhriImage(AhriImage image, AhriSection ahriSection, Flow1000Section flow1000Section) {
+  private void storeAhriImage(WarlockImage image, WarlockSection ahriSection, Flow1000Section flow1000Section) {
     File destAhriImageFile = copyAhriImageFile(image, ahriSection);
 
     Flow1000Img flow1000Img;
@@ -231,7 +231,7 @@ public class Local1000Controller {
     }
   }
 
-  private void importAhriSection(AhriSection ahriSection) {
+  private void importAhriSection(WarlockSection ahriSection) {
     File ahriSectionFile = Paths.get(baseDir, "1808", ahriSection.getSectionName()).toFile();
 
     boolean ret = ahriSectionFile.mkdir();
@@ -240,7 +240,7 @@ public class Local1000Controller {
       return;
     }
     Flow1000Section flow1000Section = storeFlow1000Section(ahriSection);
-    for (AhriImage image : ahriSection.getImageList()) {
+    for (WarlockImage image : ahriSection.getImageList()) {
       storeAhriImage(image, ahriSection, flow1000Section);
     }
   }
@@ -291,22 +291,22 @@ public class Local1000Controller {
     sectionItem.put(section.getName(), new ArrayList<>());
     Optional<Flow1000Section> flow1000SectionOption 
         = local1000SectionDao.searchFlow1000SectionByNameAndAlbum(section.getName(), albumConfig.getName());
-    Flow1000Section flow1000Section = AhriParser.buildFlow1000Section(flow1000SectionOption, albumConfig, section);
+    Flow1000Section flow1000Section = WarlockParser.buildFlow1000Section(flow1000SectionOption, albumConfig, section);
     if (!flow1000SectionOption.isPresent()) {
       flow1000Section = local1000SectionDao.saveAndFlush(flow1000Section);
     }
 
     File[] images = section.listFiles();
     List<File> imagesList = Arrays.stream(images)
-      .filter(AhriParser::isImageFile)
-      .sorted(AhriParser::fileNameComparator).toList();
+      .filter(WarlockParser::isImageFile)
+      .sorted(WarlockParser::fileNameComparator).toList();
     for (File image : imagesList) {
       LOG.info(image.getName());
       sectionItem.get(section.getName()).add(image.getName());
       Optional<Flow1000Img> flow1000Optional = local1000ImgDao.searchFlow1000ImgByNameAndFlow1000Section(
           albumConfig.isEncrypted() ? image.getName() + ".bin" : image.getName(),
           flow1000Section);
-      Flow1000Img flow1000Img = AhriParser.buildFlow1000Img(flow1000Optional, flow1000Section, albumConfig, image);
+      Flow1000Img flow1000Img = WarlockParser.buildFlow1000Img(flow1000Optional, flow1000Section, albumConfig, image);
       try {
         if (image.getAbsolutePath().endsWith(WEBP_SURFIX)) {
           InputStream fileInputStream = new FileInputStream(image.getAbsolutePath());
@@ -352,7 +352,7 @@ public class Local1000Controller {
     return resp;
   }
 
-  private List<AhriSection> scanAhriDir() {
+  private List<WarlockSection> scanAhriDir() {
     String pathName = ahriDir;
     File basePath = new File(pathName);
     File[] sections = basePath.listFiles();
@@ -360,12 +360,12 @@ public class Local1000Controller {
     List<File> sectionList = Arrays.stream(sections)
         .filter(File::isDirectory)
         .toList();
-    Map<String, AhriSection> realNameMap = new HashMap<>();
+    Map<String, WarlockSection> realNameMap = new HashMap<>();
     for (File section : sectionList) {
       LOG.info("section name:{}", section.getAbsolutePath());
       String dirName = section.getName();
       String realName = parseAhriRealName(dirName);
-      realNameMap.putIfAbsent(realName, new AhriSection(realName));
+      realNameMap.putIfAbsent(realName, new WarlockSection(realName));
       realNameMap.get(realName).addAhriImages(parseAhriImageList(section));
     }
     return realNameMap.values()
@@ -389,7 +389,7 @@ public class Local1000Controller {
     return dirName.substring(0, lastIndex);
   }
 
-  private static List<AhriImage> parseAhriImageList(File section) {
+  private static List<WarlockImage> parseAhriImageList(File section) {
     return Arrays.stream(section.listFiles())
         .filter(f -> f.isFile() && (f.getName().endsWith(".jpg") || f.getName().endsWith(".png")
             || f.getName().endsWith(WEBP_SURFIX) || f.getName().endsWith("avif")))
@@ -406,7 +406,7 @@ public class Local1000Controller {
           } catch (NumberFormatException e) {
             newFileName = f.getName();
           }
-          return new AhriImage(newFileName, f);
+          return new WarlockImage(newFileName, f);
         })
         .sorted((i1, i2) -> i1.getName().compareTo(i2.getName()))
         .toList();

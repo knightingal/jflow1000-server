@@ -1,4 +1,4 @@
-package org.nanking.knightingal.ahri;
+package org.nanking.knightingal.warlock;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Set;
 
 
-public class AhriSection {
+public class WarlockSection {
 
-  public AhriSection(String sectionName) {
+  public WarlockSection(String sectionName) {
     this.sectionName = sectionName;
   }
 
-  private List<AhriImage> imageList = new ArrayList<>();
+  private List<WarlockImage> imageList = new ArrayList<>();
 
   private Set<String> existImageName = new HashSet<>();
 
@@ -22,7 +22,7 @@ public class AhriSection {
     return existImageName.contains(imageName);
   }
 
-  public void addAhriImage(AhriImage ahriImage) {
+  public void addAhriImage(WarlockImage ahriImage) {
     if (checkImageNameExist(ahriImage.getName())) {
       return;
     }
@@ -31,15 +31,15 @@ public class AhriSection {
     imageList.add(ahriImage);
   }
 
-  public void addAhriImages(List<AhriImage> ahriImages) {
+  public void addAhriImages(List<WarlockImage> ahriImages) {
     ahriImages.forEach(this::addAhriImage);
   }
 
-  public List<AhriImage> getImageList() {
+  public List<WarlockImage> getImageList() {
     return imageList;
   }
 
-  public void setImageList(List<AhriImage> imageList) {
+  public void setImageList(List<WarlockImage> imageList) {
     this.imageList = imageList;
   }
 

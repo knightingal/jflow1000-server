@@ -1,8 +1,8 @@
-package org.nanking.knightingal.ahri;
+package org.nanking.knightingal.warlock;
 
 import java.io.File;
 
-public class AhriImage {
+public class WarlockImage {
 
   private String name;
 
@@ -24,7 +24,7 @@ public class AhriImage {
     this.file = file;
   }
 
-  public AhriImage(String name, File file) {
+  public WarlockImage(String name, File file) {
     this.name = name;
     this.file = file;
   }

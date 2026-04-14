@@ -1,4 +1,4 @@
-package org.nanking.knightingal.ahri;
+package org.nanking.knightingal.warlock;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -8,9 +8,9 @@ import org.nanking.knightingal.bean.AlbumConfig;
 import org.nanking.knightingal.bean.Flow1000Img;
 import org.nanking.knightingal.bean.Flow1000Section;
 
-public class AhriParser {
+public class WarlockParser {
 
-  private AhriParser() {
+  private WarlockParser() {
     // private constructor
   }
 
