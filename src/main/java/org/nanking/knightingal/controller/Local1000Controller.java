@@ -146,7 +146,7 @@ public class Local1000Controller {
 
   @GetMapping("/importWarlock")
   public ResponseEntity<Object> importWarlock() {
-    List<WarlockSection> scanWarlockDir = scanAhriDir();
+    List<WarlockSection> scanWarlockDir = scanWarlockDir();
 
     new Thread(() -> scanWarlockDir.forEach(Local1000Controller.this::importAhriSection)).start();
 
@@ -352,7 +352,7 @@ public class Local1000Controller {
     return resp;
   }
 
-  private List<WarlockSection> scanAhriDir() {
+  private List<WarlockSection> scanWarlockDir() {
     String pathName = ahriDir;
     File basePath = new File(pathName);
     File[] sections = basePath.listFiles();
@@ -366,7 +366,7 @@ public class Local1000Controller {
       String dirName = section.getName();
       String realName = parseAhriRealName(dirName);
       realNameMap.putIfAbsent(realName, new WarlockSection(realName));
-      realNameMap.get(realName).addAhriImages(parseAhriImageList(section));
+      realNameMap.get(realName).addWarlockImages(parseAhriImageList(section));
     }
     return realNameMap.values()
         .stream()

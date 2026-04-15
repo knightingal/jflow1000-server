@@ -22,17 +22,17 @@ public class WarlockSection {
     return existImageName.contains(imageName);
   }
 
-  public void addAhriImage(WarlockImage ahriImage) {
-    if (checkImageNameExist(ahriImage.getName())) {
+  public void addWarlockImage(WarlockImage warlockImage) {
+    if (checkImageNameExist(warlockImage.getName())) {
       return;
     }
 
-    existImageName.add(ahriImage.getName());
-    imageList.add(ahriImage);
+    existImageName.add(warlockImage.getName());
+    imageList.add(warlockImage);
   }
 
-  public void addAhriImages(List<WarlockImage> ahriImages) {
-    ahriImages.forEach(this::addAhriImage);
+  public void addWarlockImages(List<WarlockImage> warlockImages) {
+    warlockImages.forEach(this::addWarlockImage);
   }
 
   public List<WarlockImage> getImageList() {
