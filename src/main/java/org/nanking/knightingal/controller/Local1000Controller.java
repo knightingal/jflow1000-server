@@ -148,7 +148,7 @@ public class Local1000Controller {
   public ResponseEntity<Object> importWarlock() {
     List<WarlockSection> scanWarlockDir = scanWarlockDir();
 
-    new Thread(() -> scanWarlockDir.forEach(Local1000Controller.this::importAhriSection)).start();
+    new Thread(() -> scanWarlockDir.forEach(Local1000Controller.this::importWarlockSection)).start();
 
     return ResponseEntity.ok().body(scanWarlockDir);
   }
@@ -169,25 +169,25 @@ public class Local1000Controller {
     }
   }
 
-  private File copyAhriImageFile(WarlockImage image, WarlockSection ahriSection) {
+  private File copyWarlockImageFile(WarlockImage image, WarlockSection warlockSection) {
 
-    File destAhriImageFile = Paths.get(baseDir, "1808", ahriSection.getSectionName(), image.getName()).toFile();
-    File srcAhriImageFile = image.getFile();
+    File destWarlockImageFile = Paths.get(baseDir, "1808", warlockSection.getSectionName(), image.getName()).toFile();
+    File srcWarlockImageFile = image.getFile();
     try {
-      if (destAhriImageFile.createNewFile()) {
-        FileCopyUtils.copy(srcAhriImageFile, destAhriImageFile);
-        LOG.info("file copy from {} to {} ", srcAhriImageFile, destAhriImageFile);
+      if (destWarlockImageFile.createNewFile()) {
+        FileCopyUtils.copy(srcWarlockImageFile, destWarlockImageFile);
+        LOG.info("file copy from {} to {} ", srcWarlockImageFile, destWarlockImageFile);
       } else {
-        LOG.info("file {} already exists", destAhriImageFile);
+        LOG.info("file {} already exists", destWarlockImageFile);
       }
     } catch (Exception e) {
-      LOG.error("file copy from {} to {} failed", srcAhriImageFile, destAhriImageFile, e);
+      LOG.error("file copy from {} to {} failed", srcWarlockImageFile, destWarlockImageFile, e);
     }
-    return destAhriImageFile;
+    return destWarlockImageFile;
   }
 
-  private void storeAhriImage(WarlockImage image, WarlockSection ahriSection, Flow1000Section flow1000Section) {
-    File destAhriImageFile = copyAhriImageFile(image, ahriSection);
+  private void storeWarlockImage(WarlockImage image, WarlockSection warlockSection, Flow1000Section flow1000Section) {
+    File destWarlockImageFile = copyWarlockImageFile(image, warlockSection);
 
     Flow1000Img flow1000Img;
     Optional<Flow1000Img> flow1000Optional = local1000ImgDao.searchFlow1000ImgByNameAndFlow1000Section(
@@ -201,18 +201,18 @@ public class Local1000Controller {
       flow1000Img = flow1000Optional.get();
     }
     try {
-      if (destAhriImageFile.getAbsolutePath().endsWith(WEBP_SURFIX)) {
-        InputStream fileInputStream = new FileInputStream(destAhriImageFile);
+      if (destWarlockImageFile.getAbsolutePath().endsWith(WEBP_SURFIX)) {
+        InputStream fileInputStream = new FileInputStream(destWarlockImageFile);
         WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
         fileInputStream.close();
         flow1000Img.setHeight(webpImageSize.height);
         flow1000Img.setWidth(webpImageSize.width);
-      } else if (destAhriImageFile.getAbsolutePath().endsWith(".avif")) {
-        ImgSize imgSize = AvifUtil.parseImgSize(destAhriImageFile);
+      } else if (destWarlockImageFile.getAbsolutePath().endsWith(".avif")) {
+        ImgSize imgSize = AvifUtil.parseImgSize(destWarlockImageFile);
         flow1000Img.setHeight(imgSize.getHeight());
         flow1000Img.setWidth(imgSize.getWidth());
       } else {
-        BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(destAhriImageFile.getAbsolutePath())));
+        BufferedImage sourceImg = ImageIO.read(Files.newInputStream(Path.of(destWarlockImageFile.getAbsolutePath())));
         int width = sourceImg.getWidth();
         int height = sourceImg.getHeight();
         flow1000Img.setHeight(height);
@@ -223,7 +223,7 @@ public class Local1000Controller {
     }
 
     local1000ImgDao.saveAndFlush(flow1000Img);
-    if (ahriSection.getImageList().indexOf(image) == 0) {
+    if (warlockSection.getImageList().indexOf(image) == 0) {
       flow1000Section.setCover(flow1000Img.getName());
       flow1000Section.setCoverHeight(flow1000Img.getHeight());
       flow1000Section.setCoverWidth(flow1000Img.getWidth());
@@ -231,17 +231,17 @@ public class Local1000Controller {
     }
   }
 
-  private void importAhriSection(WarlockSection ahriSection) {
-    File ahriSectionFile = Paths.get(baseDir, "1808", ahriSection.getSectionName()).toFile();
+  private void importWarlockSection(WarlockSection warlockSection) {
+    File warlockSectionFile = Paths.get(baseDir, "1808", warlockSection.getSectionName()).toFile();
 
-    boolean ret = ahriSectionFile.mkdir();
+    boolean ret = warlockSectionFile.mkdir();
     if (!ret) {
-      LOG.error("create section path failed {}", ahriSectionFile.getAbsolutePath());
+      LOG.error("create section path failed {}", warlockSectionFile.getAbsolutePath());
       return;
     }
-    Flow1000Section flow1000Section = storeFlow1000Section(ahriSection);
-    for (WarlockImage image : ahriSection.getImageList()) {
-      storeAhriImage(image, ahriSection, flow1000Section);
+    Flow1000Section flow1000Section = storeFlow1000Section(warlockSection);
+    for (WarlockImage image : warlockSection.getImageList()) {
+      storeWarlockImage(image, warlockSection, flow1000Section);
     }
   }
 
