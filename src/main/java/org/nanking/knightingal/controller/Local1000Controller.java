@@ -105,8 +105,8 @@ public class Local1000Controller {
   @Value("${local1000.base-dir}")
   private String baseDir;
 
-  @Value("${local1000.ahri-dir}")
-  private String ahriDir;
+  @Value("${local1000.warlock-dir}")
+  private String warlockDir;
 
   @RequestMapping("/init")
   public Object init() {
@@ -353,7 +353,7 @@ public class Local1000Controller {
   }
 
   private List<WarlockSection> scanWarlockDir() {
-    String pathName = ahriDir;
+    String pathName = warlockDir;
     File basePath = new File(pathName);
     File[] sections = basePath.listFiles();
 
@@ -364,9 +364,9 @@ public class Local1000Controller {
     for (File section : sectionList) {
       LOG.info("section name:{}", section.getAbsolutePath());
       String dirName = section.getName();
-      String realName = parseAhriRealName(dirName);
+      String realName = parseWarlockRealName(dirName);
       realNameMap.putIfAbsent(realName, new WarlockSection(realName));
-      realNameMap.get(realName).addWarlockImages(parseAhriImageList(section));
+      realNameMap.get(realName).addWarlockImages(parseWarlockImageList(section));
     }
     return realNameMap.values()
         .stream()
@@ -381,7 +381,7 @@ public class Local1000Controller {
         .toList();
   }
 
-  private static String parseAhriRealName(String dirName) {
+  private static String parseWarlockRealName(String dirName) {
     int lastIndex = dirName.lastIndexOf("-");
     if (lastIndex == -1) {
       return dirName;
@@ -389,7 +389,7 @@ public class Local1000Controller {
     return dirName.substring(0, lastIndex);
   }
 
-  private static List<WarlockImage> parseAhriImageList(File section) {
+  private static List<WarlockImage> parseWarlockImageList(File section) {
     return Arrays.stream(section.listFiles())
         .filter(f -> f.isFile() && (f.getName().endsWith(".jpg") || f.getName().endsWith(".png")
             || f.getName().endsWith(WEBP_SURFIX) || f.getName().endsWith("avif")))
@@ -696,13 +696,13 @@ public class Local1000Controller {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    File ahriSectionFile = Paths.get(baseDir, "1808", flow1000Section.getDirName()).toFile();
-    if (ahriSectionFile.delete()) {
+    File warlockSectionFile = Paths.get(baseDir, "1808", flow1000Section.getDirName()).toFile();
+    if (warlockSectionFile.delete()) {
       local1000ImgDao.deleteById(id);
       local1000SectionDao.deleteById(id);
       return ResponseEntity.ok(null);
     } else {
-      LOG.error("delete {} failed", ahriSectionFile.getAbsolutePath());
+      LOG.error("delete {} failed", warlockSectionFile.getAbsolutePath());
       return ResponseEntity.internalServerError().build();
     }
   }
