@@ -696,13 +696,19 @@ public class Local1000Controller {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    File warlockSectionFile = Paths.get(baseDir, "1808", flow1000Section.getDirName()).toFile();
-    if (warlockSectionFile.delete()) {
+    File warlockSectionFile = Paths.get(baseDir, "1807", flow1000Section.getDirName()).toFile();
+    File[] listFiles = warlockSectionFile.listFiles();
+    try {
+      for (File file : listFiles) {
+        Files.delete(file.toPath());
+      }
+      Files.delete(warlockSectionFile.toPath());
       local1000ImgDao.deleteById(id);
       local1000SectionDao.deleteById(id);
       return ResponseEntity.ok(null);
-    } else {
-      LOG.error("delete {} failed", warlockSectionFile.getAbsolutePath());
+
+    } catch (Exception e) {
+      LOG.error("delete {} failed", warlockSectionFile.getAbsolutePath(), e);
       return ResponseEntity.internalServerError().build();
     }
   }
