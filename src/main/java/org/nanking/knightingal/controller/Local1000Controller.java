@@ -691,12 +691,17 @@ public class Local1000Controller {
   public ResponseEntity<Void> deleteSection(@PathVariable("id") Long id) {
     LOG.info("handle /deleteSection, sectionid={}", id);
     Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
-
     if (flow1000Section == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      return ResponseEntity.notFound().build();
     }
 
-    File warlockSectionFile = Paths.get(baseDir, "1807", flow1000Section.getDirName()).toFile();
+    Optional<AlbumConfig> albumConfigOpt = local1000AlbumConfigDao.searchAlbumConfigByName(flow1000Section.getAlbum());
+    if (albumConfigOpt.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+
+    AlbumConfig albumConfig = albumConfigOpt.get();
+    File warlockSectionFile = Paths.get(baseDir, albumConfig.getSourcePath(), flow1000Section.getDirName()).toFile();
     File[] listFiles = warlockSectionFile.listFiles();
     try {
       for (File file : listFiles) {
