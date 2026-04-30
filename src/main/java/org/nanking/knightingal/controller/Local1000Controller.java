@@ -264,7 +264,7 @@ public class Local1000Controller {
   public ResponseEntity<Object> refreshSectionById(@RequestParam long id) {
     Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
     Optional<AlbumConfig> albumConfigOpt = local1000AlbumConfigDao.searchAlbumConfigByName(flow1000Section.getAlbum());
-    if (!albumConfigOpt.isPresent()) {
+    if (albumConfigOpt.isEmpty()) {
       return ResponseEntity.internalServerError().body("cannot find album:" + flow1000Section.getAlbum());
     }
     AlbumConfig albumConfig = albumConfigOpt.get();
@@ -704,8 +704,10 @@ public class Local1000Controller {
     File warlockSectionFile = Paths.get(baseDir, albumConfig.getSourcePath(), flow1000Section.getDirName()).toFile();
     File[] listFiles = warlockSectionFile.listFiles();
     try {
-      for (File file : listFiles) {
-        Files.delete(file.toPath());
+      if (listFiles != null) {
+        for (File file : listFiles) {
+          Files.delete(file.toPath());
+        }
       }
       Files.delete(warlockSectionFile.toPath());
       local1000ImgDao.deleteById(id);
