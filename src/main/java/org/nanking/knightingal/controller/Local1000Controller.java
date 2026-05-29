@@ -108,6 +108,7 @@ public class Local1000Controller {
   @Value("${local1000.warlock-dir}")
   private String warlockDir;
 
+  /** Scans the local source directory, parses section and image metadata, and persists them to the database. */
   @RequestMapping("/init")
   public Object init() {
     File baseDirFile = new File(baseDir + "/source");
@@ -144,6 +145,7 @@ public class Local1000Controller {
     return null;
   }
 
+  /** Scans the warlock directory and imports all sections (with images) into the database in a background thread. */
   @GetMapping("/importWarlock")
   public ResponseEntity<Object> importWarlock() {
     List<WarlockSection> scanWarlockDir = scanWarlockDir();
@@ -245,6 +247,7 @@ public class Local1000Controller {
     }
   }
 
+  /** Scans all configured album directories and parses their sections in a background thread. */
   @RequestMapping("/initv2")
   public ResponseEntity<Object> initV2() {
     final List<AlbumConfig> albumConfigs = local1000AlbumConfigDao.findAll();
@@ -260,6 +263,7 @@ public class Local1000Controller {
     return ResponseEntity.ok().body(albumConfigs);
   }
 
+  /** Re-parses and refreshes the section with the given id from its source directory. */
   @GetMapping("/refreshSectionById")
   public ResponseEntity<Object> refreshSectionById(@RequestParam long id) {
     Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
@@ -412,6 +416,7 @@ public class Local1000Controller {
         .toList();
   }
 
+  /** Returns section detail (id, title, images with dimensions, album, client status) for the given section id. */
   @RequestMapping("/picDetailAjax")
   public SectionDetail picDetailAjax(@RequestParam(value = "id", defaultValue = "1") Long id) {
     LOG.info("handle /picDetailAjax, id={}", id);
@@ -434,6 +439,7 @@ public class Local1000Controller {
             .clientStatus(flow1000Section.getClientStatus().name()).build();
   }
 
+  /** Returns the list of image names within a section for the given section id. */
   @RequestMapping("/picContentAjax")
   public SectionContent picContentAjax(@RequestParam(value = "id", defaultValue = "1") Long id) {
     LOG.info("handle /picContentAjax, id={}", id);
@@ -444,6 +450,7 @@ public class Local1000Controller {
     return new SectionContent(flow1000Section.getDirName(), flow1000Section.getId().intValue(), imgList);
   }
 
+  /** Searches sections by name using a LIKE query. Returns empty list if name is blank. */
   @RequestMapping("/searchSection")
   public List<Flow1000Section> searchSection(@RequestParam(value = "name", defaultValue = "") String name) {
     LOG.info("searchSection request, name={}", name);
@@ -455,6 +462,7 @@ public class Local1000Controller {
     return local1000SectionDao.searchFlow1000SectionByName(name);
   }
 
+  /** Queries section indices created after the given timestamp, with optional filters for album, search key, and client status. */
   @RequestMapping("/picIndexAjax")
   public List<PicIndex> picIndexAjax(
       @RequestParam(value = "time_stamp", defaultValue = "19700101000000") String timeStamp,
@@ -506,6 +514,7 @@ public class Local1000Controller {
         PicIndex.ClientStatus.valueOf(flow1000Section.getClientStatus().name()))).toList();
   }
 
+  /** Downloads images from the given URLs, saves them to disk, and notifies clients via WebSocket when complete. */
   @PostMapping(value = "/urls1000")
   public void urls1000(@RequestBody Urls1000Body urls1000Body) {
     LOG.info("handle /urls1000, body={}", urls1000Body);
@@ -620,6 +629,7 @@ public class Local1000Controller {
     return null;
   }
 
+  /** Marks the section with the given id as PENDING for download and returns the updated index. */
   @PostMapping("/downloadSection")
   public ResponseEntity<PicIndex> downloadSection(@RequestParam(value = "id", defaultValue = "1") Long id) {
     Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
@@ -642,6 +652,7 @@ public class Local1000Controller {
     return ResponseEntity.ok(picIndex);
   }
 
+  /** Marks the section with the given id as LOCAL (downloaded) and returns the updated index. */
   @PostMapping("/completeSection")
   public ResponseEntity<PicIndex> completeSection(@RequestParam(value = "id", defaultValue = "1") Long id) {
     Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
@@ -664,6 +675,7 @@ public class Local1000Controller {
     return ResponseEntity.ok(picIndex);
   }
 
+  /** Resets the section's client status to NONE (unsubscribed) and returns the updated index. */
   @PostMapping("/unsubscribeSection/{id}")
   public ResponseEntity<PicIndex> unsubscribeSection(@PathVariable("id") Long id) {
     Flow1000Section flow1000Section = local1000SectionDao.queryFlow1000SectionById(id);
@@ -687,6 +699,7 @@ public class Local1000Controller {
   }
 
 
+  /** Deletes the section and its images from both disk and the database. */
   @DeleteMapping(value = "/section/{id}")
   public ResponseEntity<Void> deleteSection(@PathVariable("id") Long id) {
     LOG.info("handle /deleteSection, sectionid={}", id);
@@ -720,11 +733,13 @@ public class Local1000Controller {
     }
   }
 
+  /** Returns all album configurations. */
   @GetMapping("/albumConfig/list")
   public List<AlbumConfig> albumConfigList() {
     return local1000AlbumConfigDao.findAll();
   }
 
+  /** Strips the date-time prefix from section names that match the configured pattern. */
   @GetMapping("/updateTitle")
   @Transactional
   public void updateTitle() {
