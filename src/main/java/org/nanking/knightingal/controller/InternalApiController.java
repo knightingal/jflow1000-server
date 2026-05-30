@@ -21,6 +21,10 @@ import okhttp3.Response;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+/**
+ * Internal API controller that serves asset files (images) for scratch projects.
+ * Assets are fetched from a remote CDN and cached locally for subsequent requests.
+ */
 @RestController
 public class InternalApiController {
 
@@ -29,13 +33,7 @@ public class InternalApiController {
 
   private static final String REMOTE_ASSET_URL = "https://static.makerfac.com/static/internalapi/asset/";
 
-  /**
-   * call request to fetch asset from static.makerfac.com for scratch
-   * 
-   * @param packageId
-   * @return
-   * @throws IOException
-   */
+  /** Serves an asset file by id; returns it from local cache if present, otherwise fetches from the remote CDN, caches it, and streams it back. */
   @GetMapping("/internalapi/asset/{assetId}")
   public void index(@PathVariable("assetId") String packageId, HttpServletResponse servletResponse) throws IOException {
     File assetFile = new File(assetStorePath + packageId);
