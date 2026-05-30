@@ -25,6 +25,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Controller for managing APK package configurations, including listing, querying, and uploading APK files.
+ */
 @RequestMapping("/apkConfig")
 @RestController
 public class ApkConfigController {
@@ -44,10 +47,12 @@ public class ApkConfigController {
   @Value("${apk.download.url.prefix}")
   private String apkDownloadUrlPrefix;
 
+  /** Constructs an ApkConfigController with the given APK config DAO. */
   public ApkConfigController(Local1000ApkConfigDao local1000ApkConfigDao) {
     this.local1000ApkConfigDao = local1000ApkConfigDao;
   }
 
+  /** Returns all APK packages sorted by version code in descending order. */
   @GetMapping("/list/packages")
   public ResponseEntity<List<ApkConfigVO>> listPackages() {
     List<ApkConfig> one = local1000ApkConfigDao.findAll((Specification<ApkConfig>) (root, query, builder) -> {
@@ -68,6 +73,7 @@ public class ApkConfigController {
     return ResponseEntity.ok(apkConfigVo);
   }
 
+  /** Returns the newest APK package version for the given package id, or 404 if none exists. */
   @GetMapping("/newest/package/{id}")
   public ResponseEntity<ApkConfigVO> newestPackage(@PathVariable("id") String packageId) {
     Page<ApkConfig> one = local1000ApkConfigDao.findAll((Specification<ApkConfig>) (root, query, builder) -> {
@@ -98,6 +104,7 @@ public class ApkConfigController {
     return apkConfig.getApplicationId() + "_" + apkConfig.getVersionCode() + "_" + apkConfig.getVersionName() + ".apk";
   }
 
+  /** Uploads an APK file, extracts its metadata via aapt, renames it, and persists the config to the database. */
   @PostMapping("/upload")
   public ResponseEntity<Object> uploadPackage(@RequestParam("file") MultipartFile file) {
     String fileName = new File(Objects.requireNonNull(file.getOriginalFilename())).getName();

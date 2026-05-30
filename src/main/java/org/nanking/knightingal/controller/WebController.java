@@ -23,6 +23,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * Web controller that serves HTML pages for APK browsing and QR code generation.
+ */
 @Controller
 @RequestMapping("/web")
 public class WebController {
@@ -32,10 +35,12 @@ public class WebController {
   @Value("${apk.download.url.prefix}")
   private String apkDownloadUrlPrefix;
 
+  /** Constructs a WebController with the given APK config DAO. */
   public WebController(Local1000ApkConfigDao local1000ApkConfigDao) {
     this.local1000ApkConfigDao = local1000ApkConfigDao;
   }
 
+  /** Renders the index page with all APK packages sorted by version code in descending order. */
   @GetMapping("/index")
   public String index(Model model) {
 
@@ -63,6 +68,7 @@ public class WebController {
     return apkConfig.getApplicationId() + "_" + apkConfig.getVersionCode() + "_" + apkConfig.getVersionName() + ".apk";
   }
 
+  /** Generates and returns a QR code PNG image for the given content string. */
   @GetMapping("/qr")
   public void qrImage(@Param("content") String content, HttpServletResponse httpServletResponse)
       throws IOException, WriterException {

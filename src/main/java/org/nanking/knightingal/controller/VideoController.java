@@ -18,6 +18,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * Controller that serves a demo video file with HTTP range request support for streaming.
+ */
 @RestController
 public class VideoController {
 
@@ -26,6 +29,7 @@ public class VideoController {
   @Resource
   private Environment environment;
 
+  /** Streams the configured demo video file, supporting HTTP Range requests for partial content delivery. */
   @GetMapping("/video.mp4")
   public void getMethodName(HttpServletRequest request, HttpServletResponse response) throws IOException {
 

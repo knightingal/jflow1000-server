@@ -25,6 +25,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Controller for importing ship data from HTML pages and batch-downloading associated images.
+ */
 @RequestMapping("/ship")
 @RestController
 public class ShipController {
@@ -33,6 +36,7 @@ public class ShipController {
     @Value("${ship.base.path}")
     public String shipBasePath;
 
+    /** Constructs a ShipController with the given ship and ship image detail DAOs. */
     public ShipController(ShipDao shipDao, ShipImgDetailDao shipImgDetailDao) {
         this.shipDao = shipDao;
         this.shipImgDetailDao = shipImgDetailDao;
@@ -50,6 +54,7 @@ public class ShipController {
     @Autowired
     private ShipImgDetailRepo shipImgDetailRepo;
 
+    /** Downloads images for all pending ship image details using a thread pool, skipping PDFs and already-existing files. */
     @GetMapping("/batchDownloadImg")
     public ResponseEntity<?> batchDownloadImg() {
         List<ShipImgDetail> allShipImgDetail = shipImgDetailRepo.searchShipImgDetailByFileStatus(0);
@@ -85,6 +90,7 @@ public class ShipController {
         return ResponseEntity.ok().build();
     }
 
+    /** Parses all HTM files in the Documents directory and imports each as a ship entity into the database. */
     @GetMapping("/import")
     public ResponseEntity<?> importShip() {
         try {

@@ -33,6 +33,7 @@ public class DevController {
   @Value("${encrypt-util.passwd}")
   private String passwd;
 
+  /** Returns the configured encryption password for development debugging. */
   @RequestMapping("/passwd")
   public String getPasswd() {
     return passwd;
@@ -44,6 +45,7 @@ public class DevController {
   @Value("${encrypt-util.sample-pic-path:/mnt/linux1000/source/20160318000005BB-36_USS_NEVADA/46-013759.jpg}")
   private String samplePicPath;
 
+  /** Receives raw image bytes and saves them to a timestamped file on disk. */
   @PostMapping("/image-upload")
   public void imageUpload(@RequestBody byte[] entity, HttpServletResponse servletResponse) throws IOException {
     LOG.debug("image length: {}", entity.length);
@@ -56,6 +58,7 @@ public class DevController {
     servletResponse.setStatus(200);
   }
 
+  /** Reads a sample image, encrypts it with AES, and writes the result to a local file. */
   @GetMapping("/gen-aes-image")
   public void getAesImage() throws IOException {
     String path = samplePicPath;
@@ -71,6 +74,7 @@ public class DevController {
     }
   }
 
+  /** Encrypts a test string with AES and returns the hex-encoded ciphertext for verification. */
   @GetMapping("/aes-test")
   public void aesTestHandle(HttpServletResponse servletResponse) throws IOException {
     EncryptUtil encryptUtil = (EncryptUtil) ApplicationContextProvider.getBean("encryptUtil");
@@ -84,6 +88,7 @@ public class DevController {
     servletResponse.getOutputStream().write(sb.toString().getBytes());
   }
 
+  /** Streams the sample encrypted image file to the client for testing decryption. */
   @GetMapping("/aes-image")
   public void aseImageHandle(HttpServletResponse servletResponse) throws IOException {
     servletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
@@ -94,6 +99,7 @@ public class DevController {
     }
   }
 
+  /** Streams the sample unencrypted image file to the client. */
   @GetMapping("/image")
   public void imageHandle(HttpServletResponse servletResponse) throws IOException {
     servletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
