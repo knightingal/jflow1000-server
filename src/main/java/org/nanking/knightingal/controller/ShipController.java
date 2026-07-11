@@ -54,6 +54,7 @@ public class ShipController {
     @Autowired
     private ShipImgDetailRepo shipImgDetailRepo;
 
+    @GetMapping("/parseShipSize")
     public ResponseEntity<?> parseShipSize() {
 
         return ResponseEntity.ok().build();
