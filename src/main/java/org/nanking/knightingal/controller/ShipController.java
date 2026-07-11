@@ -54,6 +54,11 @@ public class ShipController {
     @Autowired
     private ShipImgDetailRepo shipImgDetailRepo;
 
+    public ResponseEntity<?> parseShipSize() {
+
+        return ResponseEntity.ok().build();
+    }
+
     /** Downloads images for all pending ship image details using a thread pool, skipping PDFs and already-existing files. */
     @GetMapping("/batchDownloadImg")
     public ResponseEntity<?> batchDownloadImg() {
