@@ -65,7 +65,7 @@ import javax.imageio.ImageIO;
 @RestController
 public class Local1000Controller {
 
-  private static final String WEBP_SURFIX = ".webp";
+  public static final String WEBP_SUFFIX = ".webp";
 
   private static final Logger LOG = LogManager.getLogger(Local1000Controller.class);
 
@@ -203,7 +203,7 @@ public class Local1000Controller {
       flow1000Img = flow1000Optional.get();
     }
     try {
-      if (destWarlockImageFile.getAbsolutePath().endsWith(WEBP_SURFIX)) {
+      if (destWarlockImageFile.getAbsolutePath().endsWith(WEBP_SUFFIX)) {
         InputStream fileInputStream = new FileInputStream(destWarlockImageFile);
         WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
         fileInputStream.close();
@@ -312,7 +312,7 @@ public class Local1000Controller {
           flow1000Section);
       Flow1000Img flow1000Img = WarlockParser.buildFlow1000Img(flow1000Optional, flow1000Section, albumConfig, image);
       try {
-        if (image.getAbsolutePath().endsWith(WEBP_SURFIX)) {
+        if (image.getAbsolutePath().endsWith(WEBP_SUFFIX)) {
           InputStream fileInputStream = new FileInputStream(image.getAbsolutePath());
           WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
           fileInputStream.close();
@@ -396,7 +396,7 @@ public class Local1000Controller {
   private static List<WarlockImage> parseWarlockImageList(File section) {
     return Arrays.stream(section.listFiles())
         .filter(f -> f.isFile() && (f.getName().endsWith(".jpg") || f.getName().endsWith(".png")
-            || f.getName().endsWith(WEBP_SURFIX) || f.getName().endsWith("avif")))
+            || f.getName().endsWith(WEBP_SUFFIX) || f.getName().endsWith("avif")))
         .map(f -> {
           String originName = f.getName();
           int lastIndex = originName.lastIndexOf(".");
