@@ -35,8 +35,8 @@ public class ShipImgDetail implements Serializable {
     // 0: not downloaded, 1: downloaded, 2: no but skip
     private int fileStatus;
 
-    private int width;
-    private int height;
+    private Integer width;
+    private Integer height;
 
     @ManyToOne
     @JoinColumn(name = "shipId", referencedColumnName = "id")
@@ -91,19 +91,19 @@ public class ShipImgDetail implements Serializable {
         this.fileStatus = fileStatus;
     }
 
-    public int getWidth() {
+    public Integer getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(Integer width) {
         this.width = width;
     }
 
-    public int getHeight() {
+    public Integer getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(Integer height) {
         this.height = height;
     }
 
