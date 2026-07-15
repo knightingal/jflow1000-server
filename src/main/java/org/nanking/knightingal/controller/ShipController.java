@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/ship")
 @RestController
 public class ShipController {
-    private static final Logger LOG = LogManager.getLogger(DevController.class);
+    private static final Logger LOG = LogManager.getLogger(ShipController.class);
 
     @Value("${ship.base.path}")
     public String shipBasePath;
