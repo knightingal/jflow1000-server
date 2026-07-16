@@ -32,7 +32,7 @@ public class ShipImgDetail implements Serializable {
 
     private String source;
 
-    // 0: not downloaded, 1: downloaded, 2: no but skip
+    // 0: not downloaded, 1: downloaded, 2: no but skip, 3: size parsed
     private int fileStatus;
 
     private Integer width;
@@ -87,6 +87,13 @@ public class ShipImgDetail implements Serializable {
         return fileStatus;
     }
 
+    /**
+     * 0: init
+     * 1: just downloaded
+     * 2: skipped by BDF file
+     * 3: size parsed
+     * @param fileStatus
+     */
     public void setFileStatus(int fileStatus) {
         this.fileStatus = fileStatus;
     }
