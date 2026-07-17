@@ -8,7 +8,9 @@ import org.nanking.knightingal.dao.jpa.ShipImgDetailRepo;
 import org.nanking.knightingal.runnable.ShipDownloadRunnable;
 import org.nanking.knightingal.ship.Ship;
 import org.nanking.knightingal.ship.ShipImgDetail;
+import org.nanking.knightingal.util.AvifUtil;
 import org.nanking.knightingal.util.NaviPageParse;
+import org.nanking.knightingal.util.WebpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +18,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static org.nanking.knightingal.controller.Local1000Controller.WEBP_SUFFIX;
 
 /**
  * Controller for importing ship data from HTML pages and batch-downloading associated images.
@@ -56,6 +65,50 @@ public class ShipController {
 
     @GetMapping("/parseShipSize")
     public ResponseEntity<?> parseShipSize() {
+        List<ShipImgDetail> allShipImgDetail = shipImgDetailRepo.searchShipImgDetailByFileStatus(1);
+        for (ShipImgDetail shipImgDetail: allShipImgDetail) {
+            try {
+                String[] imgPaths = NaviPageParse.parseImgUrl(shipImgDetail.getImgUrl());
+                File targetPath = Paths.get(shipBasePath, imgPaths[0]).toFile();
+                Path targetFilePath = Paths.get(shipBasePath, imgPaths[0], imgPaths[1]);
+                if (!targetFilePath.toFile().exists()) {
+                    throw new Exception("File not found: " + targetFilePath.toString());
+                } else {
+                    LOG.info("parseShipSize, file {} exist", targetFilePath.toString());
+                    int width;
+                    int height;
+
+                    try {
+                        if (targetFilePath.getFileName().endsWith(WEBP_SUFFIX)) {
+                            InputStream fileInputStream = new FileInputStream(targetFilePath.toFile());
+                            WebpUtil.WebpImageSize webpImageSize = WebpUtil.parseWebpImage(fileInputStream);
+                            fileInputStream.close();
+                            width = webpImageSize.width;
+                            height = webpImageSize.height;
+                        } else if (targetFilePath.getFileName().endsWith(".avif")) {
+                            AvifUtil.ImgSize imgSize = AvifUtil.parseImgSize(targetFilePath.toFile());
+                            width = imgSize.getWidth();
+                            height = imgSize.getHeight();
+                        } else {
+                            BufferedImage sourceImg = ImageIO.read(Files.newInputStream(targetFilePath));
+                            width = sourceImg.getWidth();
+                            height = sourceImg.getHeight();
+                        }
+                        shipImgDetail.setHeight(height);
+                        shipImgDetail.setWidth(width);
+                        shipImgDetail.setFileStatus(3);
+
+                        LOG.info("width:{}, height:{} ", width, height);
+                        shipImgDetailDao.saveAndFlush(shipImgDetail);
+                    } catch (Exception e) {
+                        LOG.error("parse {} failed", targetFilePath.toString(), e);
+                    }
+                }
+            } catch (Exception e) {
+                LOG.error(e);
+            }
+
+        }
 
         return ResponseEntity.ok().build();
     }
