@@ -8,6 +8,7 @@ import org.nanking.knightingal.dao.jpa.ShipImgDetailRepo;
 import org.nanking.knightingal.runnable.ShipDownloadRunnable;
 import org.nanking.knightingal.ship.Ship;
 import org.nanking.knightingal.ship.ShipImgDetail;
+import org.nanking.knightingal.ship.vo.ShipVo;
 import org.nanking.knightingal.util.AvifUtil;
 import org.nanking.knightingal.util.NaviPageParse;
 import org.nanking.knightingal.util.WebpUtil;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.nanking.knightingal.controller.Local1000Controller.WEBP_SUFFIX;
 
@@ -62,6 +64,14 @@ public class ShipController {
     private ShipImgDetailDao shipImgDetailDao;
     @Autowired
     private ShipImgDetailRepo shipImgDetailRepo;
+
+    @GetMapping("/listShips")
+    public ResponseEntity<List<ShipVo>> listShips() {
+
+        List<Ship> ships = shipDao.findAll();
+
+        return ResponseEntity.ok(ships.stream().map(ShipVo::fromEntity).collect(Collectors.toList()));
+    }
 
     @GetMapping("/parseShipSize")
     public ResponseEntity<?> parseShipSize() {
