@@ -60,8 +60,8 @@ public class ShipController {
             new LinkedBlockingQueue<>()
     );
 
-    private ShipDao shipDao;
-    private ShipImgDetailDao shipImgDetailDao;
+    final private ShipDao shipDao;
+    final private ShipImgDetailDao shipImgDetailDao;
     @Autowired
     private ShipImgDetailRepo shipImgDetailRepo;
 
