@@ -403,8 +403,12 @@ public class Local1000Controller {
           String suffix = originName.substring(lastIndex);
           String pureName = originName.substring(0, lastIndex);
           String newFileName;
+
+          int numberPartIndex = pureName.indexOf("_");
+          String numberPart = pureName.substring(0, numberPartIndex != -1 ? numberPartIndex : pureName.length());
+
           try {
-            int imgIndex = Integer.parseInt(pureName);
+            int imgIndex = Integer.parseInt(numberPart);
             String newPureName = String.format("%03d", imgIndex);
             newFileName = newPureName + suffix;
           } catch (NumberFormatException e) {
